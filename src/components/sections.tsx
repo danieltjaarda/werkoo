@@ -170,9 +170,7 @@ export function TopLijst({ plaats }: { plaats: string }) {
                     <div className="flex shrink-0 items-center gap-3">
                       {videograaf.topPro ? (
                         <span className="flex items-center gap-1.5 font-display text-[12px] font-bold uppercase tracking-[0.08em] text-ink">
-                          <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-brand text-white">
-                            <CheckIcon className="h-2.5 w-2.5" />
-                          </span>
+                          <KeurmerkIcon className="h-[18px] w-[18px] text-brand" />
                           Top pro
                         </span>
                       ) : null}
