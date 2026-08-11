@@ -91,6 +91,12 @@ navigatie vast, dus de wisseling loopt via `startTransition` met `addTransitionT
 animeert een `<ViewTransition>` niet mee. De knop die je verder helpt tekent eerst een vinkje vol
 (320 ms) voordat de volgende stap komt.
 
+De veelgestelde vragen zijn gewone `<details>`-elementen, dus ze werken met het toetsenbord en staan
+ook zonder JavaScript open te klappen. Het antwoord schuift open doordat `::details-content` van
+hoogte nul naar `auto` gaat; dat kan sinds `interpolate-size: allow-keywords`. `content-visibility`
+gaat mee met `allow-discrete`, anders zou het antwoord bij het sluiten meteen verdwijnen in plaats van
+weg te schuiven. Kent de browser `::details-content` nog niet, dan klapt de vraag gewoon direct open.
+
 ## Plaatssuggesties
 
 Het plaatsveld in de hero en in stap 2 van de aanvraag is een keuzelijst die meetypt

@@ -38,6 +38,33 @@ body {
 }
 
 /*
+ * Uitklappende vragen. Een <details> springt van zichzelf open; met
+ * ::details-content en interpolate-size kan de hoogte wél van nul naar auto
+ * lopen. Browsers die dat pseudo-element nog niet kennen klappen gewoon direct
+ * open, dus de vragen blijven altijd te lezen.
+ */
+@supports selector(::details-content) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  .uitklapper::details-content {
+    block-size: 0;
+    overflow: clip;
+    opacity: 0;
+    transition:
+      block-size 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 200ms ease,
+      content-visibility 300ms allow-discrete;
+  }
+
+  .uitklapper[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+
+/*
  * Squircle-hoeken. Chromium tekent met corner-shape een superellips in plaats
  * van een cirkelboog; Safari en Firefox kennen de eigenschap nog niet en houden
  * gewoon de ronde hoeken. Een squircle loopt strakker langs de rand, dus de
@@ -195,6 +222,11 @@ body {
   .vinkje-pad {
     animation: none;
     stroke-dasharray: none;
+  }
+
+  .uitklapper::details-content,
+  .uitklapper[open]::details-content {
+    transition: none;
   }
 }
 

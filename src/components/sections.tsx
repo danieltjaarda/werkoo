@@ -276,17 +276,17 @@ export function Faq() {
 
         <div className="divide-y divide-lijn border-y border-lijn">
           {veelgesteldeVragen.map((item) => (
-            <details key={item.vraag} className="group py-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-[16px] font-medium text-ink marker:content-['']">
+            <details key={item.vraag} className="uitklapper group py-5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-[16px] font-medium text-ink transition-colors marker:content-[''] hover:text-brand-deep">
                 {item.vraag}
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-deep transition group-open:bg-ink group-open:text-white">
-                  <span className="relative h-3.5 w-3.5">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-deep transition duration-300 group-open:bg-ink group-open:text-white">
+                  <span className="relative h-3.5 w-3.5 transition-transform duration-300 group-open:rotate-180">
                     <span className="absolute left-0 top-1/2 h-0.5 w-3.5 -translate-y-1/2 rounded bg-current" />
-                    <span className="absolute left-1/2 top-0 h-3.5 w-0.5 -translate-x-1/2 rounded bg-current transition group-open:scale-y-0" />
+                    <span className="absolute left-1/2 top-0 h-3.5 w-0.5 -translate-x-1/2 rounded bg-current transition-transform duration-300 group-open:scale-y-0" />
                   </span>
                 </span>
               </summary>
-              <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-ink-soft">{item.antwoord}</p>
+              <p className="max-w-2xl pt-3 text-[15px] leading-relaxed text-ink-soft">{item.antwoord}</p>
             </details>
           ))}
         </div>
