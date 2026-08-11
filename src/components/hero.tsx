@@ -23,8 +23,8 @@ export function Hero({
         className="pointer-events-none absolute -right-40 -top-32 hidden h-[680px] w-[680px] rounded-full bg-gradient-to-br from-brand-soft via-brand-soft to-white lg:block"
       />
 
-      <div className="container-page relative grid items-end gap-10 pt-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:pt-16">
-        <div className="max-w-[600px] pb-12 lg:pb-20">
+      <div className="hero-vlak container-page relative grid items-end gap-10 pt-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:pt-0">
+        <div className="max-w-[600px] pb-12 lg:self-center lg:py-12">
           <p className="inline-flex items-center gap-2 rounded-full bg-brand-soft py-1.5 pl-2 pr-3.5 text-[13px] font-semibold text-brand-deep">
             <KeurmerkIcon className="h-5 w-5 text-brand" />
             Gratis aanvraag, geen abonnement
@@ -56,7 +56,7 @@ export function Hero({
           </div>
         </div>
 
-        <div className="relative flex justify-center lg:justify-end">
+        <div className="relative flex justify-center lg:h-full lg:justify-end lg:self-stretch">
           <Image
             src="/images/videograaf.png"
             alt={`${dienst.naam} met camera op statief`}
@@ -64,7 +64,7 @@ export function Hero({
             height={1419}
             priority
             sizes="(min-width: 1024px) 520px, 80vw"
-            className="h-auto w-[280px] sm:w-[360px] lg:h-[600px] lg:w-auto"
+            className="h-auto w-[280px] sm:w-[360px] lg:h-full lg:w-full lg:object-contain lg:object-bottom"
           />
         </div>
       </div>

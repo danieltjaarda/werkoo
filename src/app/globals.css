@@ -26,15 +26,32 @@
   --color-lijn: #e4e8ef;
 }
 
+:root {
+  /* Hoogte van de plakkende header: 3rem logo, 2x 1rem lucht en de onderlijn. */
+  --hoogte-kop: 85px;
+}
+
 html {
   /* De header blijft staan, dus ankerlinks moeten er net onder uitkomen. */
-  scroll-padding-top: calc(84px + 1rem);
+  scroll-padding-top: calc(var(--hoogte-kop) + 1rem);
 }
 
 body {
   font-family: var(--font-sans);
   color: var(--color-ink);
   background: #ffffff;
+}
+
+/*
+ * Op een breed scherm vult de hero precies wat er onder de header overblijft, zodat
+ * de volgende sectie er niet half onderuit piept. Op een heel hoog scherm houdt de
+ * bovengrens hem in toom, en op smalle schermen bepaalt de inhoud de hoogte: daar
+ * is een volle schermhoogte alleen maar in de weg.
+ */
+@media (min-width: 1024px) {
+  .hero-vlak {
+    min-block-size: min(calc(100svh - var(--hoogte-kop)), 62rem);
+  }
 }
 
 /*

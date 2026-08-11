@@ -44,6 +44,18 @@ handig om een detail van dichtbij te bekijken.
 | `/aanvraag`            | Aanvraag in vier stappen, gevoed door het zoekformulier in de hero |
 | `/api/leads`           | Neemt de aanvraag aan (logt hem nu alleen)                        |
 
+## De hero
+
+Vanaf 1024 pixels breed vult de hero precies de ruimte onder de header: `min(100svh -
+var(--hoogte-kop), 62rem)`. Die `--hoogte-kop` staat in `globals.css` en wordt ook gebruikt voor
+`scroll-padding-top`, zodat de header maar op één plek een hoogte heeft. De bovengrens voorkomt dat
+een hele hoge browser een hero oplevert waar de foto in verdrinkt.
+
+De tekstkolom staat verticaal in het midden, de foto staat met `object-bottom` op de onderrand, dus
+die loopt precies tot de vouw. Past de inhoud niet in de schermhoogte, dan groeit de hero gewoon mee:
+het is een minimum, geen vaste hoogte. Op smallere schermen bepaalt de inhoud de hoogte en staat de
+foto onder het formulier.
+
 ## Plaatsbepaling
 
 De kop op `/` past zich aan de bezoeker aan: iemand uit Amsterdam leest "De videograaf in Amsterdam".
