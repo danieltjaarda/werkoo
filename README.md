@@ -70,12 +70,60 @@ Twee dingen om te weten bij het uitrollen:
   gebruikt. We sturen bezoekers bewust niet automatisch door op basis van hun ip-adres: dat verwart
   zoekmachines en mensen die juist in een andere plaats zoeken.
 
+## Paginaovergangen
+
+Navigeren binnen de site schuift de oude pagina weg en de nieuwe terug, via React's
+`<ViewTransition>` (zie `src/components/pagina-overgang.tsx`). De richting hangt aan het
+overgangstype dat je meegeeft: `nav-vooruit` bij `router.push` in het zoekformulier, `nav-terug` op de
+link terug naar de homepage. Zonder type gebeurt er niets, dus de terugknop van de browser en een
+herlaadactie blijven rustig. De header heeft een eigen `view-transition-name` en staat stil, zodat de
+bezoeker een vast punt houdt. De animaties staan in `globals.css` en gaan uit bij
+`prefers-reduced-motion`.
+
+De terugknop van de browser krijgt geen animatie: Next start bij een geschiedenisnavigatie helemaal
+geen view transition, dus er is niets om aan te haken. Daarom heeft de aanvraagpagina een eigen
+"Terug naar zoeken" en gaat het logo in de header ook als `nav-terug`; die schuiven wel netjes terug.
+Links zonder richting, zoals de menu- en footerlinks, vervagen zacht in plaats van hard te wisselen.
+
+Binnen de aanvraag schuiven de vier stappen op dezelfde manier, met `stap-vooruit` en `stap-terug`
+over een kortere afstand omdat het om een blok binnen één kaart gaat. Zo'n stap zit niet aan een
+navigatie vast, dus de wisseling loopt via `startTransition` met `addTransitionType`: zonder transitie
+animeert een `<ViewTransition>` niet mee. De knop die je verder helpt tekent eerst een vinkje vol
+(320 ms) voordat de volgende stap komt.
+
+## Plaatssuggesties
+
+Het plaatsveld in de hero en in stap 2 van de aanvraag is een keuzelijst die meetypt
+(`src/components/plaats-invoer.tsx`). Bij de eerste letter staan de plaatsen uit onze eigen lijst er
+meteen; na een korte pauze vult de [Locatieserver van PDOK](https://api.pdok.nl) aan met alle overige
+Nederlandse woonplaatsen, met de provincie erachter zodat je twee gelijknamige plaatsen uit elkaar
+houdt. Die dienst is gratis, vraagt geen sleutel en staat verzoeken vanuit de browser toe, dus er
+loopt niets via onze eigen server. Valt hij weg, dan blijft de eigen lijst gewoon staan.
+
+## Lettertypes
+
+Montserrat draagt de hele site en komt via `next/font/google`. De dienstnaam in de titel staat in
+Sentient Medium Italic; die staat niet op Google Fonts, dus het bestand komt van
+[Fontshare](https://www.fontshare.com/fonts/sentient) en ligt als
+`src/app/fonts/sentient-medium-italic.woff2` in de repo. Zo laadt de pagina niets van een externe
+server. Wil je een andere snede van Sentient, haal die dan bij Fontshare op en wijs `localFont` in
+`src/app/layout.tsx` naar het nieuwe bestand.
+
 ## Beeldmateriaal
 
 De originelen staan in `assets-src/`. `npm run assets` maakt daar de webversies van:
 
 - `4.svg` en `5.svg` worden `public/logo-werkoo.svg` (donkere tekst, in gebruik in de header en de
   footer) en `public/logo-werkoo-wit.svg` (witte tekst, klaar voor donkere vlakken).
+- `merk.svg` is het beeldmerk zonder tekst. Ondanks de extensie is het geen vector: er zitten twee
+  base64-PNG's in, één met de kleuren en één als grijswaardenmask. Het script plakt de mask als
+  doorzichtigheid op de kleuren, snijdt de lege rand weg en maakt er drie bestanden van:
+  `public/images/werkoo-merk.png` voor de waarderingen, plus `src/app/icon.png` en
+  `src/app/apple-icon.png` als favicon. Die laatste twee pikt Next vanzelf op; het Apple-icoon krijgt
+  een witte achtergrond omdat iOS doorzichtige iconen op zwart zet.
+- `profielen/*.png` zijn de foto's bij de vakmensen in de lijst. Ze worden bijgesneden op de
+  verhouding van het vlak in de kaart en als webp naar `public/images/profielen/` geschreven. De
+  uitsnede gebruikt `position: "attention"`, zodat het drukste deel van de foto in beeld blijft.
 - `foto.png` is een studiofoto met witte achtergrond. Het script haalt die achtergrond weg met een
   flood fill vanaf de randen, verwijdert ook de grote witte vlakken die door de teal lijn worden
   ingesloten, en schrijft `public/images/videograaf.png` en `.webp`.
@@ -83,6 +131,10 @@ De originelen staan in `assets-src/`. `npm run assets` maakt daar de webversies 
 Wil je een andere foto gebruiken? Zet hem als `assets-src/foto.png` neer en draai `npm run assets`
 opnieuw. Controleer het resultaat met `node scripts/check-cutout.mjs`, dat zet de uitsnede op het
 hero-blauw.
+
+De waarderingen gebruiken het beeldmerk in plaats van sterren: vijf merken naast elkaar, waarvan het
+laatste gevulde merk deels wordt ingekleurd zodat een 4,7 er ook als 4,7 uitziet. Zie
+`src/components/rating.tsx`.
 
 ## Nog te doen
 

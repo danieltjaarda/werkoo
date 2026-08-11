@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Montserrat } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
+/**
+ * Sentient staat niet op Google Fonts, dus het bestand komt van Fontshare en
+ * staat hier in de repo. Alleen de snede die we gebruiken: 500 cursief, voor
+ * de dienstnaam in de titel.
+ */
+const sentient = localFont({
+  src: "./fonts/sentient-medium-italic.woff2",
+  variable: "--font-sentient",
+  weight: "500",
+  style: "italic",
   display: "swap",
 });
 
@@ -29,7 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="nl"
       // Browserextensies zetten attributen op <html>, wat anders een hydration-waarschuwing geeft.
       suppressHydrationWarning
-      className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${montserrat.variable} ${sentient.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">{children}</body>
     </html>

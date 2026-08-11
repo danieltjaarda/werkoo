@@ -52,9 +52,19 @@ function NavDropdown({
 
 export function SiteHeader() {
   return (
-    <header className="relative border-b border-lijn bg-hero">
+    <header
+      // Blijft staan tijdens een paginaovergang, zodat de bezoeker een vast punt houdt.
+      style={{ viewTransitionName: "site-header" }}
+      className="sticky top-0 z-50 border-b border-lijn bg-hero"
+    >
       <div className="container-page flex h-[84px] items-center gap-8">
-        <Link href="/" className="flex shrink-0 items-center" aria-label="Werkoo, naar de homepage">
+        <Link
+          href="/"
+          // Het logo gaat altijd een niveau omhoog, dus schuift de pagina terug.
+          transitionTypes={["nav-terug"]}
+          className="flex shrink-0 items-center"
+          aria-label="Werkoo, naar de homepage"
+        >
           <Image
             src="/logo-werkoo.svg"
             alt="Werkoo"

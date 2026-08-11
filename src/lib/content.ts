@@ -35,30 +35,86 @@ export const voordelen = [
   },
 ];
 
-export const videografen = [
-  {
-    naam: "Djarno van Elst",
-    plaats: "Joure",
-    score: 4.8,
-    reviews: 63,
-    specialisaties: ["Bruiloft", "Bedrijfsfilm"],
-    tekst: "Filmt cinematisch met Sony FX-camera's en doet de kleurcorrectie zelf. Levert in twee weken.",
-  },
+export type Troef = {
+  label: string;
+  soort: "aanbod" | "snelheid" | "keurmerk";
+};
+
+export type Vakman = {
+  naam: string;
+  foto: string;
+  belofte: string;
+  plaats: string;
+  adres: string;
+  jaren: number;
+  telefoon: string;
+  score: number;
+  reviews: number;
+  fotos: number;
+  topPro: boolean;
+  troeven: Troef[];
+  tekst: string;
+};
+
+export const videografen: Vakman[] = [
   {
     naam: "Studio Noordlicht",
+    foto: "/images/profielen/profiel-noordlicht.webp",
+    belofte: "elk merk heeft een verhaal",
     plaats: "Heerenveen",
+    adres: "Fok 32, Heerenveen",
+    jaren: 11,
+    telefoon: "0513 820 145",
     score: 4.9,
     reviews: 121,
-    specialisaties: ["Reclame & social", "Evenement"],
-    tekst: "Team van drie, gespecialiseerd in korte commercials en socialmediacontent voor het mkb.",
+    fotos: 38,
+    topPro: true,
+    troeven: [
+      { label: "Gratis kennismaking", soort: "aanbod" },
+      { label: "Reageert binnen 1 uur", soort: "snelheid" },
+      { label: "Werkoo-keurmerk", soort: "keurmerk" },
+    ],
+    tekst:
+      "Team van drie dat korte commercials en socialmediacontent maakt voor het mkb. We schrijven het script mee, filmen met twee camera's en leveren binnen tien werkdagen een versie voor elk kanaal.",
+  },
+  {
+    naam: "Djarno van Elst",
+    foto: "/images/profielen/profiel-djarno.webp",
+    belofte: "cinematisch, zonder poespas",
+    plaats: "Joure",
+    adres: "Midstraat 104, Joure",
+    jaren: 7,
+    telefoon: "0513 745 210",
+    score: 4.8,
+    reviews: 63,
+    fotos: 24,
+    topPro: true,
+    troeven: [
+      { label: "10% korting bij twee dagdelen", soort: "aanbod" },
+      { label: "Reageert snel", soort: "snelheid" },
+      { label: "Werkoo-keurmerk", soort: "keurmerk" },
+    ],
+    tekst:
+      "Filmt met Sony FX-camera's en doet de kleurcorrectie zelf, zodat het beeld precies wordt wat je voor ogen had. Trouwfilms en bedrijfsvideo's, altijd binnen twee weken geleverd.",
   },
   {
     naam: "Marit de Vries",
+    foto: "/images/profielen/profiel-marit.webp",
+    belofte: "documentair en dichtbij",
     plaats: "Sneek",
+    adres: "Oosterdijk 19, Sneek",
+    jaren: 5,
+    telefoon: "0515 336 802",
     score: 4.7,
     reviews: 48,
-    specialisaties: ["Bruiloft", "Evenement"],
-    tekst: "Documentaire stijl, blijft het liefst op de achtergrond. Werkt vaak samen met een tweede camera.",
+    fotos: 16,
+    topPro: false,
+    troeven: [
+      { label: "Gratis draaiboekgesprek", soort: "aanbod" },
+      { label: "Reageert binnen een dag", soort: "snelheid" },
+    ],
+    tekst:
+      "Blijft het liefst op de achtergrond en filmt wat er echt gebeurt. Werkt bij drukke dagen samen met een tweede camera, zodat er niets tussen wal en schip valt.",
   },
 ];
 

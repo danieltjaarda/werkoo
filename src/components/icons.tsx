@@ -25,10 +25,39 @@ export function MapPinIcon({ className }: IconProps) {
   );
 }
 
-export function StarIcon({ className }: IconProps) {
+export function PhoneIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden className={className}>
-      <path d="m10 1.8 2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8L10 1.8Z" />
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <path
+        d="M4 3.6h3l1.1 3-1.6 1.2a9.4 9.4 0 0 0 4.7 4.7l1.2-1.6 3 1.1v3a1.4 1.4 0 0 1-1.5 1.4C7.9 16 4 12.1 3.4 5.1A1.4 1.4 0 0 1 4 3.6Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function ZegelIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <circle cx="10" cy="8.2" r="5.2" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M6.8 12.4 5.9 17l4.1-1.9 4.1 1.9-.9-4.6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function FotoIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <rect x="2.8" y="4.6" width="14.4" height="11" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <path d="m4.4 13.4 3.3-3.2 2.6 2.4 2.5-2.9 3.1 3.4" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <circle cx="7.2" cy="8.2" r="1.1" fill="currentColor" />
     </svg>
   );
 }
@@ -74,6 +103,31 @@ export function CheckIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
       <path d="m4.5 10.5 3.5 3.5 7.5-8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Zelfde vinkje als hierboven, maar het tekent zichzelf zodra het verschijnt. */
+export function VinkjeTekentIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <path
+        d="m4.5 10.5 3.5 3.5 7.5-8"
+        pathLength={1}
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="vinkje-pad"
+      />
+    </svg>
+  );
+}
+
+export function ArrowLeftIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <path d="M16 10H5m4.5-4.5L5 10l4.5 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

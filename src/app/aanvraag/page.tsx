@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { AanvraagStappen } from "@/components/aanvraag-stappen";
+import { ArrowLeftIcon } from "@/components/icons";
+import { PaginaOvergang } from "@/components/pagina-overgang";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { videograaf } from "@/lib/diensten";
@@ -17,11 +20,20 @@ export default async function AanvraagPagina({ searchParams }: PageProps<"/aanvr
   const params = await searchParams;
 
   return (
-    <>
+    <PaginaOvergang>
       <SiteHeader />
       <main className="flex-1 bg-brand-soft py-14 sm:py-18">
         <div className="mx-auto w-full max-w-3xl px-5">
-          <h1 className="font-display text-[30px] font-bold leading-[1.15] tracking-[-0.02em] text-ink sm:text-[38px]">
+          <Link
+            href="/"
+            transitionTypes={["nav-terug"]}
+            className="inline-flex items-center gap-2 text-[14px] font-semibold text-ink-soft transition hover:text-ink"
+          >
+            <ArrowLeftIcon className="h-4 w-4" />
+            Terug naar zoeken
+          </Link>
+
+          <h1 className="mt-5 font-display text-[30px] font-bold leading-[1.15] tracking-[-0.02em] text-ink sm:text-[38px]">
             Vertel wat je zoekt
           </h1>
           <p className="mt-4 text-[16px] leading-relaxed text-ink-soft">
@@ -39,6 +51,6 @@ export default async function AanvraagPagina({ searchParams }: PageProps<"/aanvr
         </div>
       </main>
       <SiteFooter />
-    </>
+    </PaginaOvergang>
   );
 }

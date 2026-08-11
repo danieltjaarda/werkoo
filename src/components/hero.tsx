@@ -1,6 +1,7 @@
 import Image from "next/image";
-import { CheckIcon, KeurmerkIcon, Squiggle, StarIcon } from "@/components/icons";
+import { CheckIcon, KeurmerkIcon, Squiggle } from "@/components/icons";
 import { LeadForm } from "@/components/lead-form";
+import { Rating } from "@/components/rating";
 import type { Dienst } from "@/lib/diensten";
 
 export function Hero({
@@ -13,7 +14,9 @@ export function Hero({
   plaatsInvoer: string;
 }) {
   return (
-    <section className="relative overflow-hidden bg-hero">
+    // overflow-x-clip houdt de vlek binnen beeld, maar laat de suggestielijst
+    // onder het plaatsveld wel naar buiten steken.
+    <section className="relative overflow-x-clip bg-hero">
       {/* Zachte vlek achter de foto, in de kleuren van het logo. */}
       <div
         aria-hidden
@@ -28,7 +31,8 @@ export function Hero({
           </p>
 
           <h1 className="mt-5 font-display text-[34px] font-bold leading-[1.18] tracking-[-0.02em] text-ink sm:text-[46px]">
-            De {dienst.naam.toLowerCase()} in{" "}
+            De{" "}
+            <span className="font-serif font-medium italic">{dienst.naam.toLowerCase()}</span> in{" "}
             <span className="relative inline-block whitespace-nowrap">
               {plaats}
               <Squiggle className="absolute bottom-0.5 left-0 h-2.5 w-full text-turquoise" />
@@ -42,11 +46,7 @@ export function Hero({
 
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-[13px] text-ink-soft">
             <span className="flex items-center gap-2">
-              <span className="flex items-center gap-0.5 text-zon">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <StarIcon key={index} className="h-4 w-4" />
-                ))}
-              </span>
+              <Rating score={4.7} />
               <strong className="font-semibold text-ink">4,7</strong> uit 4.384 beoordelingen
             </span>
             <span className="flex items-center gap-2">

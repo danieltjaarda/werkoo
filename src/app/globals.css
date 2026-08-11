@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  /* Alleen voor de dienstnaam in de titel. */
+  --font-serif: var(--font-sentient), ui-serif, Georgia, serif;
 
   /* Achtergrond van de header en de hero. */
   --color-hero: #ffffff;
@@ -24,10 +26,176 @@
   --color-lijn: #e4e8ef;
 }
 
+html {
+  /* De header blijft staan, dus ankerlinks moeten er net onder uitkomen. */
+  scroll-padding-top: calc(84px + 1rem);
+}
+
 body {
   font-family: var(--font-sans);
   color: var(--color-ink);
   background: #ffffff;
+}
+
+/*
+ * Squircle-hoeken. Chromium tekent met corner-shape een superellips in plaats
+ * van een cirkelboog; Safari en Firefox kennen de eigenschap nog niet en houden
+ * gewoon de ronde hoeken. Een squircle loopt strakker langs de rand, dus de
+ * straal mag ruimer om dezelfde rondheid te houden. Rondjes (rounded-full)
+ * blijven met opzet buiten schot.
+ */
+@supports (corner-shape: squircle) {
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl {
+    corner-shape: squircle;
+  }
+
+  .rounded-lg {
+    border-radius: 0.8rem;
+  }
+  .rounded-xl {
+    border-radius: 1.2rem;
+  }
+  .rounded-2xl {
+    border-radius: 1.6rem;
+  }
+  .rounded-3xl {
+    border-radius: 2.4rem;
+  }
+}
+
+/*
+ * Paginaovergangen. De oude pagina schuift weg en vervaagt, de nieuwe komt van
+ * de andere kant terug. Browsers zonder View Transitions wisselen gewoon direct.
+ */
+::view-transition-old(.nav-vooruit) {
+  --schuif: -60px;
+  animation:
+    150ms ease-in both vervaag reverse,
+    400ms ease-in-out both schuif reverse;
+}
+::view-transition-new(.nav-vooruit) {
+  --schuif: 60px;
+  animation:
+    210ms ease-out 150ms both vervaag,
+    400ms ease-in-out both schuif;
+}
+::view-transition-old(.nav-terug) {
+  --schuif: 60px;
+  animation:
+    150ms ease-in both vervaag reverse,
+    400ms ease-in-out both schuif reverse;
+}
+::view-transition-new(.nav-terug) {
+  --schuif: -60px;
+  animation:
+    210ms ease-out 150ms both vervaag,
+    400ms ease-in-out both schuif;
+}
+
+/* Navigaties zonder richting, zoals de terugknop van de browser: alleen vervagen. */
+::view-transition-old(.nav-vervaag) {
+  animation: 140ms ease-in both vervaag reverse;
+}
+::view-transition-new(.nav-vervaag) {
+  animation: 220ms ease-out 100ms both vervaag;
+}
+
+/*
+ * Stappen binnen de aanvraag. Kortere afstand en kortere duur dan een hele
+ * pagina, want het gaat om een blok binnen dezelfde kaart.
+ */
+::view-transition-old(.stap-vooruit) {
+  --schuif: -24px;
+  animation:
+    120ms ease-in both vervaag reverse,
+    260ms ease-in-out both schuif reverse;
+}
+::view-transition-new(.stap-vooruit) {
+  --schuif: 24px;
+  animation:
+    180ms ease-out 120ms both vervaag,
+    260ms ease-in-out both schuif;
+}
+::view-transition-old(.stap-terug) {
+  --schuif: 24px;
+  animation:
+    120ms ease-in both vervaag reverse,
+    260ms ease-in-out both schuif reverse;
+}
+::view-transition-new(.stap-terug) {
+  --schuif: -24px;
+  animation:
+    180ms ease-out 120ms both vervaag,
+    260ms ease-in-out both schuif;
+}
+
+/* De header staat stil; die is het vaste punt waar de rest omheen beweegt. */
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* Klikken tijdens de overgang mag gewoon doorgaan naar de echte pagina. */
+::view-transition {
+  pointer-events: none;
+}
+
+@keyframes vervaag {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes schuif {
+  from {
+    translate: var(--schuif);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+/* Het vinkje tekent zichzelf van links naar rechts. */
+@keyframes vinkje-tekenen {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.vinkje-pad {
+  stroke-dasharray: 1;
+  animation: vinkje-tekenen 320ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+
+  .vinkje-pad {
+    animation: none;
+    stroke-dasharray: none;
+  }
 }
 
 @layer utilities {

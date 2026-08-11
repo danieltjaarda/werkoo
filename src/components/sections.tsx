@@ -1,6 +1,19 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRightIcon, CheckIcon, QuoteIcon } from "@/components/icons";
+import {
+  ArrowRightIcon,
+  ChatIcon,
+  CheckIcon,
+  FotoIcon,
+  KeurmerkIcon,
+  MapPinIcon,
+  PhoneIcon,
+  QuoteIcon,
+  TagIcon,
+  ZegelIcon,
+} from "@/components/icons";
 import { Rating } from "@/components/rating";
+import type { Troef } from "@/lib/content";
 import { reviews, stappen, veelgesteldeVragen, videografen, voordelen } from "@/lib/content";
 
 function SectionTitle({
@@ -92,12 +105,23 @@ export function Voordelen() {
   );
 }
 
-/** "Marit de Vries" -> "MV", "Studio Noordlicht" -> "SN" */
-function initialen(naam: string) {
-  const delen = naam.split(" ").filter(Boolean);
-  const eerste = delen[0] ?? "";
-  const laatste = delen.length > 1 ? delen[delen.length - 1] : "";
-  return `${eerste[0] ?? ""}${laatste[0] ?? ""}`.toUpperCase();
+const troefKleuren: Record<Troef["soort"], string> = {
+  aanbod: "bg-emerald-50 text-emerald-700",
+  snelheid: "bg-brand-soft text-brand-deep",
+  keurmerk: "bg-amber-50 text-amber-700",
+};
+
+function TroefLabel({ troef }: { troef: Troef }) {
+  const Icoon = troef.soort === "aanbod" ? TagIcon : troef.soort === "snelheid" ? ChatIcon : KeurmerkIcon;
+
+  return (
+    <li
+      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium ${troefKleuren[troef.soort]}`}
+    >
+      <Icoon className="h-3.5 w-3.5" />
+      {troef.label}
+    </li>
+  );
 }
 
 export function TopLijst({ plaats }: { plaats: string }) {
@@ -110,48 +134,104 @@ export function TopLijst({ plaats }: { plaats: string }) {
           tekst="Een greep uit de vakmensen die op dit moment opdrachten aannemen in deze regio."
         />
 
-        <ul className="mt-12 grid gap-5 md:grid-cols-3">
-          {videografen.map((videograaf) => (
+        <ul className="mt-12 space-y-4">
+          {videografen.map((videograaf, index) => (
             <li
               key={videograaf.naam}
-              className="flex flex-col rounded-3xl border border-lijn p-6 transition hover:border-brand hover:shadow-[0_18px_40px_-24px_rgba(18,20,26,0.3)]"
+              className="rounded-3xl border border-lijn bg-white p-5 transition hover:border-brand hover:shadow-[0_18px_40px_-28px_rgba(18,20,26,0.35)] sm:p-6"
             >
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[15px] font-bold text-turquoise">
-                  {initialen(videograaf.naam)}
-                </span>
-                <div>
-                  <h3 className="font-display text-[17px] font-bold text-ink">{videograaf.naam}</h3>
-                  <p className="text-[13px] text-ink-soft">{videograaf.plaats}</p>
+              <div className="flex flex-col gap-5 lg:flex-row">
+                <div className="relative h-[180px] w-full shrink-0 overflow-hidden rounded-2xl bg-brand-soft sm:h-[136px] sm:w-[168px]">
+                  <Image
+                    src={videograaf.foto}
+                    alt={`Werk van ${videograaf.naam}`}
+                    width={720}
+                    height={580}
+                    sizes="(min-width: 640px) 168px, 100vw"
+                    className="h-full w-full object-cover"
+                  />
+                  <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded-lg bg-ink/70 px-1.5 py-0.5 text-[11px] font-medium text-white">
+                    <FotoIcon className="h-3 w-3" />
+                    {videograaf.fotos}
+                  </span>
                 </div>
-                <span className="ml-auto flex shrink-0 items-baseline gap-1 text-[13px] text-ink-soft">
-                  <strong className="font-display text-[15px] font-bold text-ink">
-                    {videograaf.score.toLocaleString("nl-NL")}
-                  </strong>
-                  ({videograaf.reviews})
-                </span>
-              </div>
 
-              <p className="mt-4 text-[14px] leading-relaxed text-ink-soft">{videograaf.tekst}</p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+                    <h3 className="font-display text-[17px] font-bold leading-snug text-ink">
+                      <Link
+                        href="/aanvraag?dienst=videograaf"
+                        className="text-brand-deep underline-offset-4 hover:underline"
+                      >
+                        {index + 1}. {videograaf.naam} – {videograaf.belofte}
+                      </Link>
+                    </h3>
 
-              <ul className="mt-4 flex flex-wrap gap-2">
-                {videograaf.specialisaties.map((specialisatie) => (
-                  <li
-                    key={specialisatie}
-                    className="rounded-full bg-brand-soft px-2.5 py-1 text-[12px] font-medium text-brand-deep"
+                    <div className="flex shrink-0 items-center gap-3">
+                      {videograaf.topPro ? (
+                        <span className="flex items-center gap-1.5 font-display text-[12px] font-bold uppercase tracking-[0.08em] text-ink">
+                          <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-brand text-white">
+                            <CheckIcon className="h-2.5 w-2.5" />
+                          </span>
+                          Top pro
+                        </span>
+                      ) : null}
+                      <span className="font-display text-[20px] font-bold leading-none text-ink">
+                        {videograaf.score.toLocaleString("nl-NL")}
+                      </span>
+                      <Rating score={videograaf.score} formaat="groot" />
+                      <span className="text-[13px] text-ink-soft">({videograaf.reviews})</span>
+                    </div>
+                  </div>
+
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {videograaf.troeven.map((troef) => (
+                      <TroefLabel key={troef.label} troef={troef} />
+                    ))}
+                  </ul>
+
+                  <p className="mt-3 text-[14px] leading-relaxed text-ink-soft">{videograaf.tekst}</p>
+
+                  <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-ink-soft">
+                    <li className="flex items-center gap-1.5">
+                      <MapPinIcon className="h-4 w-4 text-ink-soft/70" />
+                      {videograaf.adres}
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <ZegelIcon className="h-4 w-4 text-ink-soft/70" />
+                      {videograaf.jaren} jaar in bedrijf
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <PhoneIcon className="h-4 w-4 text-ink-soft/70" />
+                      <a
+                        href={`tel:${videograaf.telefoon.replace(/\s/g, "")}`}
+                        className="text-brand-deep underline underline-offset-4"
+                      >
+                        {videograaf.telefoon}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="flex flex-col justify-end gap-2 lg:w-[220px] lg:shrink-0">
+                  <Link
+                    href="/aanvraag?dienst=videograaf"
+                    className="flex items-center justify-center rounded-xl border border-brand px-4 py-3 font-display text-[14px] font-semibold text-brand-deep transition hover:bg-brand-soft"
                   >
-                    {specialisatie}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/aanvraag?dienst=videograaf"
-                className="mt-auto flex items-center gap-1.5 pt-6 font-display text-[14px] font-medium text-ink transition hover:gap-3 hover:text-brand-deep"
-              >
-                Stuur je vraag door
-                <ArrowRightIcon className="h-4 w-4" />
-              </Link>
+                    Start jouw project
+                  </Link>
+                  <Link
+                    href="/aanvraag?dienst=videograaf"
+                    className="flex items-center justify-center rounded-xl bg-zon px-4 py-3 font-display text-[14px] font-semibold text-ink transition hover:brightness-95"
+                  >
+                    Check beschikbaarheid
+                  </Link>
+                  <p className="flex items-center justify-center gap-1.5 text-[12px] text-ink-soft">
+                    <CheckIcon className="h-3.5 w-3.5 text-emerald-600" />
+                    Gratis en vrijblijvend
+                  </p>
+                </div>
+              </div>
             </li>
           ))}
         </ul>
