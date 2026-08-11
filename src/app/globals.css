@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif, sans-serif;
+
+  /* Achtergrond van de header en de hero. */
+  --color-hero: #ffffff;
+
+  /* Cyaan uit het logo-icoon, turquoise uit de lijn rond de hero-foto. */
+  --color-brand: #1eb1df;
+  --color-brand-dark: #1798c1;
+  --color-brand-deep: #0d6f92;
+  --color-brand-soft: #eaf7fc;
+  --color-turquoise: #2ed4d4;
+
+  /* Geel is de kleur van de belangrijkste knoppen. */
+  --color-zon: #f6ae2d;
+  --color-zon-dark: #e79f1c;
+  --color-zon-soft: #fef6e7;
+
+  --color-ink: #12141a;
+  --color-ink-soft: #5a6478;
+  --color-lijn: #e4e8ef;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: #ffffff;
+}
+
+@layer utilities {
+  .container-page {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+}
