@@ -34,18 +34,46 @@ export async function zoekPlaatsen(zoekterm: string, signal?: AbortSignal): Prom
     rows: "6",
   })}`;
 
+  return haal(url, signal, (delen) => {
+    const naam = delen[0];
+    if (!naam) return [];
+    return [{ naam, toelichting: delen.at(-1) !== naam ? (delen.at(-1) ?? "") : "" }];
+  });
+}
+
+/**
+ * Dezelfde bron, maar dan op straat en huisnummer. De weergavenaam ziet er uit
+ * als "Fok 32, 8441 BM Heerenveen"; die nemen we in zijn geheel over.
+ */
+export async function zoekAdressen(zoekterm: string, signal?: AbortSignal): Promise<Suggestie[]> {
+  const term = zoekterm.trim();
+  if (term.length < 3) return [];
+
+  const url = `${PDOK}?${new URLSearchParams({
+    q: term,
+    fq: "type:adres",
+    rows: "6",
+  })}`;
+
+  return haal(url, signal, (delen) => {
+    const heel = delen.join(", ");
+    if (!heel) return [];
+    return [{ naam: heel, toelichting: "" }];
+  });
+}
+
+async function haal(
+  url: string,
+  signal: AbortSignal | undefined,
+  vorm: (delen: string[]) => Suggestie[],
+): Promise<Suggestie[]> {
   const antwoord = await fetch(url, { signal });
   if (!antwoord.ok) throw new Error(`Locatieserver gaf ${antwoord.status}`);
 
   const data: unknown = await antwoord.json();
   const docs = (data as { response?: { docs?: { weergavenaam?: string }[] } }).response?.docs ?? [];
 
-  return docs.flatMap((doc) => {
-    const delen = (doc.weergavenaam ?? "").split(",").map((deel) => deel.trim());
-    const naam = delen[0];
-    if (!naam) return [];
-    return [{ naam, toelichting: delen.at(-1) !== naam ? (delen.at(-1) ?? "") : "" }];
-  });
+  return docs.flatMap((doc) => vorm((doc.weergavenaam ?? "").split(",").map((deel) => deel.trim())));
 }
 
 /** Voegt beide bronnen samen zonder dubbele plaatsnamen. */

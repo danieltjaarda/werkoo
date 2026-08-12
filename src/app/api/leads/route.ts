@@ -2,14 +2,18 @@ import { NextResponse } from "next/server";
 
 export type Lead = {
   dienst: string;
+  /** Slug van de vakman waarop de bezoeker klikte, leeg bij een vrije zoekopdracht. */
+  vakman: string | null;
   type: string;
   plaats: string;
+  /** Eén of meer gekozen dagen, als "2026-08-21, 2026-08-22". */
   datum: string;
-  budget: string;
-  toelichting: string;
+  adres: string;
+  wensen: string;
   naam: string;
   email: string;
   telefoon: string;
+  whatsapp: boolean;
 };
 
 const verplichteVelden: (keyof Lead)[] = ["dienst", "type", "plaats", "naam", "email", "telefoon"];

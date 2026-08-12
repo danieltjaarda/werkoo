@@ -5,6 +5,7 @@ import { MapPinIcon } from "@/components/icons";
 import {
   eigenSuggesties,
   voegSamen,
+  zoekAdressen,
   zoekPlaatsen,
   type Suggestie,
 } from "@/lib/plaats-suggesties";
@@ -23,6 +24,7 @@ export function PlaatsInvoer({
   placeholder = "In welke plaats?",
   klassen,
   metPin = false,
+  soort = "plaats",
 }: {
   id: string;
   naam?: string;
@@ -31,6 +33,8 @@ export function PlaatsInvoer({
   placeholder?: string;
   klassen: string;
   metPin?: boolean;
+  /** Woonplaatsen of hele adressen; bepaalt wat de Locatieserver teruggeeft. */
+  soort?: "plaats" | "adres";
 }) {
   const lijstId = `${useId()}-suggesties`;
   const [suggesties, setSuggesties] = useState<Suggestie[]>([]);
@@ -62,7 +66,7 @@ export function PlaatsInvoer({
     lopendeVraag.current?.abort();
 
     // Onze eigen lijst staat er meteen, het net mag daarna aanvullen.
-    const eigen = eigenSuggesties(term);
+    const eigen = soort === "plaats" ? eigenSuggesties(term) : [];
     setSuggesties(eigen);
     setActief(-1);
     setOpen(term.trim().length > 0);
@@ -74,7 +78,7 @@ export function PlaatsInvoer({
       const vraag = new AbortController();
       lopendeVraag.current = vraag;
       try {
-        const gevonden = await zoekPlaatsen(term, vraag.signal);
+        const gevonden = soort === "plaats" ? await zoekPlaatsen(term, vraag.signal) : await zoekAdressen(term, vraag.signal);
         setSuggesties(voegSamen(eigen, gevonden));
       } catch {
         // Netwerk weg of vraag afgebroken: de eigen lijst blijft gewoon staan.

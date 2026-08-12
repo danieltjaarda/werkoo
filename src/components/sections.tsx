@@ -160,7 +160,7 @@ export function TopLijst({ plaats }: { plaats: string }) {
                   <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
                     <h3 className="font-display text-[17px] font-bold leading-snug text-ink">
                       <Link
-                        href="/aanvraag?dienst=videograaf"
+                        href={`/aanvraag?dienst=videograaf&vakman=${videograaf.slug}`}
                         className="text-brand-deep underline-offset-4 hover:underline"
                       >
                         {index + 1}. {videograaf.naam} – {videograaf.belofte}
@@ -213,13 +213,13 @@ export function TopLijst({ plaats }: { plaats: string }) {
 
                 <div className="flex flex-col justify-end gap-2 lg:w-[220px] lg:shrink-0">
                   <Link
-                    href="/aanvraag?dienst=videograaf"
+                    href={`/aanvraag?dienst=videograaf&vakman=${videograaf.slug}`}
                     className="flex items-center justify-center rounded-xl border border-brand px-4 py-3 font-display text-[14px] font-semibold text-brand-deep transition hover:bg-brand-soft"
                   >
                     Start jouw project
                   </Link>
                   <Link
-                    href="/aanvraag?dienst=videograaf"
+                    href={`/aanvraag?dienst=videograaf&vakman=${videograaf.slug}`}
                     className="flex items-center justify-center rounded-xl bg-zon px-4 py-3 font-display text-[14px] font-semibold text-ink transition hover:brightness-95"
                   >
                     Check beschikbaarheid

@@ -41,7 +41,8 @@ handig om een detail van dichtbij te bekijken.
 | `/`                    | Landingspagina videograaf, plaats wordt herkend (zie hieronder)   |
 | `/videograaf`          | Zelfde pagina, ook met herkende plaats                            |
 | `/videograaf/[plaats]` | Plaatsvariant, bijvoorbeeld `/videograaf/leeuwarden`              |
-| `/aanvraag`            | Aanvraag in vier stappen, gevoed door het zoekformulier in de hero |
+| `/aanvraag`            | De aanvraagflow, één vraag per scherm (zie hieronder)             |
+| `/inloggen`            | Inloggen als particulier of als bedrijf                           |
 | `/api/leads`           | Neemt de aanvraag aan (logt hem nu alleen)                        |
 
 ## De hero
@@ -55,6 +56,28 @@ De tekstkolom staat verticaal in het midden, de foto staat met `object-bottom` o
 die loopt precies tot de vouw. Past de inhoud niet in de schermhoogte, dan groeit de hero gewoon mee:
 het is een minimum, geen vaste hoogte. Op smallere schermen bepaalt de inhoud de hoogte en staat de
 foto onder het formulier.
+
+## De aanvraagflow
+
+`/aanvraag` stelt acht vragen, elk op een eigen scherm: plaats, waarvoor, datum, adres, wensen,
+e-mail, naam en telefoon. Boven staat een voortgangsbalk met een sluitknop, rechts een kolom met de
+gekozen vakman (of sociaal bewijs als er geen vakman is gekozen) en onderaan een plakkende balk met
+"Vorige vraag" links en de hoofdknop in het midden. Bij de drie optionele vragen heet die knop
+"Overslaan" zolang er niets is ingevuld.
+
+Komt de bezoeker binnen via een knop bij een vakman (`/aanvraag?vakman=studio-noordlicht`), dan staat
+die vakman in de zijkolom en kleurt de kalender zijn bezette dagen.
+
+De datumvraag gebruikt `src/components/kalender.tsx`: twee maanden naast elkaar op een breed scherm,
+één op een telefoon, en je mag meerdere dagen aanvinken. Dagen die al geweest zijn vervagen, dagen
+waarop de vakman bezet is worden doorgestreept. Die bezetting komt uit `src/lib/agenda.ts` en is nu
+nog verzonnen: een kleine hash van vakman plus datum, met zaterdag vaker vol dan een doordeweekse
+dag. Hetzelfde patroon komt er altijd uit, dus de kalender verspringt niet tussen twee bezoeken.
+
+Na het versturen volgt de bevestiging met een referentie, en daaronder de keuze om een account te
+maken: doorgaan met Google, met Apple, met je eigen e-mailadres, of "Nee, dat hoeft niet". Op
+`/inloggen` staat dezelfde kaart, met bovenaan de keuze tussen particulier en bedrijf. Er zit nog
+geen echte aanmelding achter; het is voorlopig alleen de schil.
 
 ## Plaatsbepaling
 
@@ -118,6 +141,10 @@ Nederlandse woonplaatsen, met de provincie erachter zodat je twee gelijknamige p
 houdt. Die dienst is gratis, vraagt geen sleutel en staat verzoeken vanuit de browser toe, dus er
 loopt niets via onze eigen server. Valt hij weg, dan blijft de eigen lijst gewoon staan.
 
+De adresvraag in de aanvraag gebruikt dezelfde component met `soort="adres"`; die vraagt de
+Locatieserver om `type:adres` en toont de hele weergavenaam, dus straat, huisnummer, postcode en
+plaats.
+
 ## Lettertypes
 
 Montserrat draagt de hele site en komt via `next/font/google`. De dienstnaam in de titel staat in
@@ -157,6 +184,8 @@ laatste gevulde merk deels wordt ingekleurd zodat een 4,7 er ook als 4,7 uitziet
 ## Nog te doen
 
 - Aanvragen wegschrijven naar een database en doorsturen naar vakmensen (nu alleen `console.info`)
+- Echte accounts achter `/inloggen` en achter de accountkeuze na het versturen
+- Echte beschikbaarheid per vakman in plaats van het verzonnen patroon in `src/lib/agenda.ts`
 - Profielpagina's voor vakmensen en een echt aanmeldproces voor bedrijven
 - Meer diensten toevoegen in `src/lib/diensten.ts` en de bijbehorende routes
 - Sitemap, robots.txt en gestructureerde data voor de plaatspagina's

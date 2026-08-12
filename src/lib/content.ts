@@ -41,6 +41,7 @@ export type Troef = {
 };
 
 export type Vakman = {
+  slug: string;
   naam: string;
   foto: string;
   belofte: string;
@@ -58,6 +59,7 @@ export type Vakman = {
 
 export const videografen: Vakman[] = [
   {
+    slug: "studio-noordlicht",
     naam: "Studio Noordlicht",
     foto: "/images/profielen/profiel-noordlicht.webp",
     belofte: "elk merk heeft een verhaal",
@@ -78,6 +80,7 @@ export const videografen: Vakman[] = [
       "Team van drie dat korte commercials en socialmediacontent maakt voor het mkb. We schrijven het script mee, filmen met twee camera's en leveren binnen tien werkdagen een versie voor elk kanaal.",
   },
   {
+    slug: "djarno-van-elst",
     naam: "Djarno van Elst",
     foto: "/images/profielen/profiel-djarno.webp",
     belofte: "cinematisch, zonder poespas",
@@ -98,6 +101,7 @@ export const videografen: Vakman[] = [
       "Filmt met Sony FX-camera's en doet de kleurcorrectie zelf, zodat het beeld precies wordt wat je voor ogen had. Trouwfilms en bedrijfsvideo's, altijd binnen twee weken geleverd.",
   },
   {
+    slug: "marit-de-vries",
     naam: "Marit de Vries",
     foto: "/images/profielen/profiel-marit.webp",
     belofte: "documentair en dichtbij",
@@ -169,3 +173,8 @@ export const veelgesteldeVragen = [
       "Ja. Bekijk de profielen in jouw regio en stuur rechtstreeks een bericht. Je kunt dat prima combineren met een gewone aanvraag.",
   },
 ];
+
+export function vakmanVanSlug(slug: string | undefined): Vakman | undefined {
+  if (!slug) return undefined;
+  return videografen.find((vakman) => vakman.slug === slug);
+}

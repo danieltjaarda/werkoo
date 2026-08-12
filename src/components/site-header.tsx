@@ -79,7 +79,7 @@ export function SiteHeader() {
           <NavDropdown label="Diensten" links={dienstenLinks} />
           <NavDropdown label="Over ons" links={overLinks} />
           <Link
-            href="/login"
+            href="/inloggen"
             className="rounded-lg px-3 py-2 text-[15px] font-medium text-ink transition hover:bg-brand-soft"
           >
             Inloggen
