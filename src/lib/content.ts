@@ -1,3 +1,5 @@
+import { deelLidwoord, type Dienst, type Vraag } from "@/lib/diensten";
+
 export const stappen = [
   {
     titel: "Beschrijf je klus",
@@ -35,152 +37,71 @@ export const voordelen = [
   },
 ];
 
-export type Troef = {
-  label: string;
-  soort: "aanbod" | "snelheid" | "keurmerk";
-};
-
-export type Vakman = {
-  slug: string;
+export type Review = {
   naam: string;
-  foto: string;
-  belofte: string;
   plaats: string;
-  adres: string;
-  jaren: number;
-  telefoon: string;
   score: number;
-  reviews: number;
-  fotos: number;
-  topPro: boolean;
-  /**
-   * Betaalde uitgelichte plek: staat altijd bovenaan, ongeacht plaats of cijfer.
-   * De kaart draagt daarom zichtbaar het label "Uitgelicht", zodat een bezoeker
-   * ziet dat dit geen organische nummer één is.
-   */
-  uitgelicht?: boolean;
-  troeven: Troef[];
   tekst: string;
 };
 
-export const videografen: Vakman[] = [
-  {
-    // Gegevens overgenomen uit de schema.org-data op mediaspot.nl.
-    slug: "mediaspot",
-    naam: "Mediaspot",
-    foto: "/images/profielen/mediaspot.webp",
-    belofte: "van concept tot montage",
-    plaats: "Joure",
-    adres: "Brandemeer 6, Joure",
-    jaren: 2,
-    telefoon: "06 20176727",
-    score: 10,
-    reviews: 234,
-    fotos: 42,
-    topPro: true,
-    uitgelicht: true,
-    troeven: [
-      { label: "Gratis kennismaking", soort: "aanbod" },
-      { label: "Reageert binnen 1 uur", soort: "snelheid" },
-      { label: "Werkoo-keurmerk", soort: "keurmerk" },
-    ],
-    tekst:
-      "Videograaf uit Joure voor bruiloften, evenementen, bedrijfsfilms en social content. Van concept tot montage, actief in Friesland, Groningen, Drenthe, Overijssel, Flevoland en Gelderland.",
-  },
-  {
-    slug: "studio-noordlicht",
-    naam: "Studio Noordlicht",
-    foto: "/images/profielen/profiel-noordlicht.webp",
-    belofte: "elk merk heeft een verhaal",
-    plaats: "Heerenveen",
-    adres: "Fok 32, Heerenveen",
-    jaren: 11,
-    telefoon: "0513 820 145",
-    score: 9.8,
-    reviews: 121,
-    fotos: 38,
-    topPro: true,
-    troeven: [
-      { label: "Gratis kennismaking", soort: "aanbod" },
-      { label: "Reageert binnen 1 uur", soort: "snelheid" },
-      { label: "Werkoo-keurmerk", soort: "keurmerk" },
-    ],
-    tekst:
-      "Team van drie dat korte commercials en socialmediacontent maakt voor het mkb. We schrijven het script mee, filmen met twee camera's en leveren binnen tien werkdagen een versie voor elk kanaal.",
-  },
-  {
-    slug: "djarno-van-elst",
-    naam: "Djarno van Elst",
-    foto: "/images/profielen/profiel-djarno.webp",
-    belofte: "cinematisch, zonder poespas",
-    plaats: "Joure",
-    adres: "Midstraat 104, Joure",
-    jaren: 7,
-    telefoon: "0513 745 210",
-    score: 9.6,
-    reviews: 63,
-    fotos: 24,
-    topPro: true,
-    troeven: [
-      { label: "10% korting bij twee dagdelen", soort: "aanbod" },
-      { label: "Reageert snel", soort: "snelheid" },
-      { label: "Werkoo-keurmerk", soort: "keurmerk" },
-    ],
-    tekst:
-      "Filmt met Sony FX-camera's en doet de kleurcorrectie zelf, zodat het beeld precies wordt wat je voor ogen had. Trouwfilms en bedrijfsvideo's, altijd binnen twee weken geleverd.",
-  },
-  {
-    slug: "marit-de-vries",
-    naam: "Marit de Vries",
-    foto: "/images/profielen/profiel-marit.webp",
-    belofte: "documentair en dichtbij",
-    plaats: "Sneek",
-    adres: "Oosterdijk 19, Sneek",
-    jaren: 5,
-    telefoon: "0515 336 802",
-    score: 9.4,
-    reviews: 48,
-    fotos: 16,
-    topPro: false,
-    troeven: [
-      { label: "Gratis draaiboekgesprek", soort: "aanbod" },
-      { label: "Reageert binnen een dag", soort: "snelheid" },
-    ],
-    tekst:
-      "Blijft het liefst op de achtergrond en filmt wat er echt gebeurt. Werkt bij drukke dagen samen met een tweede camera, zodat er niets tussen wal en schip valt.",
-  },
-];
-
-export const reviews = [
-  {
-    naam: "Lianne Hoekstra",
-    plaats: "Joure",
-    score: 10,
-    tekst:
-      "Ik had de volgende ochtend al drie reacties voor onze trouwfilm. De verschillen in prijs waren fors, dus fijn om te kunnen kiezen.",
-  },
+/** Ervaringen die over Werkoo zelf gaan en dus bij elke dienst kloppen. */
+const algemeneReviews: Review[] = [
   {
     naam: "Bas Terpstra",
     plaats: "Leeuwarden",
     score: 10,
     tekst:
-      "We zochten iemand voor een bedrijfsfilm en kwamen uit bij een studio die onze branche kende. Dat scheelde enorm veel uitleg.",
+      "De volgende ochtend had ik al drie reacties. De verschillen in prijs waren fors, dus fijn om te kunnen kiezen.",
   },
   {
     naam: "Sanne Bouma",
     plaats: "Heerenveen",
     score: 8,
     tekst:
-      "Prettig dat niemand aan je begint te trekken als je nog twijfelt. De videograaf die we kozen dacht goed mee over het draaiboek.",
+      "Prettig dat niemand aan je begint te trekken als je nog twijfelt. Degene die we kozen dacht goed mee over de aanpak.",
+  },
+  {
+    naam: "Youssef el Amrani",
+    plaats: "Utrecht",
+    score: 10,
+    tekst:
+      "In één keer twee offertes naast elkaar in plaats van vijf keer hetzelfde verhaal aan de telefoon doen. Dat scheelde me een avond.",
   },
 ];
 
-export const veelgesteldeVragen = [
-  {
-    vraag: "Wat kost een videograaf?",
-    antwoord:
-      "Een dagdeel filmen ligt meestal tussen de € 450 en € 900. Voor een complete trouwfilm reken je op € 1.200 tot € 2.500, afhankelijk van het aantal uren, de montage en of er met twee camera's wordt gewerkt.",
-  },
+/** Ervaringen die een specifieke dienst noemen; die wegen zwaarder op die pagina. */
+const reviewsPerDienst: Record<string, Review[]> = {
+  videograaf: [
+    {
+      naam: "Lianne Hoekstra",
+      plaats: "Joure",
+      score: 10,
+      tekst:
+        "Ik had de volgende ochtend al drie reacties voor onze trouwfilm. De verschillen in prijs waren fors, dus fijn om te kunnen kiezen.",
+    },
+    {
+      naam: "Bas Terpstra",
+      plaats: "Leeuwarden",
+      score: 10,
+      tekst:
+        "We zochten iemand voor een bedrijfsfilm en kwamen uit bij een studio die onze branche kende. Dat scheelde enorm veel uitleg.",
+    },
+    {
+      naam: "Sanne Bouma",
+      plaats: "Heerenveen",
+      score: 8,
+      tekst:
+        "Prettig dat niemand aan je begint te trekken als je nog twijfelt. De videograaf die we kozen dacht goed mee over het draaiboek.",
+    },
+  ],
+};
+
+export function reviewsVoorDienst(slug?: string): Review[] {
+  return (slug ? reviewsPerDienst[slug] : undefined) ?? algemeneReviews;
+}
+
+/** Vragen over Werkoo zelf. Ze staan bij elke dienst onder de dienstvragen. */
+export const algemeneVragen: Vraag[] = [
   {
     vraag: "Wat kost het mij om een aanvraag te doen?",
     antwoord:
@@ -199,31 +120,20 @@ export const veelgesteldeVragen = [
   {
     vraag: "Kan ik zelf iemand benaderen?",
     antwoord:
-      "Ja. Bekijk de profielen in jouw regio en stuur rechtstreeks een bericht. Je kunt dat prima combineren met een gewone aanvraag.",
+      "Staan er profielen bij de dienst die je zoekt, dan kun je die bekijken en rechtstreeks een bericht sturen. Is die lijst er nog niet, dan doe je een gewone aanvraag en leggen wij hem voor aan de vakmensen die in jouw regio werken.",
   },
 ];
 
-export function vakmanVanSlug(slug: string | undefined): Vakman | undefined {
-  if (!slug) return undefined;
-  return videografen.find((vakman) => vakman.slug === slug);
-}
-
 /**
- * De volgorde waarin we vakmensen voorleggen in de aanvraagflow: uitgelichte
- * partners eerst, dan wie in de gevraagde plaats zit, dan de hoogste beoordeling.
- * We filteren bewust niet op plaats, want dan houdt iemand buiten Friesland een
- * lege lijst over. Zodra er echte dekking per regio is, hoort dat hier te gebeuren.
+ * De vragenlijst op een dienstpagina: eerst de prijsvraag, dan de twee vragen
+ * die over het vak gaan, dan de vragen over Werkoo zelf.
  */
-export function vakmensenVoorPlaats(plaats: string): Vakman[] {
-  const gezocht = plaats.trim().toLowerCase();
-  const rang = (vakman: Vakman) => [
-    vakman.uitgelicht ? 0 : 1,
-    vakman.plaats.toLowerCase() === gezocht ? 0 : 1,
+export function vragenVoorDienst(dienst: Dienst): Vraag[] {
+  return [
+    // Via lidwoordNaam en niet via naam.toLowerCase(): anders wordt
+    // "SEO-specialist" in de vraag "seo-specialist".
+    { vraag: `Wat kost een ${deelLidwoord(dienst).naam}?`, antwoord: dienst.prijs },
+    ...dienst.vragen,
+    ...algemeneVragen,
   ];
-
-  return [...videografen].sort((a, b) => {
-    const [aUit, aRaak] = rang(a);
-    const [bUit, bRaak] = rang(b);
-    return aUit - bUit || aRaak - bRaak || b.score - a.score;
-  });
 }

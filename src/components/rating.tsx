@@ -25,7 +25,10 @@ export function Rating({
   const maat = formaat === "groot" ? "h-5 w-5" : "h-4 w-4";
 
   return (
+    // role="img": een aria-label op een kale span (rol generic) mag niet en
+    // wordt door schermlezers overgeslagen.
     <span
+      role="img"
       className={`flex items-center gap-1.5 ${className}`}
       aria-label={`${score.toLocaleString("nl-NL")} van de ${MAX_SCORE}`}
     >

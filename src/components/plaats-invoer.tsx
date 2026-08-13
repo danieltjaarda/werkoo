@@ -158,27 +158,30 @@ export function PlaatsInvoer({
         <ul
           id={lijstId}
           role="listbox"
-          className={`absolute left-0 right-0 z-30 overflow-hidden rounded-2xl border border-lijn bg-white py-1.5 shadow-[0_18px_50px_-18px_rgba(18,20,26,0.35)] ${
+          className={`absolute left-0 right-0 z-30 overflow-hidden rounded-2xl border border-lijn bg-white py-1.5 shadow-paneel ${
             omhoog ? "bottom-full mb-2" : "top-full mt-2"
           }`}
         >
           {suggesties.map((suggestie, index) => (
-            <li key={suggestie.naam} id={`${lijstId}-${index}`} role="option" aria-selected={index === actief}>
-              <button
-                type="button"
-                // Voorkomt dat het veld de focus verliest voordat de klik aankomt.
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => kies(suggestie)}
-                onMouseEnter={() => setActief(index)}
-                className={`flex w-full items-baseline gap-3 px-4 py-2.5 text-left transition ${
-                  index === actief ? "bg-brand-soft" : ""
-                }`}
-              >
-                <span className="truncate text-[15px] text-ink">{suggestie.naam}</span>
-                {suggestie.toelichting ? (
-                  <span className="ml-auto shrink-0 text-[13px] text-ink-soft">{suggestie.toelichting}</span>
-                ) : null}
-              </button>
+            // De handlers staan op de <li> zelf: een role="option" mag geen
+            // knop bevatten, en het toetsenbord loopt toch via aria-activedescendant.
+            <li
+              key={suggestie.naam}
+              id={`${lijstId}-${index}`}
+              role="option"
+              aria-selected={index === actief}
+              // Voorkomt dat het veld de focus verliest voordat de klik aankomt.
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => kies(suggestie)}
+              onMouseEnter={() => setActief(index)}
+              className={`flex cursor-pointer items-baseline gap-3 px-4 py-2.5 transition ${
+                index === actief ? "bg-brand-soft" : ""
+              }`}
+            >
+              <span className="truncate text-basis text-ink">{suggestie.naam}</span>
+              {suggestie.toelichting ? (
+                <span className="ml-auto shrink-0 text-klein text-ink-soft">{suggestie.toelichting}</span>
+              ) : null}
             </li>
           ))}
         </ul>

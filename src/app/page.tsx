@@ -1,6 +1,24 @@
 import type { Metadata } from "next";
-import { DienstPagina } from "@/components/dienst-pagina";
-import { videograaf } from "@/lib/diensten";
+import Link from "next/link";
+import { ChatWidget } from "@/components/chat-widget";
+import { CijferBalk } from "@/components/cijfer-balk";
+import { HomeZoekform } from "@/components/home-zoekform";
+import { ArrowRightIcon, CheckIcon, KeurmerkIcon } from "@/components/icons";
+import { PaginaOvergang } from "@/components/pagina-overgang";
+import { Rating } from "@/components/rating";
+import {
+  Beoordelingen,
+  CategorieRaster,
+  Faq,
+  HoeHetWerkt,
+  SectionTitle,
+  SlotCta,
+  Voordelen,
+} from "@/components/sections";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { algemeneVragen } from "@/lib/content";
+import { diensten } from "@/lib/diensten";
 import { bepaalPlaats } from "@/lib/locatie";
 
 function eerste(waarde: string | string[] | undefined) {
@@ -12,20 +30,98 @@ export async function generateMetadata({ searchParams }: PageProps<"/">): Promis
 
   if (bron === "onbekend") {
     return {
-      title: `${videograaf.naam} zoeken bij jou in de buurt`,
-      description:
-        "Vertel kort wat je zoekt en ontvang reacties van videografen uit je eigen regio. Gratis en zonder verplichtingen.",
+      title: "Vakmensen zoeken bij jou in de buurt",
+      description: `Beschrijf je klus en ontvang reacties van vakmensen uit je eigen regio. ${diensten.length} diensten, gratis en zonder verplichtingen.`,
+      alternates: { canonical: "/" },
     };
   }
 
   return {
-    title: `${videograaf.naam} zoeken in ${weergave}`,
-    description: `Vertel kort wat je zoekt en ontvang reacties van videografen uit de omgeving van ${weergave}. Gratis en zonder verplichtingen.`,
+    title: `Vakmensen zoeken in ${weergave}`,
+    description: `Beschrijf je klus en ontvang reacties van vakmensen uit de omgeving van ${weergave}. ${diensten.length} diensten, gratis en zonder verplichtingen.`,
+    alternates: { canonical: "/" },
   };
 }
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const plaats = await bepaalPlaats(eerste((await searchParams).plaats));
 
-  return <DienstPagina dienst={videograaf} plaats={plaats.weergave} plaatsInvoer={plaats.invoer} />;
+  return (
+    <PaginaOvergang>
+      <SiteHeader />
+      <main className="flex-1">
+        <section className="relative overflow-x-clip bg-hero">
+          {/* Zie hero.tsx: radiaal verloop in plaats van een cirkel met een rand. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 hidden h-[34rem] bg-[radial-gradient(60%_100%_at_50%_0%,var(--color-brand-soft)_0%,transparent_72%)] lg:block"
+          />
+
+          <div className="container-page relative flex flex-col items-center gap-7 pb-[var(--ruimte-sectie)] pt-12 text-center lg:pt-16">
+            <p className="inline-flex items-center gap-2 rounded-full bg-brand-soft py-1.5 pl-2 pr-3.5 text-klein font-semibold text-brand-deep">
+              <KeurmerkIcon className="h-5 w-5 text-brand" />
+              Gratis aanvraag, geen abonnement
+            </p>
+
+            <h1 className="mx-auto max-w-3xl text-balance font-display text-h1 text-ink">
+              Vakmensen in{" "}
+              <span className="font-serif font-medium italic">{plaats.weergave}</span> die bij jouw klus
+              passen
+            </h1>
+
+            <p className="max-w-2xl text-lead text-ink-soft">
+              Eén aanvraag, meerdere reacties, en jij kiest. Van dakdekker tot webdesigner:{" "}
+              {diensten.length} diensten waarvoor we vakmensen in je eigen regio zoeken.
+            </p>
+
+            <HomeZoekform beginPlaats={plaats.invoer} />
+
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-klein text-ink-soft">
+              <span className="flex items-center gap-2">
+                <Rating score={9.4} />
+                <strong className="font-semibold text-ink">9,4</strong> uit 4.384 beoordelingen
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckIcon className="h-4 w-4 text-brand" />
+                Meestal 3 reacties binnen een dag
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <CijferBalk />
+
+        <section className="sectie">
+          <div className="container-page">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <SectionTitle
+                eyebrow="Alle diensten"
+                titel="Waar zoek je iemand voor?"
+                tekst="Zes categorieën, van een lekkend dak tot een nieuwe website. Kies er een of typ hierboven waar je naar op zoek bent."
+              />
+              <Link
+                href="/diensten"
+                className="flex items-center gap-2 text-basis font-semibold text-brand-deep underline-offset-4 hover:underline"
+              >
+                Bekijk alle {diensten.length} diensten
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+            </div>
+
+            <div className="mt-10">
+              <CategorieRaster />
+            </div>
+          </div>
+        </section>
+
+        <HoeHetWerkt />
+        <Voordelen />
+        <Beoordelingen />
+        <Faq vragen={algemeneVragen} />
+        <SlotCta plaats={plaats.weergave} />
+      </main>
+      <SiteFooter />
+      <ChatWidget />
+    </PaginaOvergang>
+  );
 }

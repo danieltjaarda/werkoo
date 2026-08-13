@@ -5,20 +5,10 @@ import { useId, useState, type FormEvent } from "react";
 import { ArrowRightIcon, VinkjeTekentIcon } from "@/components/icons";
 import { PlaatsInvoer } from "@/components/plaats-invoer";
 import type { Dienst } from "@/lib/diensten";
-import { PLAATS_COOKIE } from "@/lib/plaatsen";
-
-const JAAR_IN_SECONDEN = 60 * 60 * 24 * 365;
+import { onthoudPlaats } from "@/lib/plaats-cookie";
 
 /** Even lang als de tekenanimatie van het vinkje in globals.css. */
 const VINKJE_DUUR = 320;
-
-/**
- * Onthoudt de plaats die iemand zelf invult, zodat die bij een volgend bezoek
- * voorgaat op wat het ip-adres suggereert.
- */
-function onthoudPlaats(plaats: string) {
-  document.cookie = `${PLAATS_COOKIE}=${encodeURIComponent(plaats)}; path=/; max-age=${JAAR_IN_SECONDEN}; samesite=lax`;
-}
 
 export function LeadForm({ dienst, plaats }: { dienst: Dienst; plaats?: string }) {
   const router = useRouter();
@@ -60,10 +50,10 @@ export function LeadForm({ dienst, plaats }: { dienst: Dienst; plaats?: string }
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="rounded-3xl border border-lijn bg-white p-5 shadow-[0_18px_50px_-24px_rgba(18,20,26,0.35)] sm:p-6"
+      className="kaart p-5 shadow-paneel sm:p-6"
     >
       <fieldset>
-        <legend className="text-[15px] font-semibold text-ink">
+        <legend className="text-basis font-semibold text-ink">
           Selecteer waar {dienst.lidwoordNaam} voor nodig is
         </legend>
 
@@ -71,7 +61,7 @@ export function LeadForm({ dienst, plaats }: { dienst: Dienst; plaats?: string }
           {dienst.opties.map((optie) => (
             <label
               key={optie.id}
-              className="flex cursor-pointer items-center gap-3 rounded-2xl border border-lijn bg-white px-4 py-3.5 transition hover:border-brand has-[:checked]:border-ink has-[:checked]:ring-1 has-[:checked]:ring-ink"
+              className="flex cursor-pointer items-center gap-3 rounded-2xl border border-lijn bg-white px-4 py-3.5 transition hover:border-brand has-[:checked]:border-ink has-[:checked]:ring-1 has-[:checked]:ring-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-deep"
             >
               <input
                 type="radio"
@@ -88,7 +78,7 @@ export function LeadForm({ dienst, plaats }: { dienst: Dienst; plaats?: string }
                 aria-hidden
                 className="h-[18px] w-[18px] shrink-0 rounded-full border-[1.5px] border-ink-soft/50 transition peer-checked:border-[5.5px] peer-checked:border-ink"
               />
-              <span className="text-[14px] text-ink">{optie.label}</span>
+              <span className="text-basis text-ink">{optie.label}</span>
             </label>
           ))}
         </div>
@@ -107,14 +97,14 @@ export function LeadForm({ dienst, plaats }: { dienst: Dienst; plaats?: string }
               setFout(null);
             }}
             metPin
-            klassen="h-13 w-full rounded-2xl border border-lijn bg-white pl-12 pr-4 text-[15px] text-ink outline-none transition placeholder:text-ink-soft/70 focus:border-brand focus:ring-4 focus:ring-brand/15"
+            klassen="h-veld w-full rounded-2xl border border-lijn bg-white pl-12 pr-4 text-basis text-ink outline-none transition placeholder:text-ink-soft focus:border-brand focus:ring-4 focus:ring-brand/15"
           />
         </div>
 
         <button
           type="submit"
           disabled={bevestigd}
-          className="relative flex h-13 shrink-0 items-center justify-center gap-2 rounded-2xl bg-zon px-6 font-display text-[15px] font-medium text-ink transition hover:bg-zon-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          className="relative flex h-veld shrink-0 items-center justify-center gap-2 rounded-2xl bg-zon px-6 font-display text-basis font-medium text-ink transition hover:bg-zon-dark"
         >
           {/* Het label blijft staan zodat de knop niet van breedte verspringt. */}
           <span
@@ -133,7 +123,7 @@ export function LeadForm({ dienst, plaats }: { dienst: Dienst; plaats?: string }
       </div>
 
       {fout ? (
-        <p role="alert" className="mt-3 text-[13px] font-medium text-red-600">
+        <p role="alert" className="mt-3 text-klein font-medium text-red-600">
           {fout}
         </p>
       ) : null}

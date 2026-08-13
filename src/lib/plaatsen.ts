@@ -86,12 +86,6 @@ function metHoofdletters(naam: string): string {
     .join(" ");
 }
 
-/** "den-haag" -> "Den Haag". Kennen we de plaats, dan wint onze eigen schrijfwijze. */
-export function plaatsnaamVanSlug(slug: string): string {
-  const gedecodeerd = decodeURIComponent(slug);
-  return bekendePlaats(gedecodeerd) ?? metHoofdletters(gedecodeerd.replace(/-/g, " "));
-}
-
 /**
  * Maakt een plaatsnaam uit een externe bron veilig bruikbaar. Geo-headers en
  * cookies kunnen van alles bevatten, dus we accepteren alleen iets dat op een
@@ -110,8 +104,10 @@ export function normaliseerPlaats(ruw: string | null | undefined): string | unde
     }
   }
 
-  // Een enkele plaats begint met een apostrof, zoals 's-Hertogenbosch.
-  if (!/^['’]?\p{L}[\p{L}\s'’.-]{1,39}$/u.test(waarde)) return undefined;
+  // Een enkele plaats begint met een apostrof, zoals 's-Hertogenbosch. De
+  // Locatieserver geeft gelijknamige plaatsen terug met de provincie erachter,
+  // zoals "Bergen (NH)", dus haakjes horen er ook bij.
+  if (!/^['’]?\p{L}[\p{L}\s'’.()-]{1,39}$/u.test(waarde)) return undefined;
 
   return bekendePlaats(waarde) ?? metHoofdletters(waarde);
 }

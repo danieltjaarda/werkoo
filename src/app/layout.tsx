@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import localFont from "next/font/local";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -23,6 +24,8 @@ const sentient = localFont({
 });
 
 export const metadata: Metadata = {
+  // Zonder metadataBase is een relatieve canonical geen waarschuwing maar een buildfout.
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Werkoo — vakmensen die passen bij jouw klus",
     template: "%s | Werkoo",

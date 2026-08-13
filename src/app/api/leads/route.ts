@@ -29,6 +29,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ fout: "Ongeldige aanvraag." }, { status: 400 });
   }
 
+  // `JSON.parse("null")` en `JSON.parse("[]")` komen door de try heen maar zijn
+  // geen aanvraag; zonder deze controle valt de route erna om met een 500.
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
+    return NextResponse.json({ fout: "Ongeldige aanvraag." }, { status: 400 });
+  }
+
   const ontbreekt = verplichteVelden.filter((veld) => !body[veld]?.toString().trim());
   if (ontbreekt.length > 0) {
     return NextResponse.json(
@@ -41,8 +47,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ fout: "Vul een geldig e-mailadres in." }, { status: 422 });
   }
 
-  if (!Array.isArray(body.vakmensen) || body.vakmensen.length === 0) {
-    return NextResponse.json({ fout: "Kies minstens één vakman." }, { status: 422 });
+  /**
+   * Een lege lijst is geldig: bij diensten waar nog geen profielen bij staan
+   * krijgt de bezoeker de keuzestap niet te zien, en leggen wij de aanvraag zelf
+   * voor aan de vakmensen in die regio.
+   */
+  if (!Array.isArray(body.vakmensen)) {
+    return NextResponse.json({ fout: "Ongeldige keuze van vakmensen." }, { status: 422 });
   }
 
   const referentie = `WK-${Date.now().toString(36).toUpperCase()}`;

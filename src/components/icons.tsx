@@ -198,6 +198,120 @@ export function QuoteIcon({ className }: IconProps) {
   );
 }
 
+export function EuroIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <path
+        d="M14.2 5.4a5 5 0 0 0-7.6 1.9m0 5.4a5 5 0 0 0 7.6 1.9"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path d="M3.6 8.6h7m-7 2.8h7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Lampje bij een tip of een controlepunt. */
+export function LampIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <path
+        d="M7.4 13.4a4.6 4.6 0 1 1 5.2 0v1.8H7.4v-1.8Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path d="M8.2 17.2h3.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Vier vlakken: de link naar het complete overzicht. */
+export function RasterIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <rect x="3" y="3" width="6" height="6" rx="1.6" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="11" y="3" width="6" height="6" rx="1.6" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="3" y="11" width="6" height="6" rx="1.6" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="11" y="11" width="6" height="6" rx="1.6" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+export function HuisIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <path
+        d="M3.2 8.8 10 3.4l6.8 5.4V16a1 1 0 0 1-1 1h-3.2v-4.4H7.4V17H4.2a1 1 0 0 1-1-1V8.8Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function TuinIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <path d="M10 17V8.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path
+        d="M10 8.6C10 5.6 12 3.2 15.2 3.2c0 3-2 5.4-5.2 5.4Zm0 3.2c0-2.4-1.7-4.3-4.4-4.3 0 2.4 1.7 4.3 4.4 4.3Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function BladIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <path
+        d="M16.4 3.6c.6 6.2-2.4 10-7 10a4.4 4.4 0 0 1-4.4-4.4c0-4 4.6-5.6 11.4-5.6Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path d="M13.2 6.8 3.8 16.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function PersoonIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <circle cx="10" cy="7" r="3.2" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M4 17c0-2.9 2.7-4.6 6-4.6s6 1.7 6 4.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function KofferIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <rect x="2.8" y="6.4" width="14.4" height="9.6" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M7.4 6.4V5a1.4 1.4 0 0 1 1.4-1.4h2.4A1.4 1.4 0 0 1 12.6 5v1.4" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function FeestIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
+      <path d="m3.4 16.6 3.4-8.4 5 5-8.4 3.4Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path
+        d="M12.2 3.4v1.8m3.6.6-1.3 1.3m2.5 3.3h-1.8"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 /** Handgetekende onderstreping onder een woord in de titel. */
 export function Squiggle({ className }: IconProps) {
   return (

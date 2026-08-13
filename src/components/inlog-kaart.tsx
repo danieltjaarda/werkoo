@@ -26,7 +26,7 @@ export function InlogKaart() {
   const [gestuurd, setGestuurd] = useState(false);
 
   return (
-    <div className="mt-8 overflow-hidden rounded-3xl border border-lijn bg-white">
+    <div className="kaart mt-8 overflow-hidden">
       <div className="grid grid-cols-2">
         {(["particulier", "bedrijf"] as Soort[]).map((optie) => (
           <button
@@ -37,7 +37,7 @@ export function InlogKaart() {
               setGestuurd(false);
             }}
             aria-pressed={soort === optie}
-            className={`border-b-2 py-4 font-display text-[15px] font-medium capitalize transition ${
+            className={`border-b-2 py-4 font-display text-basis font-medium capitalize transition ${
               soort === optie
                 ? "border-brand text-brand-deep"
                 : "border-lijn text-ink-soft hover:text-ink"
@@ -51,29 +51,29 @@ export function InlogKaart() {
       <div className="p-6 sm:p-8">
         {gestuurd ? (
           <div className="text-center">
-            <h1 className="font-display text-[20px] font-bold text-ink">Kijk in je mail</h1>
-            <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
+            <h1 className="font-display text-h4 text-ink">Kijk in je mail</h1>
+            <p className="mt-2 text-basis text-ink-soft">
               We hebben een inloglink gestuurd naar {email}. De link is een uur geldig.
             </p>
             <button
               type="button"
               onClick={() => setGestuurd(false)}
-              className="mt-5 text-[14px] font-semibold text-ink-soft transition hover:text-ink"
+              className="mt-5 text-basis font-semibold text-ink-soft transition hover:text-ink"
             >
               Ander e-mailadres gebruiken
             </button>
           </div>
         ) : (
           <>
-            <h1 className="text-center font-display text-[20px] font-bold text-ink">{teksten[soort].kop}</h1>
-            <p className="mt-2 text-center text-[14px] leading-relaxed text-ink-soft">{teksten[soort].tekst}</p>
+            <h1 className="text-center font-display text-h4 text-ink">{teksten[soort].kop}</h1>
+            <p className="mt-2 text-center text-basis text-ink-soft">{teksten[soort].tekst}</p>
 
             <div className="mt-6 space-y-2.5">
               <MerkKnop merk="google" />
               <MerkKnop merk="apple" />
             </div>
 
-            <div className="my-5 flex items-center gap-3 text-[12px] uppercase tracking-[0.12em] text-ink-soft">
+            <div className="my-5 flex items-center gap-3 text-mini uppercase tracking-[0.12em] text-ink-soft">
               <span className="h-px flex-1 bg-lijn" />
               of
               <span className="h-px flex-1 bg-lijn" />
@@ -85,7 +85,7 @@ export function InlogKaart() {
                 if (email.trim()) setGestuurd(true);
               }}
             >
-              <label htmlFor="inlog-email" className="block text-[14px] font-semibold text-ink">
+              <label htmlFor="inlog-email" className="block text-basis font-semibold text-ink">
                 E-mailadres
               </label>
               <input
@@ -95,17 +95,17 @@ export function InlogKaart() {
                 autoComplete="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="mt-2 h-13 w-full rounded-2xl border border-lijn px-4 text-[15px] text-ink outline-none transition placeholder:text-ink-soft/70 focus:border-brand focus:ring-4 focus:ring-brand/15"
+                className="mt-2 h-veld w-full rounded-2xl border border-lijn px-4 text-basis text-ink outline-none transition placeholder:text-ink-soft focus:border-brand focus:ring-4 focus:ring-brand/15"
               />
               <button
                 type="submit"
-                className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-ink font-display text-[15px] font-medium text-white transition hover:bg-brand-deep"
+                className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-ink font-display text-basis font-medium text-white transition hover:bg-brand-deep"
               >
                 Doorgaan met e-mail
               </button>
             </form>
 
-            <p className="mt-5 text-center text-[13px] text-ink-soft">
+            <p className="mt-5 text-center text-klein text-ink-soft">
               {soort === "particulier"
                 ? "Nog geen account? Die maken we vanzelf zodra je een aanvraag doet."
                 : "Nog geen bedrijfsprofiel? Meld je bedrijf aan via de knop in de header."}

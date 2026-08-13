@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { addTransitionType, startTransition, useState, ViewTransition } from "react";
+import { addTransitionType, startTransition, useEffect, useRef, useState, ViewTransition } from "react";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -15,8 +15,9 @@ import { Kalender } from "@/components/kalender";
 import { PlaatsInvoer } from "@/components/plaats-invoer";
 import { Rating } from "@/components/rating";
 import { UitgelichtLabel } from "@/components/uitgelicht-label";
-import { vakmensenVoorPlaats, type Vakman } from "@/lib/content";
-import type { Dienst } from "@/lib/diensten";
+import { deelLidwoord, type Dienst } from "@/lib/diensten";
+import { onthoudPlaats } from "@/lib/plaats-cookie";
+import { vakmensenVoorPlaats, type Vakman } from "@/lib/vakmensen";
 
 type Formulier = {
   plaats: string;
@@ -34,7 +35,11 @@ type Formulier = {
 
 type StapId = "plaats" | "type" | "datum" | "adres" | "wensen" | "vakmensen" | "email" | "naam" | "telefoon";
 
-const stappen: StapId[] = [
+/**
+ * De volledige vragenlijst. De stap "vakmensen" valt weg bij diensten waar nog
+ * geen profielen bij staan: een lege keuzelijst is een doodlopende vraag.
+ */
+const alleStappen: StapId[] = [
   "plaats",
   "type",
   "datum",
@@ -61,7 +66,7 @@ function standaardKeuze(vakmensen: Vakman[]): string[] {
 }
 
 const invoerklassen =
-  "h-13 w-full rounded-2xl border border-lijn bg-white px-4 text-[15px] text-ink outline-none transition placeholder:text-ink-soft/70 focus:border-brand focus:ring-4 focus:ring-brand/15";
+  "h-veld w-full rounded-2xl border border-lijn bg-white px-4 text-basis text-ink outline-none transition placeholder:text-ink-soft focus:border-brand focus:ring-4 focus:ring-brand/15";
 
 /** Even lang als de tekenanimatie van het vinkje in globals.css. */
 const VINKJE_DUUR = 320;
@@ -86,6 +91,8 @@ export function AanvraagStappen({
   beginPlaats: string;
 }) {
   const [stap, setStap] = useState(0);
+  const vraagVak = useRef<HTMLDivElement>(null);
+  const eersteRender = useRef(true);
   const [bezig, setBezig] = useState(false);
   const [bevestigd, setBevestigd] = useState(false);
   const [fout, setFout] = useState<string | null>(null);
@@ -103,13 +110,28 @@ export function AanvraagStappen({
     whatsapp: false,
   });
 
+  // De lijst hangt aan de ingevulde plaats, dus die leiden we bij elke render af
+  // in plaats van hem in state te dupliceren. De lengte verandert onderweg niet,
+  // dus de stappenlijst blijft stabiel zolang de bezoeker bezig is.
+  const vakmensen = vakmensenVoorPlaats(dienst.slug, waarden.plaats);
+  const gekozenVakmensen = waarden.vakmensen ?? standaardKeuze(vakmensen);
+
+  const stappen =
+    vakmensen.length > 0 ? alleStappen : alleStappen.filter((id) => id !== "vakmensen");
   const huidig = stappen[stap];
   const laatste = stap === stappen.length - 1;
 
-  // De lijst hangt aan de ingevulde plaats, dus die leiden we bij elke render af
-  // in plaats van hem in state te dupliceren.
-  const vakmensen = vakmensenVoorPlaats(waarden.plaats);
-  const gekozenVakmensen = waarden.vakmensen ?? standaardKeuze(vakmensen);
+  /**
+   * Na een stapwissel verspringt alleen de inhoud, niet de pagina. Een
+   * schermlezer merkt daar niets van, dus zetten we de focus op de nieuwe vraag.
+   */
+  useEffect(() => {
+    if (eersteRender.current) {
+      eersteRender.current = false;
+      return;
+    }
+    vraagVak.current?.querySelector<HTMLElement>("h1")?.focus();
+  }, [stap]);
 
   const zet = <K extends keyof Formulier>(veld: K, waarde: Formulier[K]) => {
     setWaarden((vorige) => ({ ...vorige, [veld]: waarde }));
@@ -120,7 +142,7 @@ export function AanvraagStappen({
     if (huidig === "plaats" && !waarden.plaats.trim()) return "Vul in waar je zoekt.";
     if (huidig === "type" && !waarden.type) return `Kies waar je ${dienst.lidwoordNaam} voor nodig hebt.`;
     if (huidig === "vakmensen" && gekozenVakmensen.length === 0)
-      return `Kies minstens één ${dienst.naam.toLowerCase()} om je aanvraag naartoe te sturen.`;
+      return `Kies minstens één ${deelLidwoord(dienst).naam} om je aanvraag naartoe te sturen.`;
     if (huidig === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(waarden.email))
       return "Vul een geldig e-mailadres in.";
     if (huidig === "naam" && !waarden.naam.trim()) return "Vul je naam in.";
@@ -131,6 +153,8 @@ export function AanvraagStappen({
 
   /** Zet de stap in een transitie, want alleen dan animeert de ViewTransition mee. */
   function gaNaarStap(nieuw: number, richting: "stap-vooruit" | "stap-terug") {
+    // Anders blijft de melding van de vorige vraag onder de volgende staan.
+    setFout(null);
     startTransition(() => {
       addTransitionType(richting);
       setStap(nieuw);
@@ -147,11 +171,16 @@ export function AanvraagStappen({
   }
 
   async function verder() {
+    if (bezig || bevestigd) return;
+
     const melding = valideer();
     if (melding) {
       setFout(melding);
       return;
     }
+
+    // Wat iemand hier zelf intypt weegt zwaarder dan het ip-adres, dus dat onthouden we.
+    if (huidig === "plaats") onthoudPlaats(waarden.plaats);
 
     if (!laatste) {
       naVinkje(() => gaNaarStap(stap + 1, "stap-vooruit"));
@@ -218,7 +247,14 @@ export function AanvraagStappen({
       <div className="container-page grid flex-1 items-start gap-10 py-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-14 lg:py-8">
         <div>
           <div className="flex items-center gap-4">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-lijn">
+            <div
+              role="progressbar"
+              aria-valuemin={1}
+              aria-valuemax={stappen.length}
+              aria-valuenow={stap + 1}
+              aria-label={`Vraag ${stap + 1} van ${stappen.length}`}
+              className="h-1.5 flex-1 overflow-hidden rounded-full bg-lijn"
+            >
               <div
                 className="h-full rounded-full bg-brand transition-[width] duration-300 ease-out"
                 style={{ width: `${((stap + 1) / stappen.length) * 100}%` }}
@@ -227,7 +263,7 @@ export function AanvraagStappen({
             <Link
               href="/"
               transitionTypes={["nav-terug"]}
-              className="flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-ink-soft transition hover:text-ink"
+              className="flex shrink-0 items-center gap-1.5 text-klein font-medium text-ink-soft transition hover:text-ink"
             >
               Sluiten
               <CloseIcon className="h-3.5 w-3.5" />
@@ -236,7 +272,7 @@ export function AanvraagStappen({
 
           <div className="mt-8">
             <ViewTransition key={stap} enter={stapRichtingen} exit={stapRichtingen} default="none">
-              <div>
+              <div ref={vraagVak}>
                 <Vraag
                   dienst={dienst}
                   stap={huidig}
@@ -251,7 +287,7 @@ export function AanvraagStappen({
           </div>
 
           {fout ? (
-            <p role="alert" className="mt-5 rounded-2xl bg-red-50 px-4 py-3 text-[14px] font-medium text-red-700">
+            <p role="alert" className="mt-5 rounded-2xl bg-red-50 px-4 py-3 text-basis font-medium text-red-700">
               {fout}
             </p>
           ) : null}
@@ -264,9 +300,12 @@ export function AanvraagStappen({
         <div className="container-page flex items-center justify-between gap-4">
           <button
             type="button"
-            onClick={() => gaNaarStap(Math.max(0, stap - 1), "stap-terug")}
-            disabled={stap === 0 || bevestigd}
-            className="flex items-center gap-2 text-[14px] font-semibold text-ink-soft transition hover:text-ink disabled:invisible"
+            onClick={() => {
+              if (bevestigd) return;
+              gaNaarStap(Math.max(0, stap - 1), "stap-terug");
+            }}
+            disabled={stap === 0}
+            className="flex items-center gap-2 text-basis font-semibold text-ink-soft transition hover:text-ink disabled:invisible"
           >
             <ArrowLeftIcon className="h-4 w-4" />
             Vorige vraag
@@ -276,8 +315,11 @@ export function AanvraagStappen({
             <button
               type="button"
               onClick={verder}
-              disabled={bezig || bevestigd}
-              className={`relative flex h-12 min-w-[190px] items-center justify-center gap-2 rounded-2xl bg-zon px-7 font-display text-[15px] font-medium text-ink transition hover:bg-zon-dark ${
+              // aria-disabled en niet disabled: een knop die zichzelf uitschakelt
+              // terwijl hij focus heeft, laat de browser de focus naar <body>
+              // gooien en die komt daarna niet vanzelf terug.
+              aria-disabled={bezig || bevestigd}
+              className={`relative flex h-12 min-w-[190px] items-center justify-center gap-2 rounded-2xl bg-zon px-7 font-display text-basis font-medium text-ink transition hover:bg-zon-dark ${
                 bezig ? "opacity-60" : ""
               }`}
             >
@@ -294,7 +336,7 @@ export function AanvraagStappen({
                 </span>
               ) : null}
             </button>
-            <p className="flex items-center gap-1.5 text-[12px] text-ink-soft">
+            <p className="flex items-center gap-1.5 text-mini text-ink-soft">
               <CheckIcon className="h-3.5 w-3.5 text-emerald-600" />
               Gratis en vrijblijvend
             </p>
@@ -349,7 +391,7 @@ function Vraag({
           {dienst.opties.map((optie) => (
             <label
               key={optie.id}
-              className="flex cursor-pointer items-center gap-3 rounded-2xl border border-lijn bg-white px-4 py-3.5 transition has-[:checked]:border-ink has-[:checked]:bg-brand-soft"
+              className="flex cursor-pointer items-center gap-3 rounded-2xl border border-lijn bg-white px-4 py-3.5 transition has-[:checked]:border-ink has-[:checked]:bg-brand-soft has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-deep"
             >
               <input
                 type="radio"
@@ -363,7 +405,7 @@ function Vraag({
                 aria-hidden
                 className="h-[18px] w-[18px] shrink-0 rounded-full border-[1.5px] border-ink-soft/50 transition peer-checked:border-[5.5px] peer-checked:border-ink"
               />
-              <span className="text-[15px] text-ink">{optie.label}</span>
+              <span className="text-basis text-ink">{optie.label}</span>
             </label>
           ))}
         </fieldset>
@@ -380,7 +422,7 @@ function Vraag({
         <div className="max-w-2xl">
           <Kalender gekozen={waarden.dagen} onWijzig={(dagen) => zet("dagen", dagen)} vakmanSlug={vakman?.slug} />
           {vakman ? (
-            <p className="mt-3 text-[13px] text-ink-soft">
+            <p className="mt-3 text-klein text-ink-soft">
               Doorgestreepte dagen zitten al vol bij {vakman.naam}. Kies gerust meerdere dagen, dan is er iets te
               schuiven.
             </p>
@@ -417,7 +459,7 @@ function Vraag({
           value={waarden.wensen}
           onChange={(event) => zet("wensen", event.target.value)}
           placeholder={`Met een goede beschrijving van je wensen kan ${dienst.lidwoordNaam} een passend voorstel maken.`}
-          className="w-full max-w-2xl rounded-2xl border border-lijn bg-white p-4 text-[15px] text-ink outline-none transition placeholder:text-ink-soft/70 focus:border-brand focus:ring-4 focus:ring-brand/15"
+          className="w-full max-w-2xl rounded-2xl border border-lijn bg-white p-4 text-basis text-ink outline-none transition placeholder:text-ink-soft focus:border-brand focus:ring-4 focus:ring-brand/15"
         />
       </Blok>
     );
@@ -442,7 +484,7 @@ function Vraag({
     return (
       <Blok kop="Op welk e-mailadres wil je de reacties ontvangen?">
         <div className="max-w-md">
-          <label htmlFor="email" className="block text-[14px] font-semibold text-ink">
+          <label htmlFor="email" className="block text-basis font-semibold text-ink">
             E-mailadres
           </label>
           <input
@@ -464,7 +506,7 @@ function Vraag({
     return (
       <Blok kop="Wat is je naam?" bovenkop="Bijna klaar!">
         <div className="max-w-md">
-          <label htmlFor="naam" className="block text-[14px] font-semibold text-ink">
+          <label htmlFor="naam" className="block text-basis font-semibold text-ink">
             Naam
           </label>
           <input
@@ -484,7 +526,7 @@ function Vraag({
   return (
     <Blok kop="Wat is je telefoonnummer?" bovenkop="Laatste stap!">
       <div className="max-w-md">
-        <label htmlFor="telefoon" className="block text-[14px] font-semibold text-ink">
+        <label htmlFor="telefoon" className="block text-basis font-semibold text-ink">
           Telefoonnummer
         </label>
         <input
@@ -497,7 +539,7 @@ function Vraag({
           className={`mt-2 ${invoerklassen}`}
         />
 
-        <label className="mt-3 flex cursor-pointer items-center gap-3 rounded-2xl border border-lijn bg-white px-4 py-3 transition has-[:checked]:border-ink has-[:checked]:bg-brand-soft">
+        <label className="mt-3 flex cursor-pointer items-center gap-3 rounded-2xl border border-lijn bg-white px-4 py-3 transition has-[:checked]:border-ink has-[:checked]:bg-brand-soft has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-deep">
           <input
             type="checkbox"
             checked={waarden.whatsapp}
@@ -510,7 +552,7 @@ function Vraag({
           >
             <CheckIcon className="h-3 w-3" />
           </span>
-          <span className="text-[14px] text-ink">Ja, Werkoo mag me updates sturen via WhatsApp</span>
+          <span className="text-basis text-ink">Ja, Werkoo mag me updates sturen via WhatsApp</span>
         </label>
 
         <Belofte />
@@ -555,7 +597,7 @@ function VakmanKeuze({
           return (
             <label
               key={vakman.slug}
-              className={`flex items-center gap-3.5 rounded-2xl border bg-white p-3.5 transition has-[:checked]:border-ink has-[:checked]:bg-brand-soft ${
+              className={`flex items-center gap-3.5 rounded-2xl border bg-white p-3.5 transition has-[:checked]:border-ink has-[:checked]:bg-brand-soft has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-deep ${
                 vakman.uitgelicht ? "border-zon-dark" : "border-lijn"
               } ${geblokkeerd ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
             >
@@ -584,11 +626,11 @@ function VakmanKeuze({
               {/* Twee regels, meer niet: wie het is, en het cijfer met de plaats. */}
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">
-                  <span className="truncate font-display text-[15px] font-bold text-ink">{vakman.naam}</span>
+                  <span className="truncate font-display text-basis font-bold text-ink">{vakman.naam}</span>
                   {vakman.uitgelicht ? <UitgelichtLabel /> : null}
                 </span>
-                <span className="mt-0.5 block truncate text-[13px] text-ink-soft">
-                  <span className="font-display text-[15px] font-bold text-ink">
+                <span className="mt-0.5 block truncate text-klein text-ink-soft">
+                  <span className="font-display text-basis font-bold text-ink">
                     {vakman.score.toLocaleString("nl-NL")}
                   </span>{" "}
                   · {vakman.reviews} reviews · {vakman.plaats}
@@ -603,7 +645,7 @@ function VakmanKeuze({
         <button
           type="button"
           onClick={() => setAllesTonen(true)}
-          className="mx-auto mt-4 flex items-center gap-1.5 text-[14px] font-semibold text-brand-deep transition hover:text-ink"
+          className="mx-auto mt-4 flex items-center gap-1.5 text-basis font-semibold text-brand-deep transition hover:text-ink"
         >
           <span aria-hidden className="text-[17px] leading-none">
             +
@@ -612,7 +654,7 @@ function VakmanKeuze({
         </button>
       ) : null}
 
-      <p className="mt-4 text-[13px] text-ink-soft">
+      <p className="mt-4 text-klein text-ink-soft">
         {gekozen.length} van {MAX_KEUZE} gekozen
       </p>
     </div>
@@ -632,11 +674,13 @@ function Blok({
 }) {
   return (
     <div>
-      {bovenkop ? <p className="font-display text-[14px] font-semibold text-brand-deep">{bovenkop}</p> : null}
-      <h1 className="font-display text-[24px] font-bold leading-[1.2] tracking-[-0.02em] text-ink sm:text-[30px]">
+      {bovenkop ? <p className="font-display text-basis font-semibold text-brand-deep">{bovenkop}</p> : null}
+      {/* tabIndex -1: na een stapwissel zetten we de focus hierop, zodat een
+          schermlezer de nieuwe vraag voorleest. */}
+      <h1 tabIndex={-1} className="font-display text-h2 text-ink">
         {kop}
       </h1>
-      {subkop ? <p className="mt-2 text-[14px] text-ink-soft">{subkop}</p> : null}
+      {subkop ? <p className="mt-2 text-basis text-ink-soft">{subkop}</p> : null}
       <div className="mt-6">{children}</div>
     </div>
   );
@@ -644,7 +688,7 @@ function Blok({
 
 function Belofte() {
   return (
-    <p className="mt-3 flex items-start gap-2 text-[13px] leading-relaxed text-ink-soft">
+    <p className="mt-3 flex items-start gap-2 text-klein text-ink-soft">
       <SlotIcon className="mt-0.5 h-4 w-4 shrink-0" />
       Je gegevens gaan alleen naar de vakmensen die op je aanvraag reageren.
     </p>
@@ -655,8 +699,8 @@ function Zijkolom({ vakman }: { vakman?: Vakman }) {
   return (
     <aside className="hidden lg:block">
       {vakman ? (
-        <div className="rounded-3xl border border-lijn bg-white p-5">
-          <p className="font-display text-[14px] font-bold text-ink">Gekozen vakman</p>
+        <div className="kaart p-5">
+          <p className="font-display text-basis font-bold text-ink">Gekozen vakman</p>
           <div className="mt-4 overflow-hidden rounded-2xl">
             <Image
               src={vakman.foto}
@@ -666,19 +710,19 @@ function Zijkolom({ vakman }: { vakman?: Vakman }) {
               className="h-[150px] w-full object-cover"
             />
           </div>
-          <p className="mt-3 font-display text-[15px] font-bold leading-snug text-ink">{vakman.naam}</p>
+          <p className="mt-3 font-display text-basis font-bold leading-snug text-ink">{vakman.naam}</p>
           <div className="mt-2 flex items-center gap-2">
             <Rating score={vakman.score} />
-            <span className="font-display text-[14px] font-bold text-ink">
+            <span className="font-display text-basis font-bold text-ink">
               {vakman.score.toLocaleString("nl-NL")}
             </span>
-            <span className="text-[13px] text-ink-soft">({vakman.reviews})</span>
+            <span className="text-klein text-ink-soft">({vakman.reviews})</span>
           </div>
         </div>
       ) : (
         <div className="rounded-3xl bg-brand-soft p-5">
-          <p className="font-display text-[15px] font-bold text-ink">Al 6.300 aanvragen dit jaar</p>
-          <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
+          <p className="font-display text-basis font-bold text-ink">Al 6.300 aanvragen dit jaar</p>
+          <p className="mt-2 text-basis text-ink-soft">
             Je vraag gaat naar vakmensen die op dat moment vrij zijn in jouw regio.
           </p>
         </div>
@@ -690,7 +734,7 @@ function Zijkolom({ vakman }: { vakman?: Vakman }) {
           "Vergelijk vrijblijvend en bespaar",
           "Meestal binnen 24 uur antwoord",
         ].map((punt) => (
-          <li key={punt} className="flex items-start gap-2.5 text-[14px] leading-relaxed text-ink-soft">
+          <li key={punt} className="flex items-start gap-2.5 text-basis text-ink-soft">
             <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-brand" />
             {punt}
           </li>
@@ -720,30 +764,30 @@ function Klaar({
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand/12 text-brand-deep">
           <VinkjeTekentIcon className="h-6 w-6" />
         </span>
-        <h1 className="mt-5 font-display text-[26px] font-bold tracking-[-0.02em] text-ink">Je aanvraag is verstuurd</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
+        <h1 className="mt-5 font-display text-h3 text-ink">Je aanvraag is verstuurd</h1>
+        <p className="mt-3 text-basis text-ink-soft">
           {vakman
             ? `${vakman.naam} en andere beschikbare vakmensen in ${plaats} kijken naar je vraag.`
             : `We leggen je vraag voor aan beschikbare vakmensen in ${plaats}.`}{" "}
           De eerste reacties komen meestal binnen 24 uur binnen op {email}.
         </p>
-        <p className="mt-4 text-[13px] text-ink-soft">
+        <p className="mt-4 text-klein text-ink-soft">
           Referentie <span className="font-semibold text-ink">{referentie}</span>
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-md rounded-3xl border border-lijn bg-white p-6 sm:p-7">
+      <div className="mx-auto mt-10 max-w-md kaart p-6 sm:p-7">
         {gestuurd ? (
           <div className="text-center">
-            <h2 className="font-display text-[18px] font-bold text-ink">Kijk in je mail</h2>
-            <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
+            <h2 className="font-display text-h4 text-ink">Kijk in je mail</h2>
+            <p className="mt-2 text-basis text-ink-soft">
               We hebben een inloglink gestuurd naar {email}. Daarmee kom je in je aanvraag zonder wachtwoord.
             </p>
           </div>
         ) : (
           <>
-            <h2 className="text-center font-display text-[18px] font-bold text-ink">Wil je je aanvraag volgen?</h2>
-            <p className="mt-2 text-center text-[14px] leading-relaxed text-ink-soft">
+            <h2 className="text-center font-display text-h4 text-ink">Wil je je aanvraag volgen?</h2>
+            <p className="mt-2 text-center text-basis text-ink-soft">
               Met een account zie je alle reacties bij elkaar en kun je direct antwoorden.
             </p>
 
@@ -752,7 +796,7 @@ function Klaar({
               <MerkKnop merk="apple" />
             </div>
 
-            <div className="my-5 flex items-center gap-3 text-[12px] uppercase tracking-[0.12em] text-ink-soft">
+            <div className="my-5 flex items-center gap-3 text-mini uppercase tracking-[0.12em] text-ink-soft">
               <span className="h-px flex-1 bg-lijn" />
               of
               <span className="h-px flex-1 bg-lijn" />
@@ -761,7 +805,7 @@ function Klaar({
             <button
               type="button"
               onClick={() => setGestuurd(true)}
-              className="flex h-12 w-full items-center justify-center rounded-2xl bg-ink font-display text-[15px] font-medium text-white transition hover:bg-brand-deep"
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-ink font-display text-basis font-medium text-white transition hover:bg-brand-deep"
             >
               Doorgaan met {email || "e-mail"}
             </button>
@@ -771,7 +815,7 @@ function Klaar({
         <Link
           href="/"
           transitionTypes={["nav-terug"]}
-          className="mt-5 block text-center text-[14px] font-semibold text-ink-soft transition hover:text-ink"
+          className="mt-5 block text-center text-basis font-semibold text-ink-soft transition hover:text-ink"
         >
           Nee, dat hoeft niet
         </Link>
@@ -786,7 +830,7 @@ export function MerkKnop({ merk }: { merk: "google" | "apple" }) {
   return (
     <button
       type="button"
-      className="flex h-12 w-full items-center justify-center gap-2.5 rounded-2xl border border-lijn bg-white font-display text-[15px] font-medium text-ink transition hover:bg-brand-soft"
+      className="flex h-12 w-full items-center justify-center gap-2.5 rounded-2xl border border-lijn bg-white font-display text-basis font-medium text-ink transition hover:bg-brand-soft"
     >
       {merk === "google" ? (
         <svg viewBox="0 0 18 18" aria-hidden className="h-[18px] w-[18px]">

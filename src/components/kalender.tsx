@@ -29,13 +29,13 @@ function Maand({
 
   return (
     <div>
-      <p className="text-center font-display text-[15px] font-semibold text-ink">
+      <p className="text-center font-display text-basis font-semibold text-ink">
         {maandnamen[maand]} {jaar}
       </p>
 
       <div className="mt-4 grid grid-cols-7 gap-1 text-center">
         {weekdagen.map((dag) => (
-          <span key={dag} className="pb-1 text-[12px] font-medium text-ink-soft">
+          <span key={dag} className="pb-1 text-mini font-medium text-ink-soft">
             {dag}
           </span>
         ))}
@@ -60,7 +60,7 @@ function Maand({
               aria-pressed={staatAan}
               aria-label={`${dag} ${maandnamen[maand]}${bezet ? " (bezet)" : ""}`}
               onClick={() => onKies(waarde)}
-              className={`flex h-9 items-center justify-center rounded-lg text-[14px] transition ${
+              className={`flex h-9 items-center justify-center rounded-lg text-basis transition ${
                 staatAan
                   ? "bg-ink font-semibold text-white"
                   : vrij
@@ -103,7 +103,7 @@ export function Kalender({
   };
 
   return (
-    <div className="rounded-3xl border border-lijn bg-white p-5 sm:p-6">
+    <div className="kaart p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4">
         <button
           type="button"
@@ -114,7 +114,7 @@ export function Kalender({
         >
           <ChevronDownIcon className="h-4 w-4 rotate-90" />
         </button>
-        <p className="text-[13px] text-ink-soft">Kies één of meerdere dagen</p>
+        <p className="text-klein text-ink-soft">Kies één of meerdere dagen</p>
         <button
           type="button"
           onClick={() => setVerschuiving((v) => Math.min(11, v + 1))}
