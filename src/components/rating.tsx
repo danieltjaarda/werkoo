@@ -2,9 +2,16 @@ import Image from "next/image";
 
 const MERK = "/images/werkoo-merk.png";
 
+/** Cijfers lopen tot 10, zoals mensen ze op school leerden lezen. */
+export const MAX_SCORE = 10;
+
+/** Vijf beeldmerken, want tien op een rij wordt een streepjescode. */
+const MERKEN = 5;
+
 /**
- * Vijf beeldmerken als waardering. Het laatste gevulde merk wordt deels
- * ingekleurd, zodat een 4,7 er ook echt uitziet als bijna vijf.
+ * Vijf beeldmerken als waardering bij een cijfer op een tienpuntsschaal. Het
+ * laatste gevulde merk wordt deels ingekleurd, zodat een 9,4 er ook echt
+ * uitziet als bijna vol.
  */
 export function Rating({
   score,
@@ -20,10 +27,10 @@ export function Rating({
   return (
     <span
       className={`flex items-center gap-1.5 ${className}`}
-      aria-label={`${score.toLocaleString("nl-NL")} van de 5`}
+      aria-label={`${score.toLocaleString("nl-NL")} van de ${MAX_SCORE}`}
     >
-      {Array.from({ length: 5 }).map((_, index) => {
-        const deel = Math.min(Math.max(score - index, 0), 1);
+      {Array.from({ length: MERKEN }).map((_, index) => {
+        const deel = Math.min(Math.max((score / MAX_SCORE) * MERKEN - index, 0), 1);
 
         return (
           <span key={index} className={`relative block shrink-0 ${maat}`}>

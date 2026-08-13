@@ -10,6 +10,8 @@ export type Lead = {
   datum: string;
   adres: string;
   wensen: string;
+  /** Slugs van de vakmensen die de bezoeker aanvinkte; zij krijgen de aanvraag. */
+  vakmensen: string[];
   naam: string;
   email: string;
   telefoon: string;
@@ -37,6 +39,10 @@ export async function POST(request: Request) {
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email!)) {
     return NextResponse.json({ fout: "Vul een geldig e-mailadres in." }, { status: 422 });
+  }
+
+  if (!Array.isArray(body.vakmensen) || body.vakmensen.length === 0) {
+    return NextResponse.json({ fout: "Kies minstens één vakman." }, { status: 422 });
   }
 
   const referentie = `WK-${Date.now().toString(36).toUpperCase()}`;

@@ -3,11 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { addTransitionType, startTransition, useState, ViewTransition } from "react";
-import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, CloseIcon, SlotIcon, VinkjeTekentIcon } from "@/components/icons";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CheckIcon,
+  CloseIcon,
+  SlotIcon,
+  VinkjeTekentIcon,
+} from "@/components/icons";
 import { Kalender } from "@/components/kalender";
 import { PlaatsInvoer } from "@/components/plaats-invoer";
 import { Rating } from "@/components/rating";
-import type { Vakman } from "@/lib/content";
+import { UitgelichtLabel } from "@/components/uitgelicht-label";
+import { vakmensenVoorPlaats, type Vakman } from "@/lib/content";
 import type { Dienst } from "@/lib/diensten";
 
 type Formulier = {
@@ -16,15 +24,41 @@ type Formulier = {
   dagen: string[];
   adres: string;
   wensen: string;
+  /** null zolang de bezoeker de selectie niet aanraakt; dan geldt de standaardkeuze. */
+  vakmensen: string[] | null;
   email: string;
   naam: string;
   telefoon: string;
   whatsapp: boolean;
 };
 
-type StapId = "plaats" | "type" | "datum" | "adres" | "wensen" | "email" | "naam" | "telefoon";
+type StapId = "plaats" | "type" | "datum" | "adres" | "wensen" | "vakmensen" | "email" | "naam" | "telefoon";
 
-const stappen: StapId[] = ["plaats", "type", "datum", "adres", "wensen", "email", "naam", "telefoon"];
+const stappen: StapId[] = [
+  "plaats",
+  "type",
+  "datum",
+  "adres",
+  "wensen",
+  "vakmensen",
+  "email",
+  "naam",
+  "telefoon",
+];
+
+/** Zoveel vakmensen mag iemand tegelijk aanvragen. */
+const MAX_KEUZE = 4;
+
+/** Aantal kaarten dat direct zichtbaar is; de rest komt achter "Toon meer". */
+const EERST_ZICHTBAAR = 2;
+
+/**
+ * Bij binnenkomst staan de direct zichtbare vakmensen aangevinkt. Meer voorvinken
+ * dan er op het scherm staan zou de teller laten liegen over wat je hebt gekozen.
+ */
+function standaardKeuze(vakmensen: Vakman[]): string[] {
+  return vakmensen.slice(0, EERST_ZICHTBAAR).map((vakman) => vakman.slug);
+}
 
 const invoerklassen =
   "h-13 w-full rounded-2xl border border-lijn bg-white px-4 text-[15px] text-ink outline-none transition placeholder:text-ink-soft/70 focus:border-brand focus:ring-4 focus:ring-brand/15";
@@ -62,6 +96,7 @@ export function AanvraagStappen({
     dagen: [],
     adres: "",
     wensen: "",
+    vakmensen: null,
     email: "",
     naam: "",
     telefoon: "",
@@ -71,6 +106,11 @@ export function AanvraagStappen({
   const huidig = stappen[stap];
   const laatste = stap === stappen.length - 1;
 
+  // De lijst hangt aan de ingevulde plaats, dus die leiden we bij elke render af
+  // in plaats van hem in state te dupliceren.
+  const vakmensen = vakmensenVoorPlaats(waarden.plaats);
+  const gekozenVakmensen = waarden.vakmensen ?? standaardKeuze(vakmensen);
+
   const zet = <K extends keyof Formulier>(veld: K, waarde: Formulier[K]) => {
     setWaarden((vorige) => ({ ...vorige, [veld]: waarde }));
     setFout(null);
@@ -79,6 +119,8 @@ export function AanvraagStappen({
   function valideer(): string | null {
     if (huidig === "plaats" && !waarden.plaats.trim()) return "Vul in waar je zoekt.";
     if (huidig === "type" && !waarden.type) return `Kies waar je ${dienst.lidwoordNaam} voor nodig hebt.`;
+    if (huidig === "vakmensen" && gekozenVakmensen.length === 0)
+      return `Kies minstens één ${dienst.naam.toLowerCase()} om je aanvraag naartoe te sturen.`;
     if (huidig === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(waarden.email))
       return "Vul een geldig e-mailadres in.";
     if (huidig === "naam" && !waarden.naam.trim()) return "Vul je naam in.";
@@ -126,6 +168,7 @@ export function AanvraagStappen({
           vakman: vakman?.slug ?? null,
           ...waarden,
           datum: waarden.dagen.join(", "),
+          vakmensen: gekozenVakmensen,
         }),
       });
       const data = await antwoord.json();
@@ -160,13 +203,15 @@ export function AanvraagStappen({
     ? bezig
       ? "Versturen…"
       : "Verstuur aanvraag"
-    : huidig === "datum" && waarden.dagen.length === 0
-      ? "Overslaan"
-      : huidig === "adres" && !waarden.adres.trim()
+    : huidig === "vakmensen"
+      ? "Verder"
+      : huidig === "datum" && waarden.dagen.length === 0
         ? "Overslaan"
-        : huidig === "wensen" && !waarden.wensen.trim()
+        : huidig === "adres" && !waarden.adres.trim()
           ? "Overslaan"
-          : "Volgende vraag";
+          : huidig === "wensen" && !waarden.wensen.trim()
+            ? "Overslaan"
+            : "Volgende vraag";
 
   return (
     <div className="flex min-h-[calc(100svh-var(--hoogte-kop))] flex-col">
@@ -192,7 +237,15 @@ export function AanvraagStappen({
           <div className="mt-8">
             <ViewTransition key={stap} enter={stapRichtingen} exit={stapRichtingen} default="none">
               <div>
-                <Vraag dienst={dienst} stap={huidig} waarden={waarden} zet={zet} vakman={vakman} />
+                <Vraag
+                  dienst={dienst}
+                  stap={huidig}
+                  waarden={waarden}
+                  zet={zet}
+                  vakman={vakman}
+                  vakmensen={vakmensen}
+                  gekozenVakmensen={gekozenVakmensen}
+                />
               </div>
             </ViewTransition>
           </div>
@@ -260,12 +313,16 @@ function Vraag({
   waarden,
   zet,
   vakman,
+  vakmensen,
+  gekozenVakmensen,
 }: {
   dienst: Dienst;
   stap: StapId;
   waarden: Formulier;
   zet: <K extends keyof Formulier>(veld: K, waarde: Formulier[K]) => void;
   vakman?: Vakman;
+  vakmensen: Vakman[];
+  gekozenVakmensen: string[];
 }) {
   if (stap === "plaats") {
     return (
@@ -366,6 +423,21 @@ function Vraag({
     );
   }
 
+  if (stap === "vakmensen") {
+    return (
+      <Blok
+        kop={`Beschikbare ${dienst.meervoud} gevonden`}
+        subkop={`Kies er maximaal ${MAX_KEUZE} om prijzen te vergelijken.`}
+      >
+        <VakmanKeuze
+          vakmensen={vakmensen}
+          gekozen={gekozenVakmensen}
+          onWijzig={(slugs) => zet("vakmensen", slugs)}
+        />
+      </Blok>
+    );
+  }
+
   if (stap === "email") {
     return (
       <Blok kop="Op welk e-mailadres wil je de reacties ontvangen?">
@@ -444,6 +516,106 @@ function Vraag({
         <Belofte />
       </div>
     </Blok>
+  );
+}
+
+/** De vakmensen die op de aanvraag mogen reageren, als aan te vinken kaarten. */
+function VakmanKeuze({
+  vakmensen,
+  gekozen,
+  onWijzig,
+}: {
+  vakmensen: Vakman[];
+  gekozen: string[];
+  onWijzig: (slugs: string[]) => void;
+}) {
+  const [allesTonen, setAllesTonen] = useState(false);
+
+  const zichtbaar = allesTonen ? vakmensen : vakmensen.slice(0, EERST_ZICHTBAAR);
+  const verborgen = vakmensen.length - zichtbaar.length;
+  const vol = gekozen.length >= MAX_KEUZE;
+
+  function wissel(slug: string) {
+    if (gekozen.includes(slug)) {
+      onWijzig(gekozen.filter((gekozenSlug) => gekozenSlug !== slug));
+      return;
+    }
+    if (vol) return;
+    onWijzig([...gekozen, slug]);
+  }
+
+  return (
+    <div className="max-w-2xl">
+      <div className="grid gap-3 sm:grid-cols-2">
+        {zichtbaar.map((vakman) => {
+          const aan = gekozen.includes(vakman.slug);
+          // Zit de selectie vol, dan blijft alleen uitvinken nog mogelijk.
+          const geblokkeerd = !aan && vol;
+
+          return (
+            <label
+              key={vakman.slug}
+              className={`flex items-center gap-3.5 rounded-2xl border bg-white p-3.5 transition has-[:checked]:border-ink has-[:checked]:bg-brand-soft ${
+                vakman.uitgelicht ? "border-zon-dark" : "border-lijn"
+              } ${geblokkeerd ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+            >
+              <input
+                type="checkbox"
+                checked={aan}
+                disabled={geblokkeerd}
+                onChange={() => wissel(vakman.slug)}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden
+                className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-md border-[1.5px] border-ink-soft/50 text-white transition peer-checked:border-ink peer-checked:bg-ink"
+              >
+                <CheckIcon className="h-3 w-3" />
+              </span>
+
+              <Image
+                src={vakman.foto}
+                alt=""
+                width={120}
+                height={120}
+                className="h-12 w-12 shrink-0 rounded-xl object-cover"
+              />
+
+              {/* Twee regels, meer niet: wie het is, en het cijfer met de plaats. */}
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2">
+                  <span className="truncate font-display text-[15px] font-bold text-ink">{vakman.naam}</span>
+                  {vakman.uitgelicht ? <UitgelichtLabel /> : null}
+                </span>
+                <span className="mt-0.5 block truncate text-[13px] text-ink-soft">
+                  <span className="font-display text-[15px] font-bold text-ink">
+                    {vakman.score.toLocaleString("nl-NL")}
+                  </span>{" "}
+                  · {vakman.reviews} reviews · {vakman.plaats}
+                </span>
+              </span>
+            </label>
+          );
+        })}
+      </div>
+
+      {verborgen > 0 ? (
+        <button
+          type="button"
+          onClick={() => setAllesTonen(true)}
+          className="mx-auto mt-4 flex items-center gap-1.5 text-[14px] font-semibold text-brand-deep transition hover:text-ink"
+        >
+          <span aria-hidden className="text-[17px] leading-none">
+            +
+          </span>
+          Toon {verborgen} meer
+        </button>
+      ) : null}
+
+      <p className="mt-4 text-[13px] text-ink-soft">
+        {gekozen.length} van {MAX_KEUZE} gekozen
+      </p>
+    </div>
   );
 }
 

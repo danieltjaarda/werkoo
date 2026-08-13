@@ -35,7 +35,9 @@ export function Hero({
             <span className="font-serif font-medium italic">{dienst.naam.toLowerCase()}</span> in{" "}
             <span className="relative inline-block whitespace-nowrap">
               {plaats}
-              <Squiggle className="absolute bottom-0.5 left-0 h-2.5 w-full text-turquoise" />
+              {/* Hoogte en afstand in em, niet in px: de kop groeit van 34 naar 46px en
+                  met vaste pixels zakt de streep op mobiel dwars door de letters heen. */}
+              <Squiggle className="absolute bottom-0 left-0 h-[0.19em] w-full text-turquoise" />
             </span>{" "}
             die bij jouw verhaal past
           </h1>
@@ -46,8 +48,8 @@ export function Hero({
 
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-[13px] text-ink-soft">
             <span className="flex items-center gap-2">
-              <Rating score={4.7} />
-              <strong className="font-semibold text-ink">4,7</strong> uit 4.384 beoordelingen
+              <Rating score={9.4} />
+              <strong className="font-semibold text-ink">9,4</strong> uit 4.384 beoordelingen
             </span>
             <span className="flex items-center gap-2">
               <CheckIcon className="h-4 w-4 text-brand" />

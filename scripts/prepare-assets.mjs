@@ -77,6 +77,40 @@ for (const bestand of profielen.filter((naam) => naam.endsWith(".png"))) {
 }
 console.log(`${profielen.length} profielfoto's klaargezet`);
 
+/*
+ * Sommige vakmensen leveren een liggend woordmerk in plaats van een foto. Dat mag
+ * niet worden bijgesneden, dus die gaan passend op wit in een vierkante tegel: die
+ * overleeft zowel de kleine vierkante kaart in de aanvraagflow als het liggende
+ * vlak in de toplijst.
+ */
+const LOGO_TEGEL = 580;
+const LOGO_RAND = 64;
+
+const logos = (await readdir("assets-src/profielen-logo")).filter((naam) => /\.(png|svg)$/.test(naam));
+for (const bestand of logos) {
+  const naam = bestand.replace(/\.(png|svg)$/, "");
+  // Een hoge density laat sharp een svg eerst groot uitrasteren, zodat de randen
+  // na het verkleinen naar de tegel scherp blijven.
+  await sharp(`assets-src/profielen-logo/${bestand}`, { density: 600 })
+    .resize({
+      width: LOGO_TEGEL - LOGO_RAND * 2,
+      height: LOGO_TEGEL - LOGO_RAND * 2,
+      fit: "contain",
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
+    })
+    .extend({
+      top: LOGO_RAND,
+      bottom: LOGO_RAND,
+      left: LOGO_RAND,
+      right: LOGO_RAND,
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
+    })
+    .flatten({ background: { r: 255, g: 255, b: 255 } })
+    .webp({ quality: 90 })
+    .toFile(`public/images/profielen/${naam}.webp`);
+}
+console.log(`${logos.length} vakmanlogo's klaargezet`);
+
 const { data, info } = await sharp("assets-src/foto.png")
   .resize({ width: WORK_WIDTH })
   .ensureAlpha()

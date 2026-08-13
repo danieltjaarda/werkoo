@@ -1,6 +1,6 @@
 const cijfers = [
   { getal: "650+", tekst: "vakmensen aangesloten" },
-  { getal: "4,7", tekst: "gemiddelde beoordeling" },
+  { getal: "9,4", tekst: "gemiddelde beoordeling" },
   { getal: "18 u", tekst: "gemiddelde reactietijd" },
   { getal: "0 €", tekst: "kosten voor je aanvraag" },
 ];

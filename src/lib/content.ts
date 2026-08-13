@@ -53,11 +53,40 @@ export type Vakman = {
   reviews: number;
   fotos: number;
   topPro: boolean;
+  /**
+   * Betaalde uitgelichte plek: staat altijd bovenaan, ongeacht plaats of cijfer.
+   * De kaart draagt daarom zichtbaar het label "Uitgelicht", zodat een bezoeker
+   * ziet dat dit geen organische nummer één is.
+   */
+  uitgelicht?: boolean;
   troeven: Troef[];
   tekst: string;
 };
 
 export const videografen: Vakman[] = [
+  {
+    // Gegevens overgenomen uit de schema.org-data op mediaspot.nl.
+    slug: "mediaspot",
+    naam: "Mediaspot",
+    foto: "/images/profielen/mediaspot.webp",
+    belofte: "van concept tot montage",
+    plaats: "Joure",
+    adres: "Brandemeer 6, Joure",
+    jaren: 2,
+    telefoon: "06 20176727",
+    score: 10,
+    reviews: 234,
+    fotos: 42,
+    topPro: true,
+    uitgelicht: true,
+    troeven: [
+      { label: "Gratis kennismaking", soort: "aanbod" },
+      { label: "Reageert binnen 1 uur", soort: "snelheid" },
+      { label: "Werkoo-keurmerk", soort: "keurmerk" },
+    ],
+    tekst:
+      "Videograaf uit Joure voor bruiloften, evenementen, bedrijfsfilms en social content. Van concept tot montage, actief in Friesland, Groningen, Drenthe, Overijssel, Flevoland en Gelderland.",
+  },
   {
     slug: "studio-noordlicht",
     naam: "Studio Noordlicht",
@@ -67,7 +96,7 @@ export const videografen: Vakman[] = [
     adres: "Fok 32, Heerenveen",
     jaren: 11,
     telefoon: "0513 820 145",
-    score: 4.9,
+    score: 9.8,
     reviews: 121,
     fotos: 38,
     topPro: true,
@@ -88,7 +117,7 @@ export const videografen: Vakman[] = [
     adres: "Midstraat 104, Joure",
     jaren: 7,
     telefoon: "0513 745 210",
-    score: 4.8,
+    score: 9.6,
     reviews: 63,
     fotos: 24,
     topPro: true,
@@ -109,7 +138,7 @@ export const videografen: Vakman[] = [
     adres: "Oosterdijk 19, Sneek",
     jaren: 5,
     telefoon: "0515 336 802",
-    score: 4.7,
+    score: 9.4,
     reviews: 48,
     fotos: 16,
     topPro: false,
@@ -126,21 +155,21 @@ export const reviews = [
   {
     naam: "Lianne Hoekstra",
     plaats: "Joure",
-    score: 5,
+    score: 10,
     tekst:
       "Ik had de volgende ochtend al drie reacties voor onze trouwfilm. De verschillen in prijs waren fors, dus fijn om te kunnen kiezen.",
   },
   {
     naam: "Bas Terpstra",
     plaats: "Leeuwarden",
-    score: 5,
+    score: 10,
     tekst:
       "We zochten iemand voor een bedrijfsfilm en kwamen uit bij een studio die onze branche kende. Dat scheelde enorm veel uitleg.",
   },
   {
     naam: "Sanne Bouma",
     plaats: "Heerenveen",
-    score: 4,
+    score: 8,
     tekst:
       "Prettig dat niemand aan je begint te trekken als je nog twijfelt. De videograaf die we kozen dacht goed mee over het draaiboek.",
   },
@@ -165,7 +194,7 @@ export const veelgesteldeVragen = [
   {
     vraag: "Wie laten jullie toe?",
     antwoord:
-      "We kijken naar de KvK-inschrijving, eerder werk en de beoordelingen die binnenkomen. Zakt iemand onder een 4,0 gemiddeld, dan gaat het profiel eraf.",
+      "We kijken naar de KvK-inschrijving, eerder werk en de beoordelingen die binnenkomen. Zakt iemand onder een 8,0 gemiddeld, dan gaat het profiel eraf.",
   },
   {
     vraag: "Kan ik zelf iemand benaderen?",
@@ -177,4 +206,24 @@ export const veelgesteldeVragen = [
 export function vakmanVanSlug(slug: string | undefined): Vakman | undefined {
   if (!slug) return undefined;
   return videografen.find((vakman) => vakman.slug === slug);
+}
+
+/**
+ * De volgorde waarin we vakmensen voorleggen in de aanvraagflow: uitgelichte
+ * partners eerst, dan wie in de gevraagde plaats zit, dan de hoogste beoordeling.
+ * We filteren bewust niet op plaats, want dan houdt iemand buiten Friesland een
+ * lege lijst over. Zodra er echte dekking per regio is, hoort dat hier te gebeuren.
+ */
+export function vakmensenVoorPlaats(plaats: string): Vakman[] {
+  const gezocht = plaats.trim().toLowerCase();
+  const rang = (vakman: Vakman) => [
+    vakman.uitgelicht ? 0 : 1,
+    vakman.plaats.toLowerCase() === gezocht ? 0 : 1,
+  ];
+
+  return [...videografen].sort((a, b) => {
+    const [aUit, aRaak] = rang(a);
+    const [bUit, bRaak] = rang(b);
+    return aUit - bUit || aRaak - bRaak || b.score - a.score;
+  });
 }

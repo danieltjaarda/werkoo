@@ -181,6 +181,15 @@ export function KeurmerkIcon({ className }: IconProps) {
   );
 }
 
+/** Ster voor de uitgelichte partner; bewust anders van vorm dan het keurmerk. */
+export function SterIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <path d="M12 2.6c.3 0 .6.2.7.5l2.3 5.3 5.7.5c.7.1 1 1 .4 1.4l-4.3 3.8 1.3 5.6c.2.7-.6 1.2-1.2.9L12 17.6l-4.9 3c-.6.3-1.4-.2-1.2-.9l1.3-5.6-4.3-3.8c-.5-.5-.3-1.3.4-1.4l5.7-.5 2.3-5.3c.1-.3.4-.5.7-.5Z" />
+    </svg>
+  );
+}
+
 export function QuoteIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>

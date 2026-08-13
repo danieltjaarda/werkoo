@@ -13,6 +13,7 @@ import {
   ZegelIcon,
 } from "@/components/icons";
 import { Rating } from "@/components/rating";
+import { UitgelichtLabel } from "@/components/uitgelicht-label";
 import type { Troef } from "@/lib/content";
 import { reviews, stappen, veelgesteldeVragen, videografen, voordelen } from "@/lib/content";
 
@@ -168,6 +169,7 @@ export function TopLijst({ plaats }: { plaats: string }) {
                     </h3>
 
                     <div className="flex shrink-0 items-center gap-3">
+                      {videograaf.uitgelicht ? <UitgelichtLabel formaat="groot" /> : null}
                       {videograaf.topPro ? (
                         <span className="flex items-center gap-1.5 font-display text-[12px] font-bold uppercase tracking-[0.08em] text-ink">
                           <KeurmerkIcon className="h-[18px] w-[18px] text-brand" />
