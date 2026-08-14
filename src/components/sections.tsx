@@ -165,6 +165,10 @@ export async function TopLijst({ dienst, plaats }: { dienst: Dienst; plaats: str
   const lijst = await bedrijvenVoorDienst(dienst.slug, plaats);
   if (lijst.length === 0) return null;
 
+  // De plaats meegeven, anders begint de flow weer bij "de buurt" en krijgt de
+  // bezoeker een lijst die niet bij zijn regio hoort.
+  const aanvraagPad = `/aanvraag?dienst=${dienst.slug}&plaats=${encodeURIComponent(plaats)}`;
+
   return (
     <section id="vakmensen" className="sectie">
       <div className="container-page">
@@ -182,29 +186,40 @@ export async function TopLijst({ dienst, plaats }: { dienst: Dienst; plaats: str
             >
               <div className="flex flex-col gap-5 lg:flex-row">
                 <div className="relative h-[180px] w-full shrink-0 overflow-hidden rounded-2xl bg-brand-soft sm:h-[136px] sm:w-[168px]">
-                  <Image
-                    src={vakman.foto}
-                    alt={`Werk van ${vakman.naam}`}
-                    width={720}
-                    height={580}
-                    sizes="(min-width: 640px) 168px, 100vw"
-                    className="h-full w-full object-cover"
-                  />
-                  <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded-lg bg-ink/70 px-1.5 py-0.5 text-mini font-medium text-white">
-                    <FotoIcon className="h-3 w-3" />
-                    {vakman.fotos}
-                  </span>
+                  {/* Wie zich net heeft aangemeld heeft nog geen foto; een lege src
+                      geeft een gebroken plaatje, dus dan tonen we de beginletter. */}
+                  {vakman.foto ? (
+                    <Image
+                      src={vakman.foto}
+                      alt={`Werk van ${vakman.naam}`}
+                      width={720}
+                      height={580}
+                      sizes="(min-width: 640px) 168px, 100vw"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center font-display text-h2 text-brand-deep">
+                      {vakman.naam.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                  {vakman.fotos > 0 ? (
+                    <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded-lg bg-ink/70 px-1.5 py-0.5 text-mini font-medium text-white">
+                      <FotoIcon className="h-3 w-3" />
+                      {vakman.fotos}
+                    </span>
+                  ) : null}
                 </div>
 
                 <div className="min-w-0 flex-1">
                   {/* Naam op een eigen regel; het cijfer eronder, anders wordt de kop een rommeltje. */}
                   <h3 className="font-display text-h5 text-ink">
                     <Link
-                      href={`/aanvraag?dienst=${dienst.slug}&vakman=${vakman.slug}`}
+                      href={`${aanvraagPad}&vakman=${vakman.slug}`}
                       transitionTypes={["nav-vooruit"]}
                       className="text-brand-deep underline-offset-4 hover:underline"
                     >
-                      {index + 1}. {vakman.naam} – {vakman.belofte}
+                      {index + 1}. {vakman.naam}
+                      {vakman.belofte ? ` – ${vakman.belofte}` : ""}
                     </Link>
                   </h3>
 
@@ -254,14 +269,14 @@ export async function TopLijst({ dienst, plaats }: { dienst: Dienst; plaats: str
 
                 <div className="flex flex-col justify-end gap-2 lg:w-[220px] lg:shrink-0">
                   <Link
-                    href={`/aanvraag?dienst=${dienst.slug}&vakman=${vakman.slug}`}
+                    href={`${aanvraagPad}&vakman=${vakman.slug}`}
                     transitionTypes={["nav-vooruit"]}
                     className="flex items-center justify-center rounded-xl border border-brand px-4 py-3 font-display text-basis font-semibold text-brand-deep transition hover:bg-brand-soft"
                   >
                     Start jouw project
                   </Link>
                   <Link
-                    href={`/aanvraag?dienst=${dienst.slug}&vakman=${vakman.slug}`}
+                    href={`${aanvraagPad}&vakman=${vakman.slug}`}
                     transitionTypes={["nav-vooruit"]}
                     className="flex items-center justify-center rounded-xl bg-zon px-4 py-3 font-display text-basis font-semibold text-ink transition hover:bg-zon-dark"
                   >
@@ -346,12 +361,12 @@ export function Beoordelingen({ dienstSlug }: { dienstSlug?: string }) {
             <li key={review.naam} className="kaart p-7">
               <QuoteIcon className="h-7 w-7 text-brand/50" />
               <p className="mt-4 text-basis text-ink">{review.tekst}</p>
-              <div className="mt-6 flex items-center justify-between gap-3 border-t border-lijn pt-4">
-                <p className="text-klein font-semibold text-ink">
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-lijn pt-4">
+                <p className="min-w-0 text-klein font-semibold text-ink">
                   {review.naam}
                   <span className="ml-1.5 font-normal text-ink-soft">{review.plaats}</span>
                 </p>
-                <Rating score={review.score} />
+                <Rating score={review.score} className="shrink-0" />
               </div>
             </li>
           ))}

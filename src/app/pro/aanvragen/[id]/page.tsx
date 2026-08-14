@@ -73,7 +73,10 @@ export default async function ProAanvraagDetail({ params }: PageProps<"/pro/aanv
                 <label htmlFor="status" className="block text-klein font-semibold text-ink">
                   Status
                 </label>
+                {/* key op de huidige status: zonder dat houdt React na de actie
+                    de oude defaultValue vast en zet "Bijwerken" de status terug. */}
                 <select
+                  key={aanvraag.status}
                   id="status"
                   name="status"
                   defaultValue={aanvraag.status}

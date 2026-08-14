@@ -107,6 +107,9 @@ export function AanvraagStappen({
   const [bevestigd, setBevestigd] = useState(false);
   const [fout, setFout] = useState<string | null>(null);
   const [referentie, setReferentie] = useState<string | null>(null);
+  // Hoeveel vakmensen de aanvraag daadwerkelijk hebben gekregen; bij een dienst
+  // zonder aangesloten bedrijven is dat nul en dat mogen we niet verzwijgen.
+  const [ontvangers, setOntvangers] = useState(0);
   const [waarden, setWaarden] = useState<Formulier>({
     plaats: beginPlaats,
     type: dienst.opties.some((optie) => optie.id === beginType) ? beginType : "",
@@ -216,6 +219,7 @@ export function AanvraagStappen({
       naVinkje(() =>
         startTransition(() => {
           addTransitionType("klaar");
+          setOntvangers(data.ontvangers ?? 0);
           setReferentie(data.referentie);
         }),
       );
@@ -234,6 +238,7 @@ export function AanvraagStappen({
           plaats={waarden.plaats}
           referentie={referentie}
           vakman={vakman}
+          ontvangers={ontvangers}
           alIngelogd={Boolean(ingelogdAls)}
         />
       </ViewTransition>
@@ -765,12 +770,15 @@ function Klaar({
   plaats,
   referentie,
   vakman,
+  ontvangers,
   alIngelogd,
 }: {
   email: string;
   plaats: string;
   referentie: string;
   vakman?: Bedrijf;
+  /** Aantal vakmensen dat de aanvraag heeft ontvangen. */
+  ontvangers: number;
   alIngelogd: boolean;
 }) {
   return (
@@ -779,12 +787,26 @@ function Klaar({
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand/12 text-brand-deep">
           <VinkjeTekentIcon className="h-6 w-6" />
         </span>
-        <h1 className="mt-5 font-display text-h3 text-ink">Je aanvraag is verstuurd</h1>
+        <h1 className="mt-5 font-display text-h3 text-ink">
+          {ontvangers === 0 ? "We hebben je aanvraag" : "Je aanvraag is verstuurd"}
+        </h1>
+        {/* Bij nul ontvangers geen belofte over reacties binnen een dag: voor deze
+            dienst is in deze regio nog niemand aangesloten. */}
         <p className="mt-3 text-basis text-ink-soft">
-          {vakman
-            ? `${vakman.naam} en andere beschikbare vakmensen in ${plaats} kijken naar je vraag.`
-            : `We leggen je vraag voor aan beschikbare vakmensen in ${plaats}.`}{" "}
-          De eerste reacties komen meestal binnen 24 uur binnen op {email}.
+          {ontvangers === 0 ? (
+            <>
+              Voor deze dienst hebben we in {plaats} nog geen vakmensen aangesloten. We gaan er zelf
+              achteraan en laten het je weten op {email} zodra we iemand hebben gevonden. Duurt dat te
+              lang, bel ons dan gerust.
+            </>
+          ) : (
+            <>
+              {vakman
+                ? `${vakman.naam} en andere beschikbare vakmensen in ${plaats} kijken naar je vraag.`
+                : `Je vraag ligt bij ${ontvangers} ${ontvangers === 1 ? "vakman" : "vakmensen"} in ${plaats}.`}{" "}
+              De eerste reacties komen meestal binnen 24 uur binnen op {email}.
+            </>
+          )}
         </p>
         <p className="mt-4 text-klein text-ink-soft">
           Referentie <span className="font-semibold text-ink">{referentie}</span>

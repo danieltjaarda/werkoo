@@ -69,13 +69,18 @@ export default async function AanvraagDetail({ params }: PageProps<"/account/[re
           <div className="mt-10 grid gap-6 lg:grid-cols-[1.3fr_1fr] lg:gap-10">
             <section>
               <h2 className="font-display text-h4 text-ink">
-                {reacties.length === 0 ? "Nog geen reacties" : `${reacties.length} ${reacties.length === 1 ? "reactie" : "reacties"}`}
+                {reacties.length === 0
+                  ? aanvraag.ontvangers === 0
+                    ? "Nog geen vakman gevonden"
+                    : "Nog geen reacties"
+                  : `${reacties.length} ${reacties.length === 1 ? "reactie" : "reacties"}`}
               </h2>
 
               {reacties.length === 0 ? (
                 <p className="kaart mt-4 p-6 text-basis text-ink-soft">
-                  Je aanvraag staat klaar bij de vakmensen. De eerste reactie komt meestal binnen 24 uur; we
-                  sturen je een bericht zodra er iets binnen is.
+                  {aanvraag.ontvangers === 0
+                    ? `Voor deze dienst hebben we in ${aanvraag.plaats} nog geen vakmensen aangesloten. We gaan er zelf achteraan en laten het je weten zodra we iemand hebben gevonden.`
+                    : "Je aanvraag staat klaar bij de vakmensen. De eerste reactie komt meestal binnen 24 uur; we sturen je een bericht zodra er iets binnen is."}
                 </p>
               ) : (
                 <ul className="mt-4 space-y-4">

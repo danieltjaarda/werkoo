@@ -106,10 +106,13 @@ for (let i = 0; i < 8; i++) {
 const heeftVakmanvraag = stappenZonderKeuze.some((k) => k.includes("Beschikbare"));
 console.log(`dakdekker: ${stappenZonderKeuze.length} vragen, vakmensenstap ${heeftVakmanvraag ? "AANWEZIG (fout)" : "overgeslagen"}`);
 
-// Zonder gekozen vakmensen moet de aanvraag alsnog door de api komen.
-await page.getByText("Je aanvraag is verstuurd").waitFor({ timeout: 8000 });
+// Zonder gekozen vakmensen moet de aanvraag alsnog door de api komen. Bij een
+// dienst waar nog niemand voor is aangesloten heet de kop bewust anders, want
+// dan beloven we geen reacties.
+await page.getByText(/Je aanvraag is verstuurd|We hebben je aanvraag/).waitFor({ timeout: 8000 });
+const slotkop = await page.locator("main h1").first().innerText();
 await leg("12-dakdekker-verstuurd");
-console.log("aanvraag zonder vakmanselectie verstuurd");
+console.log(`aanvraag zonder vakmanselectie verstuurd — slotscherm: "${slotkop}"`);
 
 // --- Inloggen --------------------------------------------------------------
 await page.goto(`${basis}/inloggen`, { waitUntil: "networkidle" });

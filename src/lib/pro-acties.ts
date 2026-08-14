@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { bewaarReactie, zetStatus, type Status } from "@/lib/aanvragen";
+import { bewaarReactie, isUuid, zetStatus, type Status } from "@/lib/aanvragen";
 import { vereisBedrijf } from "@/lib/auth";
 import { vraag, vraagEen } from "@/lib/db";
 import { getDienst } from "@/lib/diensten";
@@ -24,6 +24,7 @@ export async function reageren(_vorige: Uitkomst, data: FormData): Promise<Uitko
   const prijs = tekst(data, "prijs");
 
   if (bericht.length < 10) return { fout: "Schrijf even een bericht van een paar zinnen." };
+  if (!isUuid(aanvraagId)) return { fout: "Deze aanvraag staat niet bij jouw bedrijf." };
 
   // Controleren dat deze aanvraag echt bij dit bedrijf hoort.
   const hoortErbij = await vraagEen(
@@ -45,7 +46,7 @@ export async function statusWijzigen(data: FormData): Promise<void> {
   const aanvraagId = tekst(data, "aanvraagId");
   const status = tekst(data, "status") as Status;
 
-  if (!STATUSSEN.includes(status)) return;
+  if (!STATUSSEN.includes(status) || !isUuid(aanvraagId)) return;
 
   await zetStatus(aanvraagId, bedrijf.id, status);
   revalidatePath(`/pro/aanvragen/${aanvraagId}`);

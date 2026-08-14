@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Pool, type PoolClient } from "pg";
 
 /**
  * Eén pool voor het hele proces. In ontwikkeling herlaadt Next de modules bij
@@ -35,6 +35,25 @@ export async function vraag<T extends Record<string, unknown>>(
 ): Promise<T[]> {
   const uitkomst = await pool().query(sql, waarden);
   return uitkomst.rows as T[];
+}
+
+/**
+ * Voert een reeks queries uit in één transactie. Alles of niets: valt er iets om,
+ * dan draait de hele boel terug en blijft er geen half account achter.
+ */
+export async function metTransactie<T>(werk: (client: PoolClient) => Promise<T>): Promise<T> {
+  const client = await pool().connect();
+  try {
+    await client.query("begin");
+    const uitkomst = await werk(client);
+    await client.query("commit");
+    return uitkomst;
+  } catch (fout) {
+    await client.query("rollback");
+    throw fout;
+  } finally {
+    client.release();
+  }
 }
 
 /** Zelfde als `vraag`, maar voor het geval waarin je één of geen rij verwacht. */

@@ -34,6 +34,7 @@ andere poort omdat 3000 bezet is, geef die dan mee aan de scripts: `URL=http://l
 | `npm run locatie`   | Controleert de plaatsbepaling met nagebootste geo-headers           |
 | `npm run routes`    | Controleert de routetabel (zie "Routes" hieronder — belangrijk)     |
 | `npm run account`   | Loopt de hele keten door: aanmelden, aanvragen, reageren, terugzien |
+| `npm run beveiliging` | Controleert de fouten uit de testronde; draai dit vóór elke release |
 | `npm run migreer`   | Draait de sql-migraties in `db/migraties/`                          |
 | `npm run seed`      | Zet de vier nagekeken videograafprofielen in de database            |
 
@@ -63,7 +64,10 @@ Op Vercel zet je daar de url van Neon of Supabase neer; verder verandert er niet
 de code. Het schema staat als leesbare sql in `db/migraties/` en `scripts/migreer.mjs` is
 het enige wat het uitvoert — geen ORM, geen generatiestap.
 
-**Accounts.** Inloggen gaat met e-mailadres en wachtwoord. Wachtwoorden gaan door scrypt
+**Accounts.** Inloggen gaat met e-mailadres en wachtwoord. Na vijf mislukte pogingen op
+hetzelfde adres zit het een kwartier op slot (tabel `inlogpogingen`). Bij een onbekend adres
+rekenen we een hash uit tegen een schijnwaarde, zodat de reactietijd niet verraadt wie er
+een account heeft. Wachtwoorden gaan door scrypt
 uit de standaardbibliotheek van Node (parameters staan in de hash, zodat we ze later
 kunnen verzwaren). Een sessie is een willekeurig token in een httpOnly-cookie met een rij
 in `sessies`; verlopen sessies ruimen we op zodra we ze tegenkomen.
@@ -77,6 +81,14 @@ aanvragen alsnog aan het nieuwe account.
 Een bedrijfsprofiel kan bestaan zonder account: de vier videograafprofielen uit
 `npm run seed` staan er zo in, klaar om later geclaimd te worden.
 
+**Let op bij het koppelen van aanvragen aan accounts.** Een nieuwe aanvraag met het
+e-mailadres van een bestaand account hangt zichzelf aan dat account — die richting is
+veilig, je geeft iemand hooguit een aanvraag die hij niet heeft gedaan. De omgekeerde
+richting doen we bewust níét: zolang er geen bevestigingsmail is, zou registreren op
+andermans adres je zijn naam, telefoonnummer, huisadres en klusomschrijving opleveren. Dat
+zat er even in en is eruit gehaald; `npm run beveiliging` bewaakt het. Aanvragen van vóór
+een registratie blijven dus los tot er e-mailverificatie is.
+
 ## Van aanvraag naar reactie
 
 1. De bezoeker doorloopt `/aanvraag` en `POST /api/leads` schrijft de aanvraag weg.
@@ -86,6 +98,11 @@ Een bedrijfsprofiel kan bestaan zonder account: de vier videograafprofielen uit
    valt af als de plaats daar niet in zit.
 3. Elke ontvanger krijgt een rij in `aanvraag_bedrijven` met een status
    (nieuw, in behandeling, gereageerd, gewonnen, niet doorgegaan).
+   Wat de browser meestuurt is daarbij een wens, geen opdracht: de server bepaalt zelf wie
+   in aanmerking komt en houdt de aangevinkte bedrijven daartegenaan. Zo blijft het
+   werkgebied overeind en kan niemand de aanvraag naar alle bedrijven tegelijk sturen.
+   Zijn er nul ontvangers, dan zegt de bevestiging dat ook — geen belofte over reacties
+   binnen een dag als er niemand is aangesloten.
 4. De vakman ziet de aanvraag op `/pro/aanvragen`, reageert met een bericht en een
    prijsindicatie, en die reactie verschijnt bij de klant op `/account/[referentie]`.
 

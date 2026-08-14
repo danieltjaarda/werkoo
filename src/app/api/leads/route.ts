@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { bewaarAanvraag } from "@/lib/aanvragen";
 import { huidigeGebruiker } from "@/lib/auth";
 import { getDienst } from "@/lib/diensten";
+import { normaliseerPlaats } from "@/lib/plaatsen";
 
 export type Lead = {
   dienst: string;
@@ -22,6 +23,21 @@ export type Lead = {
 };
 
 const verplichteVelden: (keyof Lead)[] = ["dienst", "type", "plaats", "naam", "email", "telefoon"];
+
+/**
+ * "2026-02-30" is een geldig patroon maar geen bestaande dag; JavaScript rolt hem
+ * stil door naar maart. Daarom vergelijken we de onderdelen na het omzetten terug.
+ */
+function echteDag(dag: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dag)) return false;
+
+  const [jaar, maand, dagnummer] = dag.split("-").map(Number);
+  const datum = new Date(jaar, maand - 1, dagnummer);
+
+  return (
+    datum.getFullYear() === jaar && datum.getMonth() === maand - 1 && datum.getDate() === dagnummer
+  );
+}
 
 export async function POST(request: Request) {
   let body: Partial<Lead>;
@@ -51,9 +67,26 @@ export async function POST(request: Request) {
   }
 
   // Een onbekende dienst hoort niet in de database te belanden.
-  if (!getDienst(body.dienst)) {
+  const dienst = getDienst(body.dienst);
+  if (!dienst) {
     return NextResponse.json({ fout: "Deze dienst kennen we niet." }, { status: 422 });
   }
+
+  if (!dienst.opties.some((optie) => optie.id === body.type)) {
+    return NextResponse.json({ fout: "Deze keuze hoort niet bij deze dienst." }, { status: 422 });
+  }
+
+  // Wat als plaats binnenkomt hoeft niet in onze lijst te staan, maar moet er wel
+  // als een plaatsnaam uitzien; anders komt er van alles in de teksten terecht.
+  const plaats = normaliseerPlaats(body.plaats);
+  if (!plaats) {
+    return NextResponse.json({ fout: "Vul een geldige plaatsnaam in." }, { status: 422 });
+  }
+
+  const dagen = (body.datum ?? "")
+    .split(",")
+    .map((dag) => dag.trim())
+    .filter(echteDag);
 
   /**
    * Een lege lijst is geldig: bij diensten waar nog geen profielen bij staan
@@ -68,15 +101,15 @@ export async function POST(request: Request) {
 
   try {
     const { referentie, ontvangers } = await bewaarAanvraag({
-      dienst: body.dienst!,
-      type: body.type ?? "",
-      plaats: body.plaats!,
-      adres: body.adres ?? "",
-      wensen: body.wensen ?? "",
-      dagen: (body.datum ?? "").split(",").map((d) => d.trim()).filter(Boolean),
-      naam: body.naam!,
-      email: body.email!,
-      telefoon: body.telefoon!,
+      dienst: dienst.slug,
+      type: body.type!,
+      plaats,
+      adres: (body.adres ?? "").slice(0, 200),
+      wensen: (body.wensen ?? "").slice(0, 2000),
+      dagen,
+      naam: body.naam!.slice(0, 100),
+      email: body.email!.slice(0, 200),
+      telefoon: body.telefoon!.slice(0, 40),
       whatsapp: Boolean(body.whatsapp),
       bedrijfSlugs: body.vakmensen.filter((slug): slug is string => typeof slug === "string"),
       gebruikerId: gebruiker?.id ?? null,

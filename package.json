@@ -15,7 +15,8 @@
     "routes": "node scripts/routes-test.mjs",
     "migreer": "node --env-file=.env.local scripts/migreer.mjs",
     "seed": "node --env-file=.env.local scripts/seed.mjs",
-    "account": "node scripts/account-test.mjs"
+    "account": "node scripts/account-test.mjs",
+    "beveiliging": "node scripts/beveiliging-test.mjs"
   },
   "dependencies": {
     "next": "16.3.0",

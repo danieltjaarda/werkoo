@@ -65,17 +65,23 @@ export default async function AccountPagina() {
                         </p>
                       </div>
 
+                      {/* Nul ontvangers betekent dat er niemand is aangesloten voor deze
+                          dienst; dan geen blauw label dat suggereert dat hij onderweg is. */}
                       <span
                         className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-klein font-semibold ${
                           aanvraag.reacties > 0
                             ? "bg-emerald-50 text-emerald-700"
-                            : "bg-brand-soft text-brand-deep"
+                            : aanvraag.ontvangers === 0
+                              ? "bg-zon-soft text-ink"
+                              : "bg-brand-soft text-brand-deep"
                         }`}
                       >
                         <ChatIcon className="h-4 w-4" />
-                        {aanvraag.reacties === 0
-                          ? `Verstuurd naar ${aanvraag.ontvangers} ${aanvraag.ontvangers === 1 ? "vakman" : "vakmensen"}`
-                          : `${aanvraag.reacties} ${aanvraag.reacties === 1 ? "reactie" : "reacties"}`}
+                        {aanvraag.reacties > 0
+                          ? `${aanvraag.reacties} ${aanvraag.reacties === 1 ? "reactie" : "reacties"}`
+                          : aanvraag.ontvangers === 0
+                            ? "Nog geen vakman gevonden"
+                            : `Verstuurd naar ${aanvraag.ontvangers} ${aanvraag.ontvangers === 1 ? "vakman" : "vakmensen"}`}
                       </span>
                     </div>
 

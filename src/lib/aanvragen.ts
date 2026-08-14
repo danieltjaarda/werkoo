@@ -29,6 +29,14 @@ export type Bedrijf = {
 
 export type Status = "nieuw" | "in_behandeling" | "gereageerd" | "gewonnen" | "verloren";
 
+/**
+ * Postgres valt om op een uuid-kolom zodra je er iets in stopt wat geen uuid is,
+ * en dat werd een 500 in plaats van een nette 404. Daarom eerst zelf kijken.
+ */
+export function isUuid(waarde: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(waarde);
+}
+
 export const statusLabels: Record<Status, string> = {
   nieuw: "Nieuw",
   in_behandeling: "In behandeling",
@@ -68,6 +76,11 @@ async function metTroeven(rijen: BedrijfRij[]): Promise<Bedrijf[]> {
  * hoogste cijfer. We filteren niet op plaats — dan houdt iemand buiten de regio
  * een lege lijst over — maar wie een werkgebied heeft ingesteld valt er buiten
  * als de plaats daar niet in zit.
+ *
+ * Kennen we de plaats niet, dan slaan we het werkgebied én de plaatsvoorrang
+ * over. Anders sluit een lege plaats iedereen mét werkgebied uit, en krijgt een
+ * bedrijf zonder ingevulde plaats de voorrang cadeau omdat een lege string aan
+ * een lege string gelijk is.
  */
 export async function bedrijvenVoorDienst(dienstSlug: string, plaats = ""): Promise<Bedrijf[]> {
   const rijen = await vraag<BedrijfRij>(
@@ -76,23 +89,30 @@ export async function bedrijvenVoorDienst(dienstSlug: string, plaats = ""): Prom
        join bedrijf_diensten d on d.bedrijf_id = b.id and d.dienst = $1
       where b.actief
         and (
-          not exists (select 1 from bedrijf_plaatsen p where p.bedrijf_id = b.id)
+          $2 = ''
+          or not exists (select 1 from bedrijf_plaatsen p where p.bedrijf_id = b.id)
           or exists (
             select 1 from bedrijf_plaatsen p
              where p.bedrijf_id = b.id and lower(p.plaats) = lower($2)
           )
         )
-      order by b.uitgelicht desc, (lower(b.plaats) = lower($2)) desc, b.score desc, b.naam`,
+      order by b.uitgelicht desc, ($2 <> '' and lower(b.plaats) = lower($2)) desc, b.score desc, b.naam`,
     [dienstSlug, plaats],
   );
 
   return metTroeven(rijen);
 }
 
-export async function bedrijfVanSlug(slug: string): Promise<Bedrijf | undefined> {
+/** Eén profiel op slug. Met een dienst erbij controleren we of hij die ook aanbiedt. */
+export async function bedrijfVanSlug(slug: string, dienstSlug?: string): Promise<Bedrijf | undefined> {
   const rijen = await vraag<BedrijfRij>(
-    `select ${BEDRIJF_KOLOMMEN} from bedrijven b where b.slug = $1 and b.actief`,
-    [slug],
+    `select ${BEDRIJF_KOLOMMEN}
+       from bedrijven b
+      where b.slug = $1 and b.actief
+        and ($2::text is null or exists (
+          select 1 from bedrijf_diensten d where d.bedrijf_id = b.id and d.dienst = $2
+        ))`,
+    [slug, dienstSlug ?? null],
   );
   return (await metTroeven(rijen))[0];
 }
@@ -135,7 +155,22 @@ export type NieuweAanvraag = {
 const MAX_ONTVANGERS = 4;
 
 export async function bewaarAanvraag(invoer: NieuweAanvraag): Promise<{ referentie: string; ontvangers: number }> {
-  const referentie = `WK-${randomBytes(4).toString("hex").toUpperCase()}`;
+  const referentie = `WK-${randomBytes(6).toString("hex").toUpperCase()}`;
+
+  /**
+   * Hoort dit adres al bij een account, dan hangt de aanvraag daar meteen aan.
+   * Deze richting is veilig: je geeft iemand hooguit een aanvraag die hij niet
+   * heeft gedaan. De omgekeerde koppeling — bij registratie — is dat niet, en
+   * gebeurt daarom niet (zie de opmerking in `registreren`).
+   */
+  const eigenaar =
+    invoer.gebruikerId ??
+    (
+      await vraagEen<{ id: string }>("select id from gebruikers where email = $1", [
+        invoer.email.toLowerCase(),
+      ])
+    )?.id ??
+    null;
 
   const aanvraag = await vraagEen<{ id: string }>(
     `insert into aanvragen
@@ -144,7 +179,7 @@ export async function bewaarAanvraag(invoer: NieuweAanvraag): Promise<{ referent
      returning id`,
     [
       referentie,
-      invoer.gebruikerId ?? null,
+      eigenaar,
       invoer.dienst,
       invoer.type,
       invoer.plaats,
@@ -160,16 +195,19 @@ export async function bewaarAanvraag(invoer: NieuweAanvraag): Promise<{ referent
 
   if (!aanvraag) throw new Error("De aanvraag kon niet worden opgeslagen.");
 
-  // Zelf gekozen bedrijven gaan voor; anders pakken we de bovenste uit de lijst
-  // die deze dienst in deze plaats doet.
-  const gekozen = invoer.bedrijfSlugs.length
-    ? await vraag<{ id: string }>(
-        `select b.id from bedrijven b
-           join bedrijf_diensten d on d.bedrijf_id = b.id and d.dienst = $2
-          where b.slug = any($1) and b.actief`,
-        [invoer.bedrijfSlugs, invoer.dienst],
-      )
-    : (await bedrijvenVoorDienst(invoer.dienst, invoer.plaats)).slice(0, MAX_ONTVANGERS);
+  /**
+   * Wat de browser meestuurt is een wens, geen opdracht. We halen zelf op wie
+   * deze dienst in deze plaats doet en leggen de aangevinkte bedrijven daarnaast.
+   * Zo blijft het werkgebied dat een vakman instelde overeind, ook als iemand de
+   * lijst in de browser aanpast of onderweg een andere plaats invult, en kan
+   * niemand de aanvraag naar alle bedrijven tegelijk sturen.
+   */
+  const mogelijk = await bedrijvenVoorDienst(invoer.dienst, invoer.plaats);
+  const gewenst = new Set(invoer.bedrijfSlugs);
+  const gekozen = (gewenst.size ? mogelijk.filter((b) => gewenst.has(b.slug)) : mogelijk).slice(
+    0,
+    MAX_ONTVANGERS,
+  );
 
   for (const bedrijf of gekozen) {
     await vraagEen(
@@ -221,8 +259,11 @@ export async function aanvragenVanGebruiker(gebruikerId: string) {
 }
 
 export async function aanvraagVanGebruiker(referentie: string, gebruikerId: string) {
-  const aanvraag = await vraagEen<AanvraagRij>(
-    "select * from aanvragen where referentie = $1 and gebruiker_id = $2",
+  const aanvraag = await vraagEen<AanvraagRij & { ontvangers: number }>(
+    `select a.*,
+            (select count(*)::int from aanvraag_bedrijven ab where ab.aanvraag_id = a.id) as ontvangers
+       from aanvragen a
+      where a.referentie = $1 and a.gebruiker_id = $2`,
     [referentie, gebruikerId],
   );
   if (!aanvraag) return undefined;
@@ -254,6 +295,8 @@ export async function aanvragenVanBedrijf(bedrijfId: string) {
 }
 
 export async function aanvraagVanBedrijf(aanvraagId: string, bedrijfId: string) {
+  if (!isUuid(aanvraagId)) return undefined;
+
   const aanvraag = await vraagEen<AanvraagRij & { status: Status }>(
     `select a.*, ab.status
        from aanvraag_bedrijven ab

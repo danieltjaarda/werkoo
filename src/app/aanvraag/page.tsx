@@ -3,7 +3,7 @@ import { AanvraagKeuze } from "@/components/aanvraag-keuze";
 import { AanvraagStappen } from "@/components/aanvraag-stappen";
 import { PaginaOvergang } from "@/components/pagina-overgang";
 import { SiteHeader } from "@/components/site-header";
-import { bedrijvenVoorDienst, bezetteDagen } from "@/lib/aanvragen";
+import { bedrijfVanSlug, bedrijvenVoorDienst, bezetteDagen } from "@/lib/aanvragen";
 import { huidigeGebruiker } from "@/lib/auth";
 import { getDienst } from "@/lib/diensten";
 import { bepaalPlaats } from "@/lib/locatie";
@@ -42,9 +42,20 @@ export default async function AanvraagPagina({ searchParams }: PageProps<"/aanvr
 
   // De lijst en de bezette dagen komen uit de database; de flow zelf draait in
   // de browser en kan daar niet zelf bij.
-  const vakmensen = await bedrijvenVoorDienst(dienst.slug, plaats.invoer);
+  const gevonden = await bedrijvenVoorDienst(dienst.slug, plaats.invoer);
   const gekozenSlug = eerste(params.vakman);
-  const vakman = vakmensen.find((bedrijf) => bedrijf.slug === gekozenSlug);
+
+  /**
+   * De vakman waarop iemand klikte zoeken we los op, niet in de lijst hierboven:
+   * die lijst hangt aan de plaats en kan hem missen als hij een werkgebied heeft
+   * ingesteld. Hij komt vooraan te staan, want hij is degene die de bezoeker
+   * koos — anders staat zijn naam in de zijkolom terwijl de aanvraag naar
+   * iemand anders gaat.
+   */
+  const vakman = gekozenSlug ? await bedrijfVanSlug(gekozenSlug, dienst.slug) : undefined;
+  const vakmensen = vakman
+    ? [vakman, ...gevonden.filter((bedrijf) => bedrijf.slug !== vakman.slug)]
+    : gevonden;
   const bezet = vakman ? await bezetteDagen(vakman.id) : [];
 
   return (
