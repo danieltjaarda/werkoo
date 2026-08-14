@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { bewaarAanvraag } from "@/lib/aanvragen";
+import { huidigeGebruiker } from "@/lib/auth";
+import { getDienst } from "@/lib/diensten";
 
 export type Lead = {
   dienst: string;
@@ -47,19 +50,44 @@ export async function POST(request: Request) {
     return NextResponse.json({ fout: "Vul een geldig e-mailadres in." }, { status: 422 });
   }
 
+  // Een onbekende dienst hoort niet in de database te belanden.
+  if (!getDienst(body.dienst)) {
+    return NextResponse.json({ fout: "Deze dienst kennen we niet." }, { status: 422 });
+  }
+
   /**
    * Een lege lijst is geldig: bij diensten waar nog geen profielen bij staan
-   * krijgt de bezoeker de keuzestap niet te zien, en leggen wij de aanvraag zelf
-   * voor aan de vakmensen in die regio.
+   * krijgt de bezoeker de keuzestap niet te zien, en kiezen wij de ontvangers.
    */
   if (!Array.isArray(body.vakmensen)) {
     return NextResponse.json({ fout: "Ongeldige keuze van vakmensen." }, { status: 422 });
   }
 
-  const referentie = `WK-${Date.now().toString(36).toUpperCase()}`;
+  // Is de bezoeker ingelogd, dan hangt de aanvraag meteen aan zijn account.
+  const gebruiker = await huidigeGebruiker();
 
-  // Hier komt later de koppeling met de database en de mail naar de vakmensen.
-  console.info("Nieuwe lead", { referentie, ...body });
+  try {
+    const { referentie, ontvangers } = await bewaarAanvraag({
+      dienst: body.dienst!,
+      type: body.type ?? "",
+      plaats: body.plaats!,
+      adres: body.adres ?? "",
+      wensen: body.wensen ?? "",
+      dagen: (body.datum ?? "").split(",").map((d) => d.trim()).filter(Boolean),
+      naam: body.naam!,
+      email: body.email!,
+      telefoon: body.telefoon!,
+      whatsapp: Boolean(body.whatsapp),
+      bedrijfSlugs: body.vakmensen.filter((slug): slug is string => typeof slug === "string"),
+      gebruikerId: gebruiker?.id ?? null,
+    });
 
-  return NextResponse.json({ referentie }, { status: 201 });
+    return NextResponse.json({ referentie, ontvangers }, { status: 201 });
+  } catch (fout) {
+    console.error("Aanvraag opslaan mislukt", fout);
+    return NextResponse.json(
+      { fout: "We konden je aanvraag niet opslaan. Probeer het zo nog eens." },
+      { status: 500 },
+    );
+  }
 }

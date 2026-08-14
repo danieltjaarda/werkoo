@@ -17,7 +17,8 @@ import { Rating } from "@/components/rating";
 import { UitgelichtLabel } from "@/components/uitgelicht-label";
 import { deelLidwoord, type Dienst } from "@/lib/diensten";
 import { onthoudPlaats } from "@/lib/plaats-cookie";
-import { vakmensenVoorPlaats, type Vakman } from "@/lib/vakmensen";
+// Alleen het type: `@/lib/aanvragen` is server-only en mag hier niet draaien.
+import type { Bedrijf } from "@/lib/aanvragen";
 
 type Formulier = {
   plaats: string;
@@ -61,7 +62,7 @@ const EERST_ZICHTBAAR = 2;
  * Bij binnenkomst staan de direct zichtbare vakmensen aangevinkt. Meer voorvinken
  * dan er op het scherm staan zou de teller laten liegen over wat je hebt gekozen.
  */
-function standaardKeuze(vakmensen: Vakman[]): string[] {
+function standaardKeuze(vakmensen: Bedrijf[]): string[] {
   return vakmensen.slice(0, EERST_ZICHTBAAR).map((vakman) => vakman.slug);
 }
 
@@ -82,13 +83,22 @@ const slotRichting = { klaar: "stap-vooruit", default: "none" } as const;
 export function AanvraagStappen({
   dienst,
   vakman,
+  vakmensen,
+  bezet,
   beginType,
   beginPlaats,
+  ingelogdAls,
 }: {
   dienst: Dienst;
-  vakman?: Vakman;
+  vakman?: Bedrijf;
+  /** De bedrijven die deze dienst doen; komt van de server, want dit is een clientcomponent. */
+  vakmensen: Bedrijf[];
+  /** Dagen waarop de gekozen vakman al vol zit, als "2026-08-21". */
+  bezet: string[];
   beginType: string;
   beginPlaats: string;
+  /** Al ingelogd? Dan vullen we naam, e-mail en telefoon vast in. */
+  ingelogdAls: { naam: string; email: string; telefoon: string } | null;
 }) {
   const [stap, setStap] = useState(0);
   const vraagVak = useRef<HTMLDivElement>(null);
@@ -104,16 +114,12 @@ export function AanvraagStappen({
     adres: "",
     wensen: "",
     vakmensen: null,
-    email: "",
-    naam: "",
-    telefoon: "",
+    email: ingelogdAls?.email ?? "",
+    naam: ingelogdAls?.naam ?? "",
+    telefoon: ingelogdAls?.telefoon ?? "",
     whatsapp: false,
   });
 
-  // De lijst hangt aan de ingevulde plaats, dus die leiden we bij elke render af
-  // in plaats van hem in state te dupliceren. De lengte verandert onderweg niet,
-  // dus de stappenlijst blijft stabiel zolang de bezoeker bezig is.
-  const vakmensen = vakmensenVoorPlaats(dienst.slug, waarden.plaats);
   const gekozenVakmensen = waarden.vakmensen ?? standaardKeuze(vakmensen);
 
   const stappen =
@@ -223,7 +229,13 @@ export function AanvraagStappen({
   if (referentie) {
     return (
       <ViewTransition key="klaar" enter={slotRichting} exit={slotRichting} default="none">
-        <Klaar email={waarden.email} plaats={waarden.plaats} referentie={referentie} vakman={vakman} />
+        <Klaar
+          email={waarden.email}
+          plaats={waarden.plaats}
+          referentie={referentie}
+          vakman={vakman}
+          alIngelogd={Boolean(ingelogdAls)}
+        />
       </ViewTransition>
     );
   }
@@ -281,6 +293,7 @@ export function AanvraagStappen({
                   vakman={vakman}
                   vakmensen={vakmensen}
                   gekozenVakmensen={gekozenVakmensen}
+                  bezet={bezet}
                 />
               </div>
             </ViewTransition>
@@ -357,14 +370,16 @@ function Vraag({
   vakman,
   vakmensen,
   gekozenVakmensen,
+  bezet,
 }: {
   dienst: Dienst;
   stap: StapId;
   waarden: Formulier;
   zet: <K extends keyof Formulier>(veld: K, waarde: Formulier[K]) => void;
-  vakman?: Vakman;
-  vakmensen: Vakman[];
+  vakman?: Bedrijf;
+  vakmensen: Bedrijf[];
   gekozenVakmensen: string[];
+  bezet: string[];
 }) {
   if (stap === "plaats") {
     return (
@@ -420,7 +435,7 @@ function Vraag({
         subkop="Nog geen datum? Ga dan gewoon verder."
       >
         <div className="max-w-2xl">
-          <Kalender gekozen={waarden.dagen} onWijzig={(dagen) => zet("dagen", dagen)} vakmanSlug={vakman?.slug} />
+          <Kalender gekozen={waarden.dagen} onWijzig={(dagen) => zet("dagen", dagen)} bezet={bezet} />
           {vakman ? (
             <p className="mt-3 text-klein text-ink-soft">
               Doorgestreepte dagen zitten al vol bij {vakman.naam}. Kies gerust meerdere dagen, dan is er iets te
@@ -567,7 +582,7 @@ function VakmanKeuze({
   gekozen,
   onWijzig,
 }: {
-  vakmensen: Vakman[];
+  vakmensen: Bedrijf[];
   gekozen: string[];
   onWijzig: (slugs: string[]) => void;
 }) {
@@ -695,7 +710,7 @@ function Belofte() {
   );
 }
 
-function Zijkolom({ vakman }: { vakman?: Vakman }) {
+function Zijkolom({ vakman }: { vakman?: Bedrijf }) {
   return (
     <aside className="hidden lg:block">
       {vakman ? (
@@ -744,20 +759,20 @@ function Zijkolom({ vakman }: { vakman?: Vakman }) {
   );
 }
 
-/** Na het versturen: bevestiging plus de keuze om een account te maken. */
+/** Na het versturen: bevestiging plus de weg naar het eigen overzicht. */
 function Klaar({
   email,
   plaats,
   referentie,
   vakman,
+  alIngelogd,
 }: {
   email: string;
   plaats: string;
   referentie: string;
-  vakman?: Vakman;
+  vakman?: Bedrijf;
+  alIngelogd: boolean;
 }) {
-  const [gestuurd, setGestuurd] = useState(false);
-
   return (
     <div className="container-page py-14">
       <div className="mx-auto max-w-lg text-center">
@@ -776,39 +791,33 @@ function Klaar({
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-md kaart p-6 sm:p-7">
-        {gestuurd ? (
-          <div className="text-center">
-            <h2 className="font-display text-h4 text-ink">Kijk in je mail</h2>
-            <p className="mt-2 text-basis text-ink-soft">
-              We hebben een inloglink gestuurd naar {email}. Daarmee kom je in je aanvraag zonder wachtwoord.
+      <div className="kaart mx-auto mt-10 max-w-md p-6 sm:p-7">
+        {alIngelogd ? (
+          <>
+            <h2 className="text-center font-display text-h4 text-ink">Je aanvraag staat in je overzicht</h2>
+            <p className="mt-2 text-center text-basis text-ink-soft">
+              Daar zie je de reacties binnenkomen, met de contactgegevens van wie er reageert.
             </p>
-          </div>
+            <Link
+              href="/account"
+              className="mt-6 flex h-12 w-full items-center justify-center rounded-2xl bg-ink font-display text-basis font-medium text-white transition hover:bg-brand-deep"
+            >
+              Naar mijn aanvragen
+            </Link>
+          </>
         ) : (
           <>
             <h2 className="text-center font-display text-h4 text-ink">Wil je je aanvraag volgen?</h2>
             <p className="mt-2 text-center text-basis text-ink-soft">
-              Met een account zie je alle reacties bij elkaar en kun je direct antwoorden.
+              Maak een account met dit e-mailadres, dan staan alle reacties bij elkaar en zie je meteen wie er
+              heeft gereageerd. Je eerdere aanvragen komen er vanzelf bij te staan.
             </p>
-
-            <div className="mt-6 space-y-2.5">
-              <MerkKnop merk="google" />
-              <MerkKnop merk="apple" />
-            </div>
-
-            <div className="my-5 flex items-center gap-3 text-mini uppercase tracking-[0.12em] text-ink-soft">
-              <span className="h-px flex-1 bg-lijn" />
-              of
-              <span className="h-px flex-1 bg-lijn" />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setGestuurd(true)}
-              className="flex h-12 w-full items-center justify-center rounded-2xl bg-ink font-display text-basis font-medium text-white transition hover:bg-brand-deep"
+            <Link
+              href={`/inloggen?modus=registreren&verder=${encodeURIComponent("/account")}`}
+              className="mt-6 flex h-12 w-full items-center justify-center rounded-2xl bg-ink font-display text-basis font-medium text-white transition hover:bg-brand-deep"
             >
-              Doorgaan met {email || "e-mail"}
-            </button>
+              Account maken
+            </Link>
           </>
         )}
 
@@ -821,39 +830,5 @@ function Klaar({
         </Link>
       </div>
     </div>
-  );
-}
-
-export function MerkKnop({ merk }: { merk: "google" | "apple" }) {
-  const label = merk === "google" ? "Doorgaan met Google" : "Doorgaan met Apple";
-
-  return (
-    <button
-      type="button"
-      className="flex h-12 w-full items-center justify-center gap-2.5 rounded-2xl border border-lijn bg-white font-display text-basis font-medium text-ink transition hover:bg-brand-soft"
-    >
-      {merk === "google" ? (
-        <svg viewBox="0 0 18 18" aria-hidden className="h-[18px] w-[18px]">
-          <path
-            fill="#4285F4"
-            d="M17.6 9.2c0-.6-.1-1.2-.2-1.8H9v3.4h4.8a4.1 4.1 0 0 1-1.8 2.7v2.2h2.9c1.7-1.6 2.7-3.9 2.7-6.5Z"
-          />
-          <path
-            fill="#34A853"
-            d="M9 18c2.4 0 4.5-.8 6-2.2l-2.9-2.3c-.8.5-1.8.9-3.1.9-2.4 0-4.4-1.6-5.1-3.8H.9v2.3A9 9 0 0 0 9 18Z"
-          />
-          <path fill="#FBBC05" d="M3.9 10.6a5.4 5.4 0 0 1 0-3.4V4.9H.9a9 9 0 0 0 0 8.1l3-2.4Z" />
-          <path
-            fill="#EA4335"
-            d="M9 3.6c1.3 0 2.5.5 3.4 1.3l2.6-2.6A9 9 0 0 0 .9 4.9l3 2.3C4.6 5.2 6.6 3.6 9 3.6Z"
-          />
-        </svg>
-      ) : (
-        <svg viewBox="0 0 18 18" aria-hidden className="h-[18px] w-[18px]" fill="currentColor">
-          <path d="M12.9 9.6c0-1.7 1.4-2.5 1.4-2.6-.8-1.1-2-1.3-2.4-1.3-1-.1-2 .6-2.5.6s-1.3-.6-2.2-.6c-1.1 0-2.1.7-2.7 1.7-1.2 2-.3 5 .8 6.6.6.8 1.2 1.7 2.1 1.7.9 0 1.2-.5 2.2-.5s1.3.5 2.2.5c.9 0 1.5-.8 2-1.6.7-.9.9-1.8.9-1.9 0 0-1.8-.7-1.8-2.6ZM11.3 4.6c.5-.6.8-1.4.7-2.2-.7 0-1.6.5-2.1 1.1-.4.5-.8 1.3-.7 2.1.8.1 1.6-.4 2.1-1Z" />
-        </svg>
-      )}
-      {label}
-    </button>
   );
 }

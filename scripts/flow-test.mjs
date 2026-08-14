@@ -85,10 +85,10 @@ await page.getByText("Je aanvraag is verstuurd").waitFor({ timeout: 8000 });
 await leg("10-klaar");
 console.log("aanvraag verstuurd");
 
-await page.getByRole("button", { name: /Doorgaan met/ }).last().click();
-await page.getByText("Kijk in je mail").waitFor({ timeout: 5000 });
+// Zonder account biedt het slotscherm aan er een te maken.
+await page.getByRole("link", { name: "Account maken" }).waitFor({ timeout: 5000 });
 await leg("11-account");
-console.log("accountkeuze werkt");
+console.log("slotscherm biedt een account aan");
 
 // --- Dienst zonder profielen: de vakmensenstap hoort weg te vallen ---------
 await page.goto(`${basis}/aanvraag?dienst=dakdekker&plaats=Zwolle`, { waitUntil: "networkidle" });
@@ -113,8 +113,8 @@ console.log("aanvraag zonder vakmanselectie verstuurd");
 
 // --- Inloggen --------------------------------------------------------------
 await page.goto(`${basis}/inloggen`, { waitUntil: "networkidle" });
-await page.getByRole("button", { name: "Bedrijf" }).click();
-await page.getByText("Inloggen als bedrijf").waitFor({ timeout: 5000 });
+await page.getByRole("button", { name: "Account maken" }).first().click();
+await page.getByText("Ik ben vakman").waitFor({ timeout: 5000 });
 await leg("13-inloggen");
 console.log("inlogpagina werkt");
 

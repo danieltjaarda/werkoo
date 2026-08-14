@@ -33,9 +33,63 @@ andere poort omdat 3000 bezet is, geef die dan mee aan de scripts: `URL=http://l
 | `npm run flow`      | Loopt de complete leadflow door in een echte browser                |
 | `npm run locatie`   | Controleert de plaatsbepaling met nagebootste geo-headers           |
 | `npm run routes`    | Controleert de routetabel (zie "Routes" hieronder — belangrijk)     |
+| `npm run account`   | Loopt de hele keten door: aanmelden, aanvragen, reageren, terugzien |
+| `npm run migreer`   | Draait de sql-migraties in `db/migraties/`                          |
+| `npm run seed`      | Zet de vier nagekeken videograafprofielen in de database            |
 
 Met `node scripts/crop.mjs <bestand> <x> <y> <breedte> <hoogte>` snijd je een stuk uit een screenshot,
 handig om een detail van dichtbij te bekijken.
+
+## Database en accounts
+
+De site draait op Postgres. Lokaal:
+
+```bash
+brew services start postgresql@17
+createdb werkoo
+cp .env.local.voorbeeld .env.local   # of zet DATABASE_URL zelf
+npm run migreer
+npm run seed
+```
+
+`.env.local` heeft twee waarden nodig:
+
+```
+DATABASE_URL=postgresql://localhost:5432/werkoo
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+Op Vercel zet je daar de url van Neon of Supabase neer; verder verandert er niets aan
+de code. Het schema staat als leesbare sql in `db/migraties/` en `scripts/migreer.mjs` is
+het enige wat het uitvoert — geen ORM, geen generatiestap.
+
+**Accounts.** Inloggen gaat met e-mailadres en wachtwoord. Wachtwoorden gaan door scrypt
+uit de standaardbibliotheek van Node (parameters staan in de hash, zodat we ze later
+kunnen verzwaren). Een sessie is een willekeurig token in een httpOnly-cookie met een rij
+in `sessies`; verlopen sessies ruimen we op zodra we ze tegenkomen.
+
+Er zijn twee soorten accounts. Een **particulier** doet aanvragen en ziet ze op `/account`.
+Een **bedrijf** ontvangt ze en werkt op `/pro`. Bij het registreren als bedrijf maken we
+meteen een leeg bedrijfsprofiel aan. Doet iemand eerst een aanvraag zonder account en
+registreert hij zich daarna met hetzelfde e-mailadres, dan koppelen we die eerdere
+aanvragen alsnog aan het nieuwe account.
+
+Een bedrijfsprofiel kan bestaan zonder account: de vier videograafprofielen uit
+`npm run seed` staan er zo in, klaar om later geclaimd te worden.
+
+## Van aanvraag naar reactie
+
+1. De bezoeker doorloopt `/aanvraag` en `POST /api/leads` schrijft de aanvraag weg.
+2. Heeft hij zelf vakmensen aangevinkt, dan gaan die de aanvraag krijgen. Anders kiezen
+   wij de bovenste vier uit `bedrijvenVoorDienst()`: uitgelichte partners eerst, dan wie
+   in de gevraagde plaats zit, dan het hoogste cijfer. Wie een werkgebied heeft ingesteld
+   valt af als de plaats daar niet in zit.
+3. Elke ontvanger krijgt een rij in `aanvraag_bedrijven` met een status
+   (nieuw, in behandeling, gereageerd, gewonnen, niet doorgegaan).
+4. De vakman ziet de aanvraag op `/pro/aanvragen`, reageert met een bericht en een
+   prijsindicatie, en die reactie verschijnt bij de klant op `/account/[referentie]`.
+
+`npm run account` loopt precies die keten door in een echte browser.
 
 ## Routes
 
@@ -49,7 +103,13 @@ handig om een detail van dichtbij te bekijken.
 | `/aanvraag`               | dynamisch | De aanvraagflow; zonder `?dienst=` eerst een dienstkeuze      |
 | `/aanmelden`              | statisch  | Werk ontvangen: de pagina voor vakmensen                      |
 | `/over-ons`               | statisch  | Wie we zijn en hoe we ons geld verdienen                      |
-| `/inloggen`               | statisch  | Inloggen als particulier of als bedrijf                       |
+| `/inloggen`               | dynamisch | Inloggen en registreren                                       |
+| `/account`                | dynamisch | Mijn aanvragen (particulier)                                  |
+| `/account/[referentie]`   | dynamisch | Eén aanvraag met de reacties erop                             |
+| `/pro`                    | dynamisch | Dashboard van een vakman                                      |
+| `/pro/aanvragen`          | dynamisch | Binnengekomen aanvragen, met statusfilter                     |
+| `/pro/aanvragen/[id]`     | dynamisch | Eén aanvraag: contactgegevens, status en reageren             |
+| `/pro/instellingen`       | dynamisch | Profiel, diensten, werkgebied en beschikbaarheid              |
 | `/privacy`, `/voorwaarden`| statisch  | Juridische teksten (concept, zie hieronder)                   |
 | `/api/leads`              | —         | Neemt de aanvraag aan (logt hem nu alleen)                    |
 
@@ -84,16 +144,15 @@ De prijzen horen periodiek nagelopen te worden.
 
 ## Vakmensen
 
-`src/lib/vakmensen.ts` bevat de profielen die we met de hand hebben nagekeken. Er staan er nu alleen
-bij videograaf. Voor de andere 86 diensten tonen we bewust géén lijst in plaats van verzonnen
-bedrijven; die pagina's vullen die plek met de prijsindicatie en de controlepunten. Dat werkt door in
-drie dingen:
+De profielen staan in de database, niet meer in een vast bestand. `npm run seed` zet de vier
+nagekeken videograafprofielen erin; alles wat daarna bij komt zijn echte aanmeldingen. Voor
+de andere 86 diensten is er nog geen lijst, en we tonen daar bewust géén verzonnen
+bedrijven; die pagina's vullen die plek met de prijsindicatie en de controlepunten. Dat
+werkt door in drie dingen:
 
 - de sectie "… die werken in Joure" valt weg als er geen profielen zijn
 - de vakmensenstap in de aanvraagflow valt weg, waardoor die flow negen of acht vragen telt
 - `/api/leads` accepteert daarom een lege `vakmensen`-lijst; wij leggen de aanvraag dan zelf voor
-
-Zodra er echte aanmeldingen zijn, horen die hier te komen met `dienst` als sleutel naar de catalogus.
 
 ## De aanvraagflow
 
@@ -110,9 +169,8 @@ kleurt de kalender zijn bezette dagen.
 
 De datumvraag gebruikt `src/components/kalender.tsx`: twee maanden naast elkaar op een breed scherm,
 één op een telefoon, en je mag meerdere dagen aanvinken. Dagen die al geweest zijn vervagen, dagen
-waarop de vakman bezet is worden doorgestreept. Die bezetting komt uit `src/lib/agenda.ts` en is nu
-nog verzonnen: een kleine hash van vakman plus datum, met zaterdag vaker vol dan een doordeweekse
-dag. Hetzelfde patroon komt er altijd uit, dus de kalender verspringt niet tussen twee bezoeken.
+waarop de vakman bezet is worden doorgestreept. Die bezetting is echt: ze komt uit
+`bedrijf_bezet`, dat de vakman zelf vult onder Beschikbaarheid in zijn instellingen.
 
 Na het versturen volgt de bevestiging met een referentie, en daaronder de keuze om een account te
 maken. Op `/inloggen` staat dezelfde kaart, met bovenaan de keuze tussen particulier en bedrijf. Er
@@ -272,13 +330,22 @@ laatste gevulde merk deels wordt ingekleurd zodat een 9,4 er ook als 9,4 uitziet
 
 ## Nog te doen
 
+- **Er gaat nog geen mail de deur uit.** Een vakman ziet een nieuwe aanvraag pas als hij zelf
+  inlogt, en een klant hoort niets als er een reactie binnenkomt. Daar is een mailprovider
+  voor nodig (Resend, Postmark); zodra die er is horen de meldingen aan
+  `bewaarAanvraag()` en `bewaarReactie()` te hangen.
+- **Wachtwoord vergeten kan niet.** Dat heeft dezelfde mailprovider nodig.
 - **De juridische teksten zijn een concept.** `/privacy` en `/voorwaarden` zijn als opzet geschreven
   en moeten door een jurist worden nagekeken voordat de site live gaat. Dat staat ook in de eerste
   sectie van beide pagina's zelf; haal die pas weg als het echt is nagekeken.
-- Aanvragen wegschrijven naar een database en doorsturen naar vakmensen (nu alleen `console.info`)
-- Echte accounts achter `/inloggen`, achter de accountkeuze na het versturen en achter `/aanmelden`
+- De kop van de openbare site toont altijd "Inloggen", ook als je al bent ingelogd. Dat is met
+  opzet: `cookies()` uitlezen in `SiteHeader` zou elke pagina dynamisch maken. `/inloggen`
+  stuurt een ingelogde bezoeker meteen door naar zijn eigen omgeving.
+- Reviews bestaan nog niet. De cijfers bij een profiel (`score`, `reviews`) staan in de
+  database maar worden nergens ingevuld; er is geen manier om een beoordeling achter te laten.
+- Inloggen met Google of Apple. De knoppen zijn weggehaald omdat ze niets deden; ze horen
+  pas terug als er een OAuth-client is.
 - Echte profielen voor de overige 86 diensten, plus profielpagina's per vakman
-- Echte beschikbaarheid per vakman in plaats van het verzonnen patroon in `src/lib/agenda.ts`
 - De cijfers in `src/components/cijfer-balk.tsx` en de hero (9,4 uit 4.384 beoordelingen, 650+
   vakmensen) zijn nog vaste waarden en horen uit de database te komen
 - De prijzen in de catalogus periodiek nalopen

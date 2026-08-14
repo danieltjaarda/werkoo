@@ -1,8 +1,7 @@
 /**
- * Hulpjes voor de datumvraag in de aanvraag. Zolang er geen echte agenda's
- * achter zitten, verzinnen we per vakman een vast patroon van bezette dagen:
- * dezelfde vakman geeft altijd dezelfde dagen terug, zodat de kalender niet
- * verspringt tussen server en browser of tussen twee bezoeken.
+ * Hulpjes voor de datumvraag in de aanvraag. De bezette dagen komen uit de
+ * beschikbaarheid die de vakman zelf in zijn dashboard invult; die geeft de
+ * server als lijst mee aan de kalender.
  */
 
 export const maandnamen = [
@@ -47,27 +46,4 @@ export function startKolom(jaar: number, maand: number): number {
 
 export function aantalDagen(jaar: number, maand: number): number {
   return new Date(jaar, maand + 1, 0).getDate();
-}
-
-/** Kleine, stabiele hash: dezelfde invoer geeft altijd hetzelfde getal. */
-function hash(tekst: string): number {
-  let waarde = 0;
-  for (let i = 0; i < tekst.length; i++) {
-    waarde = (waarde * 31 + tekst.charCodeAt(i)) % 100000;
-  }
-  return waarde;
-}
-
-/**
- * Ongeveer een derde van de dagen staat vol, met een voorkeur voor zaterdagen:
- * dat is nu eenmaal de dag waarop trouwfilmers als eerste volgeboekt zitten.
- */
-export function isBezet(sleutelwaarde: string, vakmanSlug: string | undefined): boolean {
-  if (!vakmanSlug) return false;
-
-  const [jaar, maand, dag] = sleutelwaarde.split("-").map(Number);
-  const zaterdag = new Date(jaar, maand - 1, dag).getDay() === 6;
-  const getal = hash(`${vakmanSlug}:${sleutelwaarde}`) % 100;
-
-  return zaterdag ? getal < 55 : getal < 25;
 }

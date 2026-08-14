@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDownIcon } from "@/components/icons";
-import { aantalDagen, isBezet, maandnamen, sleutel, startKolom, weekdagen } from "@/lib/agenda";
+import { aantalDagen, maandnamen, sleutel, startKolom, weekdagen } from "@/lib/agenda";
 
 /** Vandaag om middernacht, zodat een vergelijking met een dag klopt. */
 function vandaag(): Date {
@@ -14,13 +14,13 @@ function Maand({
   jaar,
   maand,
   gekozen,
-  vakmanSlug,
+  bezet,
   onKies,
 }: {
   jaar: number;
   maand: number;
   gekozen: string[];
-  vakmanSlug?: string;
+  bezet: Set<string>;
   onKies: (dag: string) => void;
 }) {
   const grens = vandaag();
@@ -48,8 +48,8 @@ function Maand({
           const datum = new Date(jaar, maand, dag);
           const waarde = sleutel(datum);
           const verleden = datum < grens;
-          const bezet = isBezet(waarde, vakmanSlug);
-          const vrij = !verleden && !bezet;
+          const isVol = bezet.has(waarde);
+          const vrij = !verleden && !isVol;
           const staatAan = gekozen.includes(waarde);
 
           return (
@@ -58,7 +58,7 @@ function Maand({
               type="button"
               disabled={!vrij}
               aria-pressed={staatAan}
-              aria-label={`${dag} ${maandnamen[maand]}${bezet ? " (bezet)" : ""}`}
+              aria-label={`${dag} ${maandnamen[maand]}${isVol ? " (bezet)" : ""}`}
               onClick={() => onKies(waarde)}
               className={`flex h-9 items-center justify-center rounded-lg text-basis transition ${
                 staatAan
@@ -66,7 +66,7 @@ function Maand({
                   : vrij
                     ? "bg-brand-soft text-ink hover:bg-brand/25"
                     : // Doorstrepen betekent bezet; een dag die al geweest is vervaagt alleen.
-                      `cursor-not-allowed text-ink-soft/40 ${bezet ? "line-through" : ""}`
+                      `cursor-not-allowed text-ink-soft/40 ${isVol ? "line-through" : ""}`
               }`}
             >
               {dag}
@@ -86,13 +86,15 @@ function Maand({
 export function Kalender({
   gekozen,
   onWijzig,
-  vakmanSlug,
+  bezet = [],
 }: {
   gekozen: string[];
   onWijzig: (dagen: string[]) => void;
-  vakmanSlug?: string;
+  /** Dagen waarop de gekozen vakman al vol zit; komt uit zijn beschikbaarheid. */
+  bezet?: string[];
 }) {
   const nu = vandaag();
+  const volleDagen = new Set(bezet);
   const [verschuiving, setVerschuiving] = useState(0);
 
   const eerste = new Date(nu.getFullYear(), nu.getMonth() + verschuiving, 1);
@@ -130,7 +132,7 @@ export function Kalender({
           jaar={eerste.getFullYear()}
           maand={eerste.getMonth()}
           gekozen={gekozen}
-          vakmanSlug={vakmanSlug}
+          bezet={volleDagen}
           onKies={wissel}
         />
         <div className="hidden sm:block">
@@ -138,7 +140,7 @@ export function Kalender({
             jaar={tweede.getFullYear()}
             maand={tweede.getMonth()}
             gekozen={gekozen}
-            vakmanSlug={vakmanSlug}
+            bezet={volleDagen}
             onKies={wissel}
           />
         </div>

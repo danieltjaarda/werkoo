@@ -3,9 +3,10 @@ import { AanvraagKeuze } from "@/components/aanvraag-keuze";
 import { AanvraagStappen } from "@/components/aanvraag-stappen";
 import { PaginaOvergang } from "@/components/pagina-overgang";
 import { SiteHeader } from "@/components/site-header";
+import { bedrijvenVoorDienst, bezetteDagen } from "@/lib/aanvragen";
+import { huidigeGebruiker } from "@/lib/auth";
 import { getDienst } from "@/lib/diensten";
 import { bepaalPlaats } from "@/lib/locatie";
-import { vakmanVanSlug } from "@/lib/vakmensen";
 
 export const metadata: Metadata = {
   title: "Beschrijf je klus",
@@ -23,25 +24,43 @@ export default async function AanvraagPagina({ searchParams }: PageProps<"/aanvr
   const params = await searchParams;
   const dienst = getDienst(eerste(params.dienst));
 
+  if (!dienst) {
+    return (
+      <PaginaOvergang>
+        <SiteHeader />
+        <main className="flex-1">
+          <AanvraagKeuze />
+        </main>
+      </PaginaOvergang>
+    );
+  }
+
   // Zonder dit staat het plaatsveld weer leeg zodra iemand vanaf een dienstpagina
   // doorklikt: de url draagt de plaats niet altijd mee, het cookie wel.
   const plaats = await bepaalPlaats(eerste(params.plaats));
+  const gebruiker = await huidigeGebruiker();
+
+  // De lijst en de bezette dagen komen uit de database; de flow zelf draait in
+  // de browser en kan daar niet zelf bij.
+  const vakmensen = await bedrijvenVoorDienst(dienst.slug, plaats.invoer);
+  const gekozenSlug = eerste(params.vakman);
+  const vakman = vakmensen.find((bedrijf) => bedrijf.slug === gekozenSlug);
+  const bezet = vakman ? await bezetteDagen(vakman.id) : [];
 
   return (
     <PaginaOvergang>
       <SiteHeader />
       {/* Geen voettekst: in de aanvraag hoort niets af te leiden van de vraag op het scherm. */}
       <main className="flex-1">
-        {dienst ? (
-          <AanvraagStappen
-            dienst={dienst}
-            vakman={vakmanVanSlug(eerste(params.vakman), dienst.slug)}
-            beginType={eerste(params.type)}
-            beginPlaats={plaats.invoer}
-          />
-        ) : (
-          <AanvraagKeuze />
-        )}
+        <AanvraagStappen
+          dienst={dienst}
+          vakman={vakman}
+          vakmensen={vakmensen}
+          bezet={bezet}
+          beginType={eerste(params.type)}
+          beginPlaats={plaats.invoer}
+          ingelogdAls={gebruiker ? { naam: gebruiker.naam, email: gebruiker.email, telefoon: gebruiker.telefoon } : null}
+        />
       </main>
     </PaginaOvergang>
   );

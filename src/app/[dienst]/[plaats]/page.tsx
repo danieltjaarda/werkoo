@@ -3,16 +3,17 @@ import { notFound } from "next/navigation";
 import { DienstPagina } from "@/components/dienst-pagina";
 import { diensten, getDienst } from "@/lib/diensten";
 import { bekendePlaats, plaatsen, slugVanPlaatsnaam } from "@/lib/plaatsen";
-import { heeftProfielen } from "@/lib/vakmensen";
+import { dienstenMetBedrijven } from "@/lib/aanvragen";
 
 /**
  * We bouwen bij de build alleen de combinaties waar we ook echt vakmensen voor
  * hebben staan; 87 diensten maal 40 plaatsen zou de build onnodig opblazen. De
  * rest wordt bij het eerste bezoek gerenderd en daarna bewaard.
  */
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const metProfielen = await dienstenMetBedrijven();
   return diensten
-    .filter((dienst) => heeftProfielen(dienst.slug))
+    .filter((dienst) => metProfielen.has(dienst.slug))
     .flatMap((dienst) =>
       plaatsen.map((plaats) => ({ dienst: dienst.slug, plaats: slugVanPlaatsnaam(plaats) })),
     );

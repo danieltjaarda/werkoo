@@ -33,7 +33,7 @@ import {
   type Dienst,
   type Vraag,
 } from "@/lib/diensten";
-import { vakmensenVoorPlaats, type Troef } from "@/lib/vakmensen";
+import { bedrijvenVoorDienst, type Troef } from "@/lib/aanvragen";
 
 export const categorieIconen: Record<CategorieId, (props: { className?: string }) => React.ReactElement> = {
   verbouwen: HuisIcon,
@@ -161,8 +161,8 @@ function TroefLabel({ troef }: { troef: Troef }) {
   );
 }
 
-export function TopLijst({ dienst, plaats }: { dienst: Dienst; plaats: string }) {
-  const lijst = vakmensenVoorPlaats(dienst.slug, plaats);
+export async function TopLijst({ dienst, plaats }: { dienst: Dienst; plaats: string }) {
+  const lijst = await bedrijvenVoorDienst(dienst.slug, plaats);
   if (lijst.length === 0) return null;
 
   return (

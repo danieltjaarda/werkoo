@@ -12,16 +12,22 @@
     "shot": "node scripts/screenshot.mjs",
     "flow": "node scripts/flow-test.mjs",
     "locatie": "node scripts/locatie-test.mjs",
-    "routes": "node scripts/routes-test.mjs"
+    "routes": "node scripts/routes-test.mjs",
+    "migreer": "node --env-file=.env.local scripts/migreer.mjs",
+    "seed": "node --env-file=.env.local scripts/seed.mjs",
+    "account": "node scripts/account-test.mjs"
   },
   "dependencies": {
     "next": "16.3.0",
+    "pg": "^8.23.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.21.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
