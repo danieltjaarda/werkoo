@@ -6,6 +6,14 @@ import { bekendePlaats, plaatsen, slugVanPlaatsnaam } from "@/lib/plaatsen";
 import { dienstenMetBedrijven } from "@/lib/aanvragen";
 
 /**
+ * Deze pagina's zijn statisch, dus zonder verversing zou een vakman die zich net
+ * heeft aangemeld er pas na de volgende build op staan. Tien minuten is de
+ * bovengrens; bij het opslaan van een profiel worden ze meteen bijgewerkt (zie
+ * `src/lib/pro-acties.ts`).
+ */
+export const revalidate = 600;
+
+/**
  * We bouwen bij de build alleen de combinaties waar we ook echt vakmensen voor
  * hebben staan; 87 diensten maal 40 plaatsen zou de build onnodig opblazen. De
  * rest wordt bij het eerste bezoek gerenderd en daarna bewaard.

@@ -9,6 +9,17 @@ import { bekendePlaats } from "@/lib/plaatsen";
 
 export type Uitkomst = { fout?: string; gelukt?: string };
 
+/**
+ * De openbare plaatspagina's zijn statisch. Verandert een profiel, zijn diensten
+ * of zijn werkgebied, dan moeten ze opnieuw gebouwd worden — anders staat een
+ * vakman er pas de volgende build op, of blijft hij er staan terwijl hij zich
+ * heeft uitgezet.
+ */
+function verversOpenbaar(): void {
+  revalidatePath("/[dienst]/[plaats]", "page");
+  revalidatePath("/diensten");
+}
+
 const STATUSSEN: Status[] = ["nieuw", "in_behandeling", "gereageerd", "gewonnen", "verloren"];
 
 function tekst(data: FormData, veld: string): string {
@@ -83,6 +94,7 @@ export async function profielOpslaan(_vorige: Uitkomst, data: FormData): Promise
 
   revalidatePath("/pro/instellingen");
   revalidatePath("/pro");
+  verversOpenbaar();
   return { gelukt: "Je profiel is opgeslagen." };
 }
 
@@ -103,6 +115,7 @@ export async function dienstenOpslaan(_vorige: Uitkomst, data: FormData): Promis
   }
 
   revalidatePath("/pro/instellingen");
+  verversOpenbaar();
   return { gelukt: `${gekozen.length} ${gekozen.length === 1 ? "dienst" : "diensten"} opgeslagen.` };
 }
 
@@ -122,6 +135,7 @@ export async function werkgebiedOpslaan(_vorige: Uitkomst, data: FormData): Prom
   }
 
   revalidatePath("/pro/instellingen");
+  verversOpenbaar();
   return {
     gelukt: plaatsen.length === 0
       ? "Je werkgebied staat op heel Nederland."

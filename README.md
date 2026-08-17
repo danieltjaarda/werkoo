@@ -60,8 +60,27 @@ DATABASE_URL=postgresql://localhost:5432/werkoo
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-Op Vercel zet je daar de url van Neon of Supabase neer; verder verandert er niets aan
-de code. Zet daar ook `NEXT_PUBLIC_SITE_URL` op het echte adres van de site.
+**Op Vercel staat dit al klaar.** Het project `fixclan-bv/werkoo` heeft een Neon-database
+(`werkoo-db`, gratis laag, regio `eu-central-1`) die via de marketplace-integratie aan
+production, preview én development is gekoppeld. Vercel zet `DATABASE_URL` daarbij zelf —
+precies de naam die de code verwacht. De functions staan op `fra1`, dezelfde kant van de
+oceaan als de database; ze stonden eerst op `iad1` en dan gaat elke query heen en weer naar
+Washington.
+
+`NEXT_PUBLIC_SITE_URL` hoeft daar niet gezet te worden: `src/lib/site.ts` valt terug op
+`VERCEL_PROJECT_PRODUCTION_URL`, en die volgt automatisch mee als je later een eigen domein
+aanhangt.
+
+Migraties draaien niet automatisch mee met een deployment. Na een nieuwe migratie:
+
+```bash
+vercel env pull .env.vercel --environment=production
+DATABASE_URL="<DATABASE_URL_UNPOOLED uit dat bestand>" node scripts/migreer.mjs
+rm .env.vercel
+```
+
+Gebruik daarvoor de *unpooled* url: DDL over de pooler van Neon kan vastlopen. En gooi dat
+bestand daarna weg, er staan inloggegevens in.
 
 **De build heeft de database niet nodig.** Dat was eerst wel zo en dat sloopte de
 deployment: `generateStaticParams` en de sitemap vroegen tijdens de build welke diensten
@@ -239,7 +258,14 @@ verschillen, en dat is precies wat een zoekmachine als doorway pages ziet. Om de
 `/[dienst]/[plaats]` een 404 voor plaatsen die niet in `src/lib/plaatsen.ts` staan.
 
 `generateStaticParams` in `/[dienst]/[plaats]` bouwt alleen de combinaties met profielen (nu 40
-pagina's). De rest wordt bij het eerste bezoek gerenderd en daarna bewaard. Verwijder die functie
+pagina's). De rest wordt bij het eerste bezoek gerenderd en daarna bewaard.
+
+Omdat die pagina's statisch zijn, staat er `revalidate = 600` op: een vakman die zich net
+heeft aangemeld zou er anders pas na de volgende build op komen. Bij het opslaan van een
+profiel, van de diensten of van het werkgebied worden ze bovendien meteen bijgewerkt via
+`revalidatePath("/[dienst]/[plaats]", "page")`. Dat was echt nodig — in een productiebuild
+stond een nieuwe vakman niet op zijn eigen plaatspagina, en dat viel pas op toen de
+beveiligingstest tegen een echte build draaide in plaats van tegen de dev-server. Verwijder die functie
 niet om "niets te bouwen": zonder `generateStaticParams` wordt de route bij élk request opnieuw
 gerenderd. Een lege array teruggeven is de manier om niets bij de build te doen en tóch statisch te
 blijven.
