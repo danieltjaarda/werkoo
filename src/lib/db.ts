@@ -41,14 +41,14 @@ export function heeftDatabase(): boolean {
  */
 export async function vraagZacht<T>(werk: () => Promise<T>, terugval: T, wat: string): Promise<T> {
   if (!heeftDatabase()) {
-    console.warn(`Geen DATABASE_URL, dus geen ${wat}.`);
+    console.warn(`Geen DATABASE_URL: ${wat} blijft leeg.`);
     return terugval;
   }
 
   try {
     return await werk();
   } catch (fout) {
-    console.error(`Database onbereikbaar bij ${wat}:`, fout);
+    console.error(`Database onbereikbaar, ${wat} blijft leeg:`, fout);
     return terugval;
   }
 }
