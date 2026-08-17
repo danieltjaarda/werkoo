@@ -15,11 +15,20 @@ function maakPool(): Pool {
     );
   }
 
+  const lokaal = url.includes("localhost") || url.includes("127.0.0.1");
+
+  /**
+   * Lokaal geen tls, daarbuiten wel — en mét certificaatcontrole. Neon en
+   * Supabase zetten zelf `sslmode` in de url; die laten we dan staan, want de
+   * driver verifieert daarmee het certificaat. Staat er niets in, dan zetten we
+   * tls zelf aan. Wat hier níét meer staat is `rejectUnauthorized: false`: dat
+   * accepteert elk certificaat en maakt de versleuteling zinloos tegen iemand
+   * die tussen de server en de database zit.
+   */
   return new Pool({
     connectionString: url,
     max: 10,
-    // Een gehoste database (Neon, Supabase) wil tls; lokaal niet.
-    ssl: url.includes("localhost") || url.includes("127.0.0.1") ? false : { rejectUnauthorized: false },
+    ...(lokaal ? { ssl: false as const } : url.includes("sslmode=") ? {} : { ssl: true as const }),
   });
 }
 
