@@ -1,6 +1,6 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
-import { vraag, vraagEen } from "@/lib/db";
+import { vraag, vraagEen, vraagZacht } from "@/lib/db";
 
 export type Troef = {
   label: string;
@@ -83,6 +83,10 @@ async function metTroeven(rijen: BedrijfRij[]): Promise<Bedrijf[]> {
  * een lege string gelijk is.
  */
 export async function bedrijvenVoorDienst(dienstSlug: string, plaats = ""): Promise<Bedrijf[]> {
+  return vraagZacht(() => haalBedrijven(dienstSlug, plaats), [], "de lijst met vakmensen");
+}
+
+async function haalBedrijven(dienstSlug: string, plaats: string): Promise<Bedrijf[]> {
   const rijen = await vraag<BedrijfRij>(
     `select ${BEDRIJF_KOLOMMEN}
        from bedrijven b
@@ -105,6 +109,10 @@ export async function bedrijvenVoorDienst(dienstSlug: string, plaats = ""): Prom
 
 /** Eén profiel op slug. Met een dienst erbij controleren we of hij die ook aanbiedt. */
 export async function bedrijfVanSlug(slug: string, dienstSlug?: string): Promise<Bedrijf | undefined> {
+  return vraagZacht(() => haalBedrijf(slug, dienstSlug), undefined, "een bedrijfsprofiel");
+}
+
+async function haalBedrijf(slug: string, dienstSlug?: string): Promise<Bedrijf | undefined> {
   const rijen = await vraag<BedrijfRij>(
     `select ${BEDRIJF_KOLOMMEN}
        from bedrijven b
@@ -117,22 +125,40 @@ export async function bedrijfVanSlug(slug: string, dienstSlug?: string): Promise
   return (await metTroeven(rijen))[0];
 }
 
+/**
+ * Welke diensten profielen hebben. Dit draait tijdens de build (voor
+ * generateStaticParams en de sitemap), dus het mag de build niet kunnen slopen:
+ * zonder database komt er een lege verzameling uit en worden er simpelweg geen
+ * plaatspagina's vooraf gebouwd.
+ */
 export async function dienstenMetBedrijven(): Promise<Set<string>> {
-  const rijen = await vraag<{ dienst: string }>(
-    `select distinct d.dienst
-       from bedrijf_diensten d
-       join bedrijven b on b.id = d.bedrijf_id and b.actief`,
+  return vraagZacht(
+    async () => {
+      const rijen = await vraag<{ dienst: string }>(
+        `select distinct d.dienst
+           from bedrijf_diensten d
+           join bedrijven b on b.id = d.bedrijf_id and b.actief`,
+      );
+      return new Set(rijen.map((r) => r.dienst));
+    },
+    new Set<string>(),
+    "de diensten met profielen",
   );
-  return new Set(rijen.map((r) => r.dienst));
 }
 
 /** Dagen waarop dit bedrijf al vol zit, als "2026-08-21". */
 export async function bezetteDagen(bedrijfId: string): Promise<string[]> {
-  const rijen = await vraag<{ dag: string }>(
-    "select to_char(datum, 'YYYY-MM-DD') as dag from bedrijf_bezet where bedrijf_id = $1",
-    [bedrijfId],
+  return vraagZacht(
+    async () => {
+      const rijen = await vraag<{ dag: string }>(
+        "select to_char(datum, 'YYYY-MM-DD') as dag from bedrijf_bezet where bedrijf_id = $1",
+        [bedrijfId],
+      );
+      return rijen.map((r) => r.dag);
+    },
+    [],
+    "de beschikbaarheid",
   );
-  return rijen.map((r) => r.dag);
 }
 
 export type NieuweAanvraag = {

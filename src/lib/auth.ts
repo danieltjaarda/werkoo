@@ -3,7 +3,7 @@ import { promisify } from "node:util";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
-import { vraagEen } from "@/lib/db";
+import { vraagEen, vraagZacht } from "@/lib/db";
 
 const scrypt = promisify(scryptCallback) as (
   wachtwoord: string,
@@ -99,6 +99,12 @@ export const huidigeGebruiker = cache(async (): Promise<Gebruiker | null> => {
   const token = opslag.get(SESSIE_COOKIE)?.value;
   if (!token) return null;
 
+  // Zonder database is er niemand ingelogd; dat is beter dan een pagina die valt.
+  return vraagZacht(() => zoekBijSessie(token), null, "de ingelogde gebruiker");
+});
+
+async function zoekBijSessie(token: string): Promise<Gebruiker | null> {
+
   const rij = await vraagEen<Gebruiker & { verloopt_op: Date }>(
     `select g.id, g.email, g.naam, g.telefoon, g.soort, s.verloopt_op
        from sessies s
@@ -116,7 +122,7 @@ export const huidigeGebruiker = cache(async (): Promise<Gebruiker | null> => {
   }
 
   return { id: rij.id, email: rij.email, naam: rij.naam, telefoon: rij.telefoon, soort: rij.soort };
-});
+}
 
 /** Stuurt door naar het inlogscherm als er niemand is ingelogd. */
 export async function vereisGebruiker(terugNaar: string): Promise<Gebruiker> {

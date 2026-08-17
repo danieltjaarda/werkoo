@@ -61,7 +61,16 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 Op Vercel zet je daar de url van Neon of Supabase neer; verder verandert er niets aan
-de code. Het schema staat als leesbare sql in `db/migraties/` en `scripts/migreer.mjs` is
+de code. Zet daar ook `NEXT_PUBLIC_SITE_URL` op het echte adres van de site.
+
+**De build heeft de database niet nodig.** Dat was eerst wel zo en dat sloopte de
+deployment: `generateStaticParams` en de sitemap vroegen tijdens de build welke diensten
+profielen hebben, en zonder `DATABASE_URL` viel de hele build om. Die leesvragen gaan nu via
+`vraagZacht()` in `src/lib/db.ts`, dat bij een ontbrekende of onbereikbare database een leeg
+antwoord teruggeeft en dat luid in het log zet. Gevolg: de site bouwt en de openbare pagina's
+werken altijd; alleen de vakmensenlijsten blijven leeg en de dashboards werken niet zolang er
+geen database is. Inloggen en het opslaan van een aanvraag gebruiken `vraagZacht()` bewust
+níét — die moeten wél hard falen in plaats van stil doen alsof het goed ging. Het schema staat als leesbare sql in `db/migraties/` en `scripts/migreer.mjs` is
 het enige wat het uitvoert — geen ORM, geen generatiestap.
 
 **Accounts.** Inloggen gaat met e-mailadres en wachtwoord. Na vijf mislukte pogingen op

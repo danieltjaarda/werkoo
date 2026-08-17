@@ -28,6 +28,31 @@ export function pool(): Pool {
   return globaalMetPool.werkooPool;
 }
 
+/** Is er überhaupt een database geconfigureerd? */
+export function heeftDatabase(): boolean {
+  return Boolean(process.env.DATABASE_URL);
+}
+
+/**
+ * Voor leesvragen die een zinnig leeg antwoord hebben. Zonder database of met een
+ * database die even niet reageert geeft dit de terugvalwaarde in plaats van de
+ * hele pagina — of erger, de hele build — om te laten vallen. Schrijfacties en
+ * inloggen gebruiken dit bewust niet: die moeten wél hard falen.
+ */
+export async function vraagZacht<T>(werk: () => Promise<T>, terugval: T, wat: string): Promise<T> {
+  if (!heeftDatabase()) {
+    console.warn(`Geen DATABASE_URL, dus geen ${wat}.`);
+    return terugval;
+  }
+
+  try {
+    return await werk();
+  } catch (fout) {
+    console.error(`Database onbereikbaar bij ${wat}:`, fout);
+    return terugval;
+  }
+}
+
 /** Voert een query uit en geeft de rijen terug, getypeerd zoals jij ze verwacht. */
 export async function vraag<T extends Record<string, unknown>>(
   sql: string,
