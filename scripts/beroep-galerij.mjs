@@ -51,17 +51,19 @@ function groepVarianten() {
 async function iconen() {
   if (!existsSync("src/components/icons-extra.tsx")) return [];
   const bron = await readFile("src/components/icons-extra.tsx", "utf8");
-  return [...bron.matchAll(/export function (\w+)\(\{ className \}: IconProps\) \{\s*return \(\s*([\s\S]*?)\s*\);\s*\}/g)].map(
-    ([, naam, svg]) => ({
-      naam,
-      svg: svg
-        .replace(/className=\{className\}/g, 'width="44" height="44"')
-        .replace(/strokeWidth/g, "stroke-width")
-        .replace(/strokeLinecap/g, "stroke-linecap")
-        .replace(/strokeLinejoin/g, "stroke-linejoin")
-        .replace(/\{[^}]*\}/g, ""),
-    }),
-  );
+  const kringen = [...bron.matchAll(/"(M[^"]+)"/g)].map((m) => m[1]).slice(0, 3);
+  return [
+    ...bron.matchAll(
+      /export function (\w+)\(\{ className \}: IconProps\) \{\s*return \(\s*<Icoon className=\{className\} kring=\{(\d)\}>\s*([\s\S]*?)\s*<\/Icoon>/g,
+    ),
+  ].map(([, naam, kring, inner]) => ({
+    naam,
+    svg: `<svg viewBox="0 0 28 28" width="46" height="46" fill="none"><path d="${kringen[Number(kring)]}" stroke="#2ed4d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(4 4)">${inner
+      .replace(/strokeWidth/g, "stroke-width")
+      .replace(/strokeLinecap/g, "stroke-linecap")
+      .replace(/strokeLinejoin/g, "stroke-linejoin")
+      .replace(/\{[^}]*\}/g, "")}</g></svg>`,
+  }));
 }
 
 /** De losse sitebeelden (categorieën, stappen, klanten, 404). */
