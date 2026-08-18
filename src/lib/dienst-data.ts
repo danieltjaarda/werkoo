@@ -60,6 +60,7 @@ const diensten: Dienst[] = [
     intro: "Een asbestverwijderaar haalt asbesthoudend materiaal weg en voert het af volgens de wettelijke regels. Je schakelt hem in bij golfplaten, oud dakbeschot, vinylzeil of leidingisolatie, meestal nadat er een asbestinventarisatie is gedaan.",
     prijs: "Een asbestdak laten saneren kost doorgaans € 15 tot € 30 per vierkante meter, inclusief afvoer en stortkosten. Kleine klussen binnenshuis beginnen rond de € 750 tot € 1.500, omdat er een afgesloten werkruimte gebouwd moet worden en een onafhankelijk lab de eindmeting doet.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/asbestverwijderaar.webp",
     opties: [
       { id: "golfplaten-dak", label: "Golfplaten dak" },
       { id: "schuur-garage", label: "Schuur of garage" },
@@ -89,6 +90,7 @@ const diensten: Dienst[] = [
     intro: "Een bouwkundig keurder inspecteert een woning en legt de staat van dak, fundering, kozijnen en installaties vast in een rapport met kostenindicatie. Je schakelt hem in bij de aankoop van een huis, voor een NHG-aanvraag of als je wil weten wat achterstallig onderhoud gaat kosten.",
     prijs: "Een bouwkundige keuring van een gemiddelde woning kost € 375 tot € 600, inclusief rapport en een kostenindicatie voor direct noodzakelijk herstel. De prijs hangt af van het woonoppervlak, de reisafstand en extra's zoals een asbestinventarisatie, een vochtonderzoek of een rapport in het NHG-model.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/bouwkundig-keurder.webp",
     opties: [
       { id: "aankoopkeuring", label: "Aankoopkeuring" },
       { id: "verkoopkeuring", label: "Verkoopkeuring" },
@@ -118,6 +120,7 @@ const diensten: Dienst[] = [
     intro: "Een dakdekker legt en repareert dakbedekking: bitumen of EPDM op een plat dak, pannen of leien op een hellend dak. Je belt hem bij een lekkage, bij losse pannen na storm of als de dakbedekking aan het einde van zijn levensduur is.",
     prijs: "Een plat dak opnieuw bedekken met bitumen of EPDM kost meestal € 60 tot € 110 per vierkante meter, inclusief isolatie en het verwijderen van de oude laag. Een lekkage opsporen en dichten ligt tussen de € 150 en € 450, afhankelijk van de bereikbaarheid en of er een steiger of hoogwerker nodig is.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/dakdekker.webp",
     opties: [
       { id: "lekkage", label: "Lekkage opsporen" },
       { id: "plat-dak", label: "Plat dak vernieuwen" },
@@ -147,6 +150,7 @@ const diensten: Dienst[] = [
     intro: "Een dakgootspecialist reinigt, repareert en vervangt goten, regenpijpen en zinkwerk. Je schakelt hem in als de goot overloopt, doorhangt of bij de naden lekt, of als een afvoer verstopt zit.",
     prijs: "Goten laten schoonmaken kost meestal € 3 tot € 7 per meter, met een minimumbedrag rond de € 125 voor voorrijden en materieel. Een nieuwe zinken mastgoot ligt tussen de € 50 en € 90 per meter geplaatst; pvc is ongeveer de helft daarvan.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/dakgootspecialist.webp",
     opties: [
       { id: "schoonmaken", label: "Goot schoonmaken" },
       { id: "lekkage", label: "Lekkage repareren" },
@@ -176,6 +180,7 @@ const diensten: Dienst[] = [
     intro: "Een dakkapelspecialist plaatst een prefab of ter plaatse gebouwde dakkapel en verzorgt het dakvlak, de kozijnen en de afwerking. Je schakelt hem in als je de zolder als slaapkamer of werkkamer wil gebruiken en meer stahoogte en daglicht nodig hebt.",
     prijs: "Een prefab dakkapel van twee meter breed kost geplaatst meestal € 6.500 tot € 9.500, inclusief btw en de afwerking aan de buitenkant. Bij vier meter of breder loopt dat op naar € 10.000 tot € 16.000, afhankelijk van het kozijnmateriaal, het glas en of de binnenafwerking en het stucwerk meegaan.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/dakkapelspecialist.webp",
     opties: [
       { id: "nieuwe-dakkapel", label: "Nieuwe dakkapel" },
       { id: "vervangen", label: "Dakkapel vervangen" },
@@ -205,6 +210,7 @@ const diensten: Dienst[] = [
     intro: "Een keukenspecialist meet de ruimte in, monteert de kasten en het werkblad en sluit apparatuur, water en afvoer aan. Je schakelt hem in bij een nieuwe keuken, bij het vervangen van alleen de fronten of het blad, of als de keuken naar een andere plek in huis gaat.",
     prijs: "Alleen het plaatsen van een keuken kost meestal € 800 tot € 2.000, of € 45 tot € 70 per uur bij losse werkzaamheden. Het verplaatsen van leidingen, een blad in composiet of natuursteen en het verwijderen en afvoeren van de oude keuken komen daar bovenop.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/keukenspecialist.webp",
     opties: [
       { id: "nieuwe-keuken", label: "Nieuwe keuken plaatsen" },
       { id: "oude-keuken-eruit", label: "Oude keuken verwijderen" },
@@ -234,6 +240,7 @@ const diensten: Dienst[] = [
     intro: "Een metselaar bouwt en herstelt muren van baksteen of bouwblokken, van een tuinmuur tot een gevel of een dragende binnenwand. Ook scheurherstel, het opnieuw voegen van een gevel en het inmetselen van een nieuwe deur- of raamopening horen bij zijn werk.",
     prijs: "Een metselaar rekent meestal € 45 tot € 65 per uur, of € 50 tot € 90 per vierkante meter halfsteens metselwerk inclusief mortel. Gevelvoegwerk uithalen en opnieuw voegen ligt tussen de € 45 en € 85 per vierkante meter, waarbij de steiger en het soort voeg het verschil maken.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/metselaar.webp",
     opties: [
       { id: "tuinmuur", label: "Tuinmuur" },
       { id: "gevel-metselen", label: "Gevel metselen" },
@@ -263,6 +270,7 @@ const diensten: Dienst[] = [
     intro: "Een opslagruimte is een afsluitbare box, unit of loods die je per periode huurt voor meubels, voorraad of archief. Je huurt er een bij een verhuizing, tijdens een verbouwing of als je thuis of op de zaak ruimte tekortkomt.",
     prijs: "Een box van 5 vierkante meter kost doorgaans € 85 tot € 150 per maand; voor 10 tot 15 vierkante meter reken je op € 160 tot € 300. De prijs hangt af van de plaats, de verdieping, de huurduur en of er verwarming, camerabewaking en toegang buiten kantoortijd bij horen.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/opslagruimte.webp",
     opties: [
       { id: "inboedel-verhuizing", label: "Inboedel bij verhuizing" },
       { id: "verbouwing", label: "Tijdens een verbouwing" },
@@ -292,6 +300,7 @@ const diensten: Dienst[] = [
     intro: "Een rioolservice ontstopt afvoeren en leidingen, maakt camerabeelden van het riool en herstelt of vervangt kapotte buizen. Je belt bij water dat blijft staan, terugkerende stank of een verzakte leiding onder de vloer of de tuin.",
     prijs: "Een riool laten ontstoppen kost binnen kantoortijd meestal € 90 tot € 200; in de avond of het weekend loopt dat op naar € 200 tot € 400. Een camera-inspectie ligt rond de € 150 tot € 300 en het relinen of vervangen van een stuk leiding kost € 150 tot € 400 per meter, afhankelijk van de diepte en of er bestrating uit moet.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/rioolservice.webp",
     opties: [
       { id: "ontstopping", label: "Ontstopping" },
       { id: "spoed", label: "Spoed of wateroverlast" },
@@ -321,6 +330,7 @@ const diensten: Dienst[] = [
     intro: "Een sloopbedrijf breekt bouwdelen of hele gebouwen af en voert het materiaal gescheiden af. Je schakelt het in voor een binnensloop voorafgaand aan een verbouwing, voor het slopen van een schuur of garage of voor het verwijderen van een vloer, wand of schoorsteen.",
     prijs: "Een binnensloop van een woning kost meestal € 25 tot € 60 per vierkante meter woonoppervlak, inclusief afvoer van het puin. Het slopen van een schuur of garage ligt tussen de € 1.000 en € 3.500, waarbij de bereikbaarheid, de fundering en het soort afval de prijs bepalen.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/sloopbedrijf.webp",
     opties: [
       { id: "binnensloop", label: "Binnensloop woning" },
       { id: "schuur-garage", label: "Schuur of garage" },
@@ -350,6 +360,7 @@ const diensten: Dienst[] = [
     intro: "Een tegelzetter zet vloer- en wandtegels, maakt de ondergrond vlak en werkt de naden en kitranden af. Je schakelt hem in bij een nieuwe badkamer of toilet, bij een tegelvloer in de woonkamer of bij het vervangen van losse of gescheurde tegels.",
     prijs: "Tegels leggen kost meestal € 35 tot € 60 per vierkante meter voor een vloer en € 45 tot € 80 voor een wand, exclusief materiaal. Grote formaten, mozaïek, een visgraatpatroon en het egaliseren of waterdicht maken van de ondergrond verhogen dat bedrag.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/tegelzetter.webp",
     opties: [
       { id: "badkamer", label: "Badkamer" },
       { id: "toilet", label: "Toilet" },
@@ -379,6 +390,7 @@ const diensten: Dienst[] = [
     intro: "Een timmerman maakt en herstelt houtwerk en houtconstructies in en om het huis: kozijnen, deuren, vloeren, trappen, dakbeschot en inbouwkasten. Je schakelt hem in bij rot hout, bij een nieuwe binnendeur of wand of bij het afwerken van een verbouwing.",
     prijs: "Een timmerman rekent meestal € 45 tot € 70 per uur exclusief materiaal; voor grotere klussen krijg je vaak een vaste prijs. Een binnendeur met kozijn plaatsen kost € 250 tot € 500 en het vervangen van een rot buitenkozijn € 400 tot € 900 per stuk, afhankelijk van de maat en de houtsoort.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/timmerman.webp",
     opties: [
       { id: "kozijnen-deuren", label: "Kozijnen of deuren" },
       { id: "vloer", label: "Vloer of onderconstructie" },
@@ -408,6 +420,7 @@ const diensten: Dienst[] = [
     intro: "Een verhuisbedrijf laadt, vervoert en plaatst je inboedel, met bus en zo nodig met een verhuislift of kraan. Je schakelt het in voor een hele verhuizing, voor alleen de zware stukken of voor het demonteren en weer opbouwen van meubels.",
     prijs: "Een verhuizing binnen dezelfde plaats kost meestal € 60 tot € 95 per uur voor twee verhuizers met bus. Een driekamerwoning compleet laten verhuizen ligt tussen de € 900 en € 2.200, afhankelijk van de afstand, de hoeveelheid inboedel, de verdieping en of er een verhuislift of inpakservice bij komt.",
     categorie: "verbouwen",
+    foto: "/images/beroepen/verhuisbedrijf.webp",
     opties: [
       { id: "hele-woning", label: "Hele woning" },
       { id: "grote-meubels", label: "Alleen grote meubels" },
@@ -437,6 +450,7 @@ const diensten: Dienst[] = [
     intro: "Een aannemer voert bouw- en verbouwwerk uit en stuurt de onderaannemers aan die daarbij nodig zijn. Je schakelt hem in bij een uitbouw, een doorbraak, een interne verbouwing of het opknappen van een hele woning.",
     prijs: "Een aannemer rekent meestal € 55 tot € 80 per uur, of een vaste prijs per project op basis van een begroting. Een uitbouw van 20 m² ligt vaak tussen de € 40.000 en € 70.000, afhankelijk van de fundering, het aantal ramen en deuren en de afwerking.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/aannemer.webp",
     opties: [
       { id: "uitbouw-aanbouw", label: "Uitbouw of aanbouw" },
       { id: "verbouwing-binnen", label: "Interne verbouwing" },
@@ -466,6 +480,7 @@ const diensten: Dienst[] = [
     intro: "Een architect maakt het ontwerp en de tekeningen voor nieuwbouw, een verbouwing of een uitbreiding en kan de aanvraag bij de gemeente begeleiden. Je schakelt hem in als je plan verder gaat dan wat vergunningvrij mag, of als je de indeling van je woning ingrijpend wilt veranderen.",
     prijs: "Architecten werken met een uurtarief van € 80 tot € 130 of met een percentage van de bouwkosten, meestal tussen de 6 en 12 procent. Alleen een ontwerp met bouwtekening voor een uitbouw ligt vaak tussen de € 1.500 en € 4.000, afhankelijk van het detailniveau en of de vergunningaanvraag erbij hoort.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/architect.webp",
     opties: [
       { id: "verbouwing", label: "Verbouwing" },
       { id: "uitbouw-aanbouw", label: "Uitbouw of aanbouw" },
@@ -495,6 +510,7 @@ const diensten: Dienst[] = [
     intro: "Een badkamerinstallateur vernieuwt de badkamer, van slopen en leidingwerk tot tegelen en het plaatsen van sanitair. Je schakelt hem in bij een complete renovatie, maar ook voor losser werk zoals een inloopdouche, een tweede toilet of nieuw tegelwerk.",
     prijs: "Een complete badkamerrenovatie van 5 tot 8 m² ligt meestal tussen de € 9.000 en € 18.000, waarvan ruwweg de helft arbeid. Alleen een inloopdouche plaatsen kost € 1.500 tot € 3.500, afhankelijk van het tegelwerk, hoeveel leidingen verlegd moeten worden en de kwaliteit van het sanitair.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/badkamerinstallateur.webp",
     opties: [
       { id: "complete-renovatie", label: "Complete renovatie" },
       { id: "inloopdouche", label: "Inloopdouche plaatsen" },
@@ -524,6 +540,7 @@ const diensten: Dienst[] = [
     intro: "Een boomverzorger snoeit, kandelabert of verwijdert bomen en beoordeelt of een boom nog veilig staat. Je schakelt hem in bij takken over de erfgrens, na stormschade, bij een zieke boom of als je twijfelt over de stabiliteit.",
     prijs: "Het snoeien van één volgroeide boom kost meestal € 150 tot € 450, afhankelijk van de hoogte en of er geklommen wordt of met een hoogwerker gewerkt. Een boom vellen ligt tussen de € 300 en € 1.200; het uitfrezen van de stobbe en het afvoeren van het hout worden apart gerekend.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/boomverzorger.webp",
     opties: [
       { id: "boom-snoeien", label: "Boom snoeien" },
       { id: "boom-kappen", label: "Boom kappen" },
@@ -553,6 +570,7 @@ const diensten: Dienst[] = [
     intro: "Een elektricien legt en vervangt elektra in en om huis, van groepenkast en leidingwerk tot stopcontacten, verlichting en laadpunten. Je schakelt hem in bij storingen, bij een verbouwing of als de installatie niet meer past bij het aantal apparaten dat je gebruikt.",
     prijs: "Een elektricien rekent doorgaans € 45 tot € 70 per uur, plus voorrijkosten van € 25 tot € 50. Een nieuwe groepenkast met aardlekschakelaars kost € 700 tot € 1.500 en een laadpunt inclusief aanleg € 1.200 tot € 2.200, afhankelijk van de kabellengte en of er een extra groep bij moet.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/elektricien.webp",
     opties: [
       { id: "groepenkast", label: "Groepenkast vervangen" },
       { id: "storing", label: "Storing zoeken" },
@@ -582,6 +600,7 @@ const diensten: Dienst[] = [
     intro: "Een gevelreiniger haalt algen, groene aanslag, roet of graffiti van steen, stuc of hout, meestal met lage druk en een reinigingsmiddel. Je schakelt hem in bij een vervuilde of vergroende gevel, en vaak vlak voordat er geïmpregneerd of geschilderd wordt.",
     prijs: "Gevelreiniging kost meestal € 8 tot € 20 per m², afhankelijk van de vervuiling, de steensoort en de bereikbaarheid. Voor een tussenwoning kom je vaak op € 500 tot € 1.500; impregneren komt daar met € 10 tot € 18 per m² bovenop.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/gevelreiniger.webp",
     opties: [
       { id: "groene-aanslag", label: "Groene aanslag" },
       { id: "graffiti", label: "Graffiti verwijderen" },
@@ -611,6 +630,7 @@ const diensten: Dienst[] = [
     intro: "Een gevelspecialist herstelt en vernieuwt de buitenmuur: voegwerk uitslijpen en opnieuw voegen, metselwerk repareren, scheuren dichten of gevelbekleding plaatsen. Je schakelt hem in bij losse voegen, scheurvorming, doorslaand vocht of als de gevel na dertig tot vijftig jaar aan een beurt toe is.",
     prijs: "Nieuw voegwerk kost meestal € 35 tot € 60 per m², inclusief uitslijpen; steiger- of hoogwerkerkosten staan daar los van. Herstel van scheuren of los metselwerk gaat per uur, rond de € 50 tot € 70, en het totaal hangt vooral af van de hoogte, de bereikbaarheid en de staat van de steen.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/gevelspecialist.webp",
     opties: [
       { id: "voegwerk", label: "Voegwerk vernieuwen" },
       { id: "metselwerk-herstel", label: "Metselwerk herstellen" },
@@ -640,6 +660,7 @@ const diensten: Dienst[] = [
     intro: "Een hekwerkspecialist plaatst erfafscheidingen: schuttingen, gaashekwerk, spijlenhekken en poorten, inclusief het zetten van de palen. Je schakelt hem in bij een nieuwe tuin, bij het vervangen van een verrot hek of als je een oprit met een poort wilt afsluiten.",
     prijs: "Een geplaatste houten schutting kost meestal € 100 tot € 200 per meter en gaashekwerk € 40 tot € 90 per meter, inclusief palen en arbeid. Een handmatige poort begint rond de € 800; een elektrische schuifpoort met motor en besturing ligt tussen de € 4.000 en € 9.000, afhankelijk van de breedte en het materiaal.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/hekwerkspecialist.webp",
     opties: [
       { id: "schutting", label: "Schutting plaatsen" },
       { id: "gaashekwerk", label: "Gaas of draadhekwerk" },
@@ -669,6 +690,7 @@ const diensten: Dienst[] = [
     intro: "Een hovenier ontwerpt, legt aan en onderhoudt tuinen: grondwerk, bestrating, borders, planten, gras, vlonders en beschoeiing. Je schakelt hem in bij een complete tuinaanleg of voor terugkerend onderhoud zoals snoeien, schoffelen en het scheren van hagen.",
     prijs: "Een hovenier rekent meestal € 45 tot € 65 per uur; een tuinontwerp met tekening en plantenlijst kost € 500 tot € 1.500. Een tuin van 50 m² helemaal opnieuw aanleggen komt vaak tussen de € 5.000 en € 15.000 uit, afhankelijk van het grondwerk, de bestrating en of er een vlonder of beschoeiing bij hoort.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/hovenier.webp",
     opties: [
       { id: "tuinontwerp", label: "Tuinontwerp" },
       { id: "complete-aanleg", label: "Tuin aanleggen" },
@@ -698,6 +720,7 @@ const diensten: Dienst[] = [
     intro: "Een interieurstylist adviseert over indeling, kleur, materialen, licht en meubels en zet dat om in een plan met concrete keuzes. Je schakelt hem in bij een lege of net verbouwde woning, bij een ruimte die niet werkt of om een huis verkoopklaar te maken.",
     prijs: "Een interieurstylist rekent meestal € 60 tot € 110 per uur, dus een adviesgesprek aan huis van twee uur kost € 120 tot € 250. Een compleet plan met plattegrond, kleur- en materiaalvoorstel en meubellijst voor een woonkamer ligt vaak tussen de € 750 en € 2.500, afhankelijk van het aantal ruimtes en of de inkoop en plaatsing worden begeleid.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/interieurstylist.webp",
     opties: [
       { id: "adviesgesprek", label: "Adviesgesprek aan huis" },
       { id: "kleur-materiaal", label: "Kleur- en materiaalplan" },
@@ -727,6 +750,7 @@ const diensten: Dienst[] = [
     intro: "Een isolatiebedrijf isoleert spouwmuren, vloeren, daken en zolders en plaatst hr++ of triple glas. Je schakelt het in bij koude vloeren, een kamer die niet warm wordt of als je het gasgebruik omlaag wilt brengen.",
     prijs: "Spouwmuurisolatie kost meestal € 20 tot € 35 per m² en vloerisolatie € 25 tot € 50 per m², waarmee een tussenwoning per maatregel vaak op € 1.500 tot € 3.500 komt. Dakisolatie aan de binnenkant ligt rond de € 50 tot € 90 per m². Ook voor één isolatiemaatregel kun je ISDE-subsidie aanvragen; bij twee maatregelen binnen 24 maanden ligt het bedrag per maatregel hoger.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/isolatiebedrijf.webp",
     opties: [
       { id: "spouwmuur", label: "Spouwmuurisolatie" },
       { id: "vloer-bodem", label: "Vloer of bodem" },
@@ -756,6 +780,7 @@ const diensten: Dienst[] = [
     intro: "Een klusjesman doet los werk in en om het huis: kastjes ophangen, deuren stellen, plinten zetten, kleine reparaties en montage. Je schakelt hem in voor klussen die te klein zijn voor een gespecialiseerd bedrijf of waar je zelf geen gereedschap, tijd of hoogtevrees-vrije zolder voor hebt.",
     prijs: "Een klusjesman rekent meestal € 35 tot € 55 per uur, vaak met een minimum van één of twee uur en voorrijkosten van € 15 tot € 35. Voor een dagdeel met verschillende kleine klussen kom je op € 150 tot € 250, exclusief materiaal.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/klusjesman.webp",
     opties: [
       { id: "monteren-ophangen", label: "Monteren en ophangen" },
       { id: "reparaties", label: "Kleine reparaties" },
@@ -785,6 +810,7 @@ const diensten: Dienst[] = [
     intro: "Een meubelmaker maakt meubels en inbouwwerk in eigen atelier: kasten, tafels, banken, keukens, trapkasten en boekenwanden. Je schakelt hem in als standaardmaten niet passen, bij een schuine wand of nis, of om een bestaand meubel te herstellen.",
     prijs: "Een meubelmaker rekent meestal € 55 tot € 85 per uur, plus materiaal. Een inbouwkast van 2 bij 2,5 meter in gespoten mdf ligt tussen de € 2.500 en € 5.000 en een eiken eettafel tussen de € 1.200 en € 3.000, afhankelijk van de houtsoort, de dikte van het blad en de verbindingen.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/meubelmaker.webp",
     opties: [
       { id: "inbouwkast", label: "Inbouwkast of wandmeubel" },
       { id: "tafel-bank", label: "Tafel of bank" },
@@ -814,6 +840,7 @@ const diensten: Dienst[] = [
     intro: "Een ongediertebestrijder spoort de bron van een plaag op en pakt die aan, van muizen en ratten tot wespen, kakkerlakken, bedwantsen en houtworm. Je schakelt hem in bij geluiden in de wand, terugkerende uitwerpselen, een nest onder de dakpannen of steken in bed.",
     prijs: "Een enkele behandeling begint meestal bij € 100 tot € 200, bijvoorbeeld voor een wespennest. Muizen of ratten met inspectie, wering en controlebezoeken kost € 250 tot € 600 en bedwantsen € 400 tot € 1.200 per woning, afhankelijk van het aantal ruimtes en of er een warmtebehandeling nodig is.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/ongediertebestrijder.webp",
     opties: [
       { id: "muizen-ratten", label: "Muizen of ratten" },
       { id: "wespen", label: "Wespen of hoornaars" },
@@ -843,6 +870,7 @@ const diensten: Dienst[] = [
     intro: "Een schilder behandelt hout, stuc en metaal binnen en buiten: schuren, plamuren, grondlaag en aflagen, plus het herstellen van houtrot waar dat nodig is. Je schakelt hem in bij afbladderend buitenwerk, na een verbouwing of als kozijnen en deuren aan een onderhoudsbeurt toe zijn.",
     prijs: "Schilders rekenen € 40 tot € 60 per uur of geven een vaste prijs per project. Buitenschilderwerk van een tussenwoning kost meestal € 2.000 tot € 5.000 en een kamer binnen € 400 tot € 900, afhankelijk van de staat van de ondergrond, het aantal lagen en of er houtrot hersteld moet worden.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/schilder.webp",
     opties: [
       { id: "buitenschilderwerk", label: "Buitenschilderwerk" },
       { id: "binnenschilderwerk", label: "Binnenschilderwerk" },
@@ -872,6 +900,7 @@ const diensten: Dienst[] = [
     intro: "Een schoorsteenveger haalt roet en creosoot uit het rookkanaal en controleert of het kanaal en de aansluiting nog veilig zijn. Je schakelt hem in voor het stookseizoen, na een schoorsteenbrand, bij trekproblemen of als je verzekeraar een onderhoudsbewijs vraagt.",
     prijs: "Een schoorsteen vegen kost meestal € 60 tot € 100 per kanaal, met een tweede kanaal in dezelfde woning vaak voor minder. Een camera-inspectie of rooktest komt daar met € 75 tot € 200 bij, en het voeren van een kanaal met een flexibele buis ligt tussen de € 800 en € 2.000, afhankelijk van de hoogte en het aantal bochten.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/schoorsteenveger.webp",
     opties: [
       { id: "openhaard", label: "Openhaard vegen" },
       { id: "kachel", label: "Hout- of pelletkachel" },
@@ -901,6 +930,7 @@ const diensten: Dienst[] = [
     intro: "Een stoffeerder bekleedt meubels opnieuw: bankkussens, eetkamerstoelen en fauteuils, inclusief nieuw schuim, singelbanden of veren, en soms auto- en bootinterieur. Je schakelt hem in als het frame nog goed is maar de stof versleten, doorgezakt of uit de toon geraakt is.",
     prijs: "Een eetkamerstoel opnieuw stofferen kost meestal € 60 tot € 150 per stuk exclusief stof en een fauteuil € 350 tot € 800. Een driezitsbank ligt tussen de € 900 en € 2.500, afhankelijk van het model, of de vulling wordt vervangen en of je stof van € 30 of € 100 per meter kiest.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/stoffeerder.webp",
     opties: [
       { id: "bank", label: "Bank stofferen" },
       { id: "eetkamerstoelen", label: "Eetkamerstoelen" },
@@ -930,6 +960,7 @@ const diensten: Dienst[] = [
     intro: "Een stratenmaker legt bestrating aan: opritten, terrassen, paden en parkeervakken, inclusief grondwerk, fundering en afwatering. Je schakelt hem in bij nieuwe bestrating, verzakte tegels of het verbreden van een oprit.",
     prijs: "Alleen het straatwerk kost meestal € 25 tot € 45 per m²; met grondwerk, fundering, afvoer van zand en het leveren van stenen kom je op € 60 tot € 120 per m². Een oprit van 40 m² in betonklinkers ligt daarmee rond de € 3.000 tot € 5.000, afhankelijk van het verband, de steensoort en of er kolken of een goot bij komen.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/stratenmaker.webp",
     opties: [
       { id: "oprit", label: "Oprit bestraten" },
       { id: "terras", label: "Terras aanleggen" },
@@ -959,6 +990,7 @@ const diensten: Dienst[] = [
     intro: "Een stukadoor werkt wanden en plafonds af met pleisterwerk, van glad stucwerk en spachtelputz tot sierpleister en buitenstuc. Je schakelt hem in na een verbouwing, bij beschadigde of ongelijke wanden of als je van structuur naar glad wilt.",
     prijs: "Glad stucwerk op een bestaande wand kost meestal € 20 tot € 35 per m² inclusief materiaal, dus wanden en plafond van een kamer van 20 m² komen vaak op € 1.200 tot € 2.200. Nieuw pleisterwerk op steen of gipsplaat is goedkoper dan renovatiestuc over beschadigde of eerder gesausde wanden, en bij woningen ouder dan twee jaar geldt 9 procent btw op de arbeid.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/stukadoor.webp",
     opties: [
       { id: "glad-stucwerk", label: "Glad stucwerk" },
       { id: "plafond", label: "Plafond afwerken" },
@@ -988,6 +1020,7 @@ const diensten: Dienst[] = [
     intro: "Een traprenovatiebedrijf bekleedt een bestaande trap met nieuwe treden van hout, laminaat of pvc en vervangt stootborden, leuningen en soms de balustrade. Je schakelt het in bij een versleten, krakende of gladde trap, of als je van vloerbedekking naar hout wilt.",
     prijs: "Traprenovatie met overzettreden kost meestal € 1.200 tot € 2.500 voor een rechte trap van dertien treden en € 1.800 tot € 3.500 voor een trap met een kwart- of halve draai. Een complete nieuwe trap begint rond de € 2.500 en loopt bij eiken of bijzondere maten op tot € 8.000, afhankelijk van de houtsoort, de afwerking en of de leuning meegaat.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/traprenovatie.webp",
     opties: [
       { id: "trap-bekleden", label: "Trap bekleden" },
       { id: "nieuwe-trap", label: "Nieuwe trap" },
@@ -1017,6 +1050,7 @@ const diensten: Dienst[] = [
     intro: "Een vloerlegger legt houten, pvc-, laminaat- en tapijtvloeren, egaliseert de ondervloer en werkt af met plinten en profielen. Je schakelt hem in bij een nieuwe vloer, bij het schuren en opnieuw afwerken van parket of als een vloer los ligt, kraakt of bol staat.",
     prijs: "Alleen leggen kost meestal € 15 tot € 30 per m² bij laminaat en pvc en € 25 tot € 50 per m² bij visgraat of een patroon; egaliseren komt daar met € 10 tot € 20 per m² bij. Inclusief materiaal reken je op € 40 tot € 70 per m² voor pvc en € 80 tot € 150 per m² voor eiken parket, afhankelijk van de dikte, het patroon en de afwerking.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/vloerlegger.webp",
     opties: [
       { id: "pvc-vinyl", label: "Pvc of vinyl" },
       { id: "hout-parket", label: "Hout of parket" },
@@ -1046,6 +1080,7 @@ const diensten: Dienst[] = [
     intro: "Een vochtbestrijder zoekt de oorzaak van vocht in een woning en pakt die aan: injecteren tegen optrekkend vocht, gevels waterafstotend maken, kelders afdichten of kruipruimtes isoleren en ventileren. Je schakelt hem in bij zoutuitslag, schimmel, loslatend stucwerk of een muffe geur op de begane grond.",
     prijs: "Injecteren tegen optrekkend vocht kost meestal € 60 tot € 120 per strekkende meter muur. Een kruipruimte met bodemfolie en ventilatie ligt tussen de € 1.500 en € 3.500 voor een tussenwoning en kelderafdichting van binnenuit tussen de € 150 en € 400 per m², afhankelijk van de muurdikte en de grondwaterstand.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/vochtbestrijder.webp",
     opties: [
       { id: "optrekkend-vocht", label: "Optrekkend vocht" },
       { id: "doorslaand-vocht", label: "Doorslaand vocht" },
@@ -1075,6 +1110,7 @@ const diensten: Dienst[] = [
     intro: "Een zonweringspecialist meet op, levert en monteert zonwering: screens, uitvalschermen, markiezen, rolluiken en binnenzonwering, met handmatige of elektrische bediening. Je schakelt hem in bij oververhitting achter grote ramen, bij een nieuw terras of als een bestaande installatie niet meer op- of afloopt.",
     prijs: "Een elektrische screen voor een raam van 2 bij 2 meter kost meestal € 900 tot € 1.600 gemonteerd en rolluiken € 700 tot € 1.400 per raam. Een uitvalscherm of terrasscherm ligt tussen de € 1.500 en € 5.000, afhankelijk van de breedte, de windklasse en of er een motor, zonsensor en app-besturing bij komen.",
     categorie: "huis-tuin",
+    foto: "/images/beroepen/zonweringspecialist.webp",
     opties: [
       { id: "screens", label: "Screens" },
       { id: "uitvalscherm", label: "Uitvalscherm of terras" },
@@ -1104,6 +1140,7 @@ const diensten: Dienst[] = [
     intro: "Een airco-installateur plaatst en onderhoudt split-airco's: een buitenunit met een of meer binnenunits, verbonden door koelleidingen. Je schakelt hem in voor een nieuw systeem, voor onderhoud en filterwissel, of als een bestaande airco niet meer koelt.",
     prijs: "Een enkele split-airco laten plaatsen kost meestal € 1.500 tot € 2.500, inclusief binnenunit, buitenunit, leidingwerk en montage. Een multisplit met twee of drie binnenunits komt op € 3.000 tot € 5.000, afhankelijk van het vermogen, de leidinglengte en de plaats van de buitenunit.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/airco-installateur.webp",
     opties: [
       { id: "nieuwe-airco", label: "Nieuwe airco plaatsen" },
       { id: "meerdere-ruimtes", label: "Meerdere ruimtes" },
@@ -1133,6 +1170,7 @@ const diensten: Dienst[] = [
     intro: "Een alarmsysteembedrijf bekijkt welke ruimtes en toegangen risico geven en installeert het systeem: detectoren, bedieningspaneel, sirene, camera's en eventueel een aansluiting op een meldkamer. Je schakelt het in bij een nieuwe woning of bedrijfspand, na een inbraak of inbraakpoging, of als je verzekeraar een gecertificeerde installatie vraagt.",
     prijs: "Een draadloos systeem met paneel, drie of vier detectoren en montage ligt meestal tussen de € 800 en € 1.800. Aansluiting op een alarmcentrale kost daarnaast € 15 tot € 35 per maand, en de prijs loopt op met het aantal ruimtes, camera's en de eisen die je verzekeraar stelt.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/alarmsysteem.webp",
     opties: [
       { id: "woning", label: "Woning beveiligen" },
       { id: "bedrijfspand", label: "Bedrijfspand beveiligen" },
@@ -1162,6 +1200,7 @@ const diensten: Dienst[] = [
     intro: "Een cv-installateur werkt aan alles wat je huis warm maakt: de ketel, radiatoren, vloerverwarming en het leidingwerk ertussen. Je belt hem voor een nieuwe ketel, jaarlijks onderhoud, een storing of het uitbreiden van de verwarming na een verbouwing.",
     prijs: "Een nieuwe HR-combiketel kost inclusief montage en het afvoeren van de oude ketel meestal € 2.000 tot € 3.200. Losse klussen gaan per uur, gangbaar € 55 tot € 85, en een onderhoudsbeurt ligt tussen de € 90 en € 150 of € 8 tot € 15 per maand in een abonnement.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/cv-installateur.webp",
     opties: [
       { id: "nieuwe-ketel", label: "Nieuwe cv-ketel" },
       { id: "onderhoud", label: "Onderhoud of storing" },
@@ -1191,6 +1230,7 @@ const diensten: Dienst[] = [
     intro: "Een energielabeladviseur neemt je woning ter plaatse op, rekent volgens de methode NTA 8800 en meldt het definitieve energielabel af in EP-Online. Je hebt hem nodig bij verkoop of verhuur, bij oplevering van nieuwbouw en als je na verduurzamen een nieuw label wilt.",
     prijs: "Een definitief energielabel voor een gemiddelde woning kost meestal € 250 tot € 400, inclusief opname aan huis en registratie. Een appartement valt vaak lager uit, terwijl een groot, oud of meermaals verbouwd huis meer meetwerk vraagt en daardoor duurder is.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/energielabel-adviseur.webp",
     opties: [
       { id: "verkoop", label: "Label voor verkoop" },
       { id: "verhuur", label: "Label voor verhuur" },
@@ -1220,6 +1260,7 @@ const diensten: Dienst[] = [
     intro: "Een glaszetter meet, levert en plaatst glas: gesprongen ruiten, enkel glas dat isolatieglas wordt, beslagen dubbel glas, veiligheidsglas en glasplaten op maat. Je belt hem bij schade, bij condens tussen de glasbladen of als je je ruiten wilt verbeteren zonder de kozijnen te vervangen.",
     prijs: "Enkel glas vervangen door HR++-glas kost geplaatst meestal € 150 tot € 250 per vierkante meter, triple glas € 250 tot € 350. Een gesprongen ruit met spoed laten vervangen begint rond de € 250 inclusief voorrijkosten, en de prijs hangt af van de maat, de glassoort, de hoogte en of het kozijn nog geschikt is.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/glaszetter.webp",
     opties: [
       { id: "gebroken-ruit", label: "Gebroken ruit" },
       { id: "isolatieglas", label: "Enkel glas vervangen" },
@@ -1249,6 +1290,7 @@ const diensten: Dienst[] = [
     intro: "Een kozijnspecialist meet, levert en plaatst kozijnen, ramen en deuren in kunststof, hout of aluminium, inclusief het glas en het afwerken van de aansluiting op de muur. Je schakelt hem in bij rotte of klemmende kozijnen, bij een aanbouw of als je isolatieglas wilt dat niet in de bestaande sponning past.",
     prijs: "Een kunststof kozijn met HR++-glas kost inclusief montage meestal € 700 tot € 1.400 per kozijn; hout en aluminium liggen 20 tot 40 procent hoger. Voor alle kozijnen van een tussenwoning reken je op € 9.000 tot € 20.000, afhankelijk van de maten, het aantal draaidelen, het glastype en het bijkomende stuc- en metselwerk.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/kozijnspecialist.webp",
     opties: [
       { id: "kunststof", label: "Kunststof kozijnen" },
       { id: "hout", label: "Houten kozijnen" },
@@ -1278,6 +1320,7 @@ const diensten: Dienst[] = [
     intro: "Een laadpaalinstallateur legt een laadpunt voor een elektrische auto aan: een aparte groep in de meterkast, de kabel naar de plek van de paal en het instellen van het laadvermogen. Je schakelt hem in bij een nieuwe auto, bij een laadpunt in een gedeelde garage of als een bestaande paal storing geeft.",
     prijs: "Een laadpunt van 11 kW kost thuis inclusief installatie meestal € 1.100 tot € 1.900. De prijs hangt af van de kabellengte naar de meterkast, of er een aparte groep en aardlekschakelaar bij moeten, of er gegraven wordt en of je lastbalancering wilt.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/laadpaal-installateur.webp",
     opties: [
       { id: "thuis", label: "Laadpaal bij huis" },
       { id: "vve-garage", label: "Laadpunt VvE-garage" },
@@ -1307,6 +1350,7 @@ const diensten: Dienst[] = [
     intro: "Een loodgieter werkt aan water- en afvoerleidingen, kranen, sanitair en zinkwerk zoals dakgoten en kilgoten. Je belt hem bij een lekkage of verstopping, bij het aansluiten van een nieuwe keuken of badkamer en bij het vervangen van oude leidingen.",
     prijs: "Loodgieters rekenen meestal € 50 tot € 85 per uur, plus € 25 tot € 50 voorrijkosten. Voor spoed buiten kantoortijd komt daar een toeslag van 50 tot 100 procent bij, terwijl kleine klussen zoals een kraan of een sifon vervangen vaak onder de € 200 blijven.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/loodgieter.webp",
     opties: [
       { id: "lekkage", label: "Lekkage verhelpen" },
       { id: "verstopping", label: "Verstopping oplossen" },
@@ -1336,6 +1380,7 @@ const diensten: Dienst[] = [
     intro: "Een thuisbatterij-installateur plaatst een accu die stroom opslaat en later teruggeeft, en sluit die aan op je omvormer, meterkast en energiemanagement. Je schakelt hem in als je veel zonnestroom teruglevert en die liever zelf gebruikt, of als je met een dynamisch contract goedkope uren wilt opslaan.",
     prijs: "Een batterij van rond 5 kWh kost inclusief installatie meestal € 3.500 tot € 5.500; rond 10 kWh zit je op € 6.000 tot € 9.500. Anders dan bij zonnepanelen geldt hier het btw-tarief van 21 procent, en de prijs hangt verder af van de capaciteit, het vermogen van de omvormer en de aanpassingen in de meterkast.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/thuisbatterij-installateur.webp",
     opties: [
       { id: "bij-zonnepanelen", label: "Batterij bij zonnepanelen" },
       { id: "dynamisch-contract", label: "Dynamisch energiecontract" },
@@ -1365,6 +1410,7 @@ const diensten: Dienst[] = [
     intro: "Een warmtepompinstallateur rekent uit hoeveel vermogen je woning nodig heeft en plaatst een hybride of volledig elektrische warmtepomp, inclusief buitenunit, buffervat en aanpassingen aan radiatoren of vloerverwarming. Je schakelt hem in als je ketel aan vervanging toe is, bij een verbouwing of als je van het gas af wilt.",
     prijs: "Een hybride warmtepomp naast een bestaande ketel kost inclusief installatie meestal € 5.000 tot € 8.000, een volledig elektrische lucht-waterwarmtepomp € 9.000 tot € 16.000 en een bodemwarmtepomp met bron nog € 5.000 tot € 10.000 meer. Daar gaat ISDE-subsidie af, waarvan het bedrag per toestel op de apparatenlijst van RVO staat, en de prijs hangt verder af van je isolatie, je afgiftesysteem en het leidingwerk.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/warmtepomp-installateur.webp",
     opties: [
       { id: "hybride", label: "Hybride warmtepomp" },
       { id: "all-electric", label: "Volledig elektrisch" },
@@ -1394,6 +1440,7 @@ const diensten: Dienst[] = [
     intro: "Een zonnepanelen-installateur bekijkt je dak, rekent uit hoeveel panelen erop passen en plaatst de panelen, het montagesysteem, de omvormer en de aansluiting in de meterkast. Je schakelt hem in voor een eerste installatie, voor uitbreiding, of als een omvormer defect is of panelen minder opbrengen.",
     prijs: "Een set van tien panelen, samen rond 4.000 wattpiek, kost met omvormer en montage meestal € 3.800 tot € 6.000. Voor particulieren geldt 0 procent btw op levering en installatie op of bij de woning, en de prijs hangt af van het daktype, het aantal panelen, de omvormer en of er steigerwerk of een extra groep nodig is.",
     categorie: "duurzaam",
+    foto: "/images/beroepen/zonnepanelen-installateur.webp",
     opties: [
       { id: "schuin-dak", label: "Panelen schuin dak" },
       { id: "plat-dak", label: "Panelen plat dak" },
@@ -1423,6 +1470,7 @@ const diensten: Dienst[] = [
     intro: "Een aankoopmakelaar zoekt mee naar een woning, leest de bouwkundige en juridische stukken en doet het onderhandelen en bieden voor je. Je schakelt er een in als je weinig tijd hebt, als je koopt in een gebied dat je niet kent of als je niet wilt overbieden zonder onderbouwing.",
     prijs: "Een aankoopmakelaar werkt met een vast tarief van € 2.500 tot € 4.500 of met courtage van 1 tot 1,5 procent van de koopsom. Het verschil zit in het aantal bezichtigingen dat je afneemt, of de bouwkundige keuring erbij hoort en of je een no-cure-no-pay-afspraak maakt.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/aankoopmakelaar.webp",
     opties: [
       { id: "eerste-koopwoning", label: "Eerste koopwoning" },
       { id: "volgende-woning", label: "Volgende woning" },
@@ -1452,6 +1500,7 @@ const diensten: Dienst[] = [
     intro: "Een advocaat behartigt je belangen in een juridisch conflict, voert de correspondentie met de tegenpartij en procedeert als het tot een zaak komt. In procedures waarvoor de wet verplichte procesvertegenwoordiging voorschrijft, kun je alleen door een advocaat worden vertegenwoordigd.",
     prijs: "Een advocaat rekent meestal € 175 tot € 350 per uur, exclusief btw en kantoorkosten. Het tarief hangt af van het rechtsgebied en de ervaring; voor standaardwerk zoals een vaststellingsovereenkomst bij ontslag werken veel kantoren met een vaste prijs.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/advocaat.webp",
     opties: [
       { id: "ontslag-of-arbeid", label: "Ontslag of arbeid" },
       { id: "scheiding-of-familie", label: "Scheiding of familie" },
@@ -1481,6 +1530,7 @@ const diensten: Dienst[] = [
     intro: "Een belastingadviseur verzorgt je aangifte en rekent voor wat een keuze fiscaal betekent, voor particulieren of voor een onderneming. Je schakelt er een in bij een eigen zaak, een erfenis of schenking, bezit in het buitenland of een brief van de Belastingdienst waar je niet uitkomt.",
     prijs: "Een eenvoudige aangifte inkomstenbelasting kost meestal € 100 tot € 250. Voor een zzp-aangifte met winstberekening reken je op € 400 tot € 900, en losse advisering gaat per uur, doorgaans € 90 tot € 175.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/belastingadviseur.webp",
     opties: [
       { id: "aangifte-particulier", label: "Aangifte particulier" },
       { id: "aangifte-zzp", label: "Aangifte zzp" },
@@ -1510,6 +1560,7 @@ const diensten: Dienst[] = [
     intro: "Een coach werkt met gesprekken en opdrachten aan iets dat je wilt veranderen in je werk, je keuzes of je manier van doen. Je schakelt er een in als je vastloopt of twijfelt, terwijl er geen behandeling van klachten nodig is.",
     prijs: "Een coachsessie van een uur kost meestal € 75 tot € 150. Een traject van vijf tot acht gesprekken ligt vaak tussen de € 600 en € 1.500, afhankelijk van de ervaring van de coach en of er tests, verslagen of contact tussen de sessies bij horen.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/coach.webp",
     opties: [
       { id: "werk-en-loopbaan", label: "Werk en loopbaan" },
       { id: "zelfvertrouwen", label: "Zelfvertrouwen" },
@@ -1539,6 +1590,7 @@ const diensten: Dienst[] = [
     intro: "Een diëtist rekent je voedingspatroon door en stelt samen met je een plan op, bijvoorbeeld bij diabetes, darmklachten, ondergewicht of een verhoogd cholesterol. Diëtetiek is vrij toegankelijk, maar veel verzekeraars vragen voor vergoeding wel om een verwijzing.",
     prijs: "Een diëtist rekent meestal € 19 tot € 23 per kwartier; een eerste gesprek duurt 45 tot 60 minuten en komt daarmee op € 60 tot € 95. Dieetadvies zit deels in de basisverzekering en gaat dan van je eigen risico af, dus kijk in je polis wat er voor jou geldt.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/dietist.webp",
     opties: [
       { id: "afvallen", label: "Afvallen" },
       { id: "diabetes", label: "Diabetes" },
@@ -1568,6 +1620,7 @@ const diensten: Dienst[] = [
     intro: "Een financieel adviseur zet je inkomen, schulden, pensioen, woning en verzekeringen op een rij en rekent scenario's door, zoals minder gaan werken of eerder stoppen. Je schakelt er een in bij een grote verandering: samenwonen, scheiden, een erfenis, een eigen zaak of een pensioen dat in zicht komt.",
     prijs: "Een uur advies kost meestal € 100 tot € 175. Een compleet financieel plan met doorrekening ligt vaak tussen de € 750 en € 2.000, afhankelijk van het aantal onderdelen en of er een onderneming of meerdere pensioenpotten in zitten.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/financieel-adviseur.webp",
     opties: [
       { id: "pensioen", label: "Pensioen" },
       { id: "woning-en-hypotheek", label: "Woning en hypotheek" },
@@ -1597,6 +1650,7 @@ const diensten: Dienst[] = [
     intro: "Een hypotheekadviseur rekent uit wat je kunt lenen, vergelijkt geldverstrekkers en begeleidt de aanvraag tot de akte bij de notaris. Je schakelt er een in bij een eerste woning, een verbouwing, oversluiten of als je inkomen niet standaard is.",
     prijs: "Advies en bemiddeling bij een hypotheek kost meestal € 2.500 tot € 3.500 als vaste prijs. Oversluiten of een aanvullende aanvraag is vaak goedkoper, rond € 1.500 tot € 2.500; het verschil zit in het aantal inkomens, ondernemerschap en of er nationale hypotheekgarantie bij komt.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/hypotheekadviseur.webp",
     opties: [
       { id: "eerste-woning", label: "Eerste woning" },
       { id: "volgende-woning", label: "Volgende woning" },
@@ -1626,6 +1680,7 @@ const diensten: Dienst[] = [
     intro: "Een loopbaancoach zoekt met je uit wat je wilt en kunt, en helpt bij je cv, het solliciteren en het gesprek met je werkgever. Je schakelt er een in bij ontslag, een reorganisatie, na een periode van uitval of als je werk niet meer past.",
     prijs: "Een gesprek van een uur kost meestal € 90 tot € 150. Een traject van vier tot acht gesprekken met tests ligt vaak tussen de € 800 en € 2.000; outplacement dat de werkgever betaalt loopt op tot € 3.000 tot € 6.000, afhankelijk van de looptijd.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/loopbaancoach.webp",
     opties: [
       { id: "ander-werk-vinden", label: "Ander werk vinden" },
       { id: "solliciteren-en-cv", label: "Solliciteren en cv" },
@@ -1655,6 +1710,7 @@ const diensten: Dienst[] = [
     intro: "Een makelaar begeleidt de verkoop, aankoop of verhuur van een woning: waardebepaling, presentatie, bezichtigingen, onderhandelen en de afstemming met de notaris. Je schakelt er een in als je zelf niet kunt inschatten wat een woning waard is of hoe je in deze markt onderhandelt.",
     prijs: "Verkoopbegeleiding gaat meestal op courtage van 1 tot 1,75 procent van de verkoopprijs, of tegen een vast tarief van € 2.500 tot € 4.500. Opstartkosten voor foto's, plattegronden en de plaatsing op Funda staan daar vaak los van, meestal € 400 tot € 900.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/makelaar.webp",
     opties: [
       { id: "woning-verkopen", label: "Woning verkopen" },
       { id: "woning-aankopen", label: "Woning aankopen" },
@@ -1684,6 +1740,7 @@ const diensten: Dienst[] = [
     intro: "Een mediator leidt de gesprekken tussen partijen die er zelf niet uitkomen en legt de uitkomst vast in een vaststellingsovereenkomst. Je kiest hiervoor bij een conflict op het werk, tussen buren, in een familie of tussen ondernemers, als een procedure te zwaar of te traag is.",
     prijs: "Een mediator rekent meestal € 125 tot € 250 per uur, exclusief btw, en de kosten worden vaak door beide partijen gedeeld. Een traject van drie tot vijf gesprekken komt daarmee op € 1.000 tot € 2.500, plus de tijd voor het opstellen van de overeenkomst.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/mediator.webp",
     opties: [
       { id: "arbeidsconflict", label: "Arbeidsconflict" },
       { id: "burenruzie", label: "Burenruzie" },
@@ -1713,6 +1770,7 @@ const diensten: Dienst[] = [
     intro: "Een notaris maakt akten die alleen via hem geldig tot stand komen: de overdracht van een woning, een hypotheek, een testament, een samenlevingscontract, huwelijkse voorwaarden of de oprichting van een bv. Hij controleert de identiteit van de partijen, schrijft in bij het Kadaster en bewaart het origineel.",
     prijs: "De overdracht van een woning met hypotheekakte kost meestal € 1.200 tot € 2.000, inclusief inschrijving in het Kadaster. Een testament ligt rond € 400 tot € 700 en een samenlevingscontract rond € 450 tot € 800; tarieven zijn vrij, dus ze verschillen per kantoor en per regio.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/notaris.webp",
     opties: [
       { id: "woning-overdragen", label: "Woning overdragen" },
       { id: "testament", label: "Testament" },
@@ -1742,6 +1800,7 @@ const diensten: Dienst[] = [
     intro: "Een personal trainer maakt een trainingsschema en traint met je mee, in een studio, bij jou thuis of buiten. Je kiest hiervoor als je alleen niet doorzet, terug wilt komen na een blessure of naar een concreet doel toe werkt.",
     prijs: "Een sessie van een uur kost meestal € 50 tot € 85. Een tienrittenkaart ligt tussen de € 450 en € 750; trainen bij jou thuis, met twee personen of met voedingsbegeleiding erbij verandert de prijs.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/personal-trainer.webp",
     opties: [
       { id: "afvallen", label: "Afvallen" },
       { id: "kracht-opbouwen", label: "Kracht opbouwen" },
@@ -1771,6 +1830,7 @@ const diensten: Dienst[] = [
     intro: "Een psycholoog brengt je klachten in kaart en behandelt met gesprekken, bijvoorbeeld bij angst, somberheid, dwang of de gevolgen van een ingrijpende gebeurtenis. Je komt er meestal via je huisarts terecht, of je gaat rechtstreeks naar een praktijk die zonder verwijzing werkt.",
     prijs: "Een gesprek bij een vrijgevestigde psycholoog kost zonder vergoeding meestal € 100 tot € 150 per sessie van 45 tot 60 minuten. Wat je terugkrijgt hangt af van de verwijzing, de klacht en of de praktijk een contract met je verzekeraar heeft, dus kijk in je polis en houd rekening met het eigen risico.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/psycholoog.webp",
     opties: [
       { id: "angst-of-paniek", label: "Angst of paniek" },
       { id: "somberheid", label: "Somberheid" },
@@ -1800,6 +1860,7 @@ const diensten: Dienst[] = [
     intro: "Een relatietherapeut voert gesprekken met jullie samen over wat er tussen jullie speelt: ruzies die terugkomen, afstand, geschonden vertrouwen of de vraag of je verder wilt. Jullie komen samen, soms na een los kennismakingsgesprek per persoon.",
     prijs: "Een sessie van 60 tot 90 minuten kost meestal € 100 tot € 180. Een traject van vijf tot tien gesprekken komt daarmee op € 600 tot € 1.500; relatietherapie valt buiten de basisverzekering, dus kijk in je polis of je aanvullende verzekering er iets aan doet.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/relatietherapeut.webp",
     opties: [
       { id: "terugkerende-ruzies", label: "Terugkerende ruzies" },
       { id: "vertrouwensbreuk", label: "Vertrouwensbreuk" },
@@ -1829,6 +1890,7 @@ const diensten: Dienst[] = [
     intro: "Een rijschool geeft rijlessen en regelt de tussentijdse toets en het examen bij het CBR. Je zoekt er een voor een eerste rijbewijs, voor bijlessen na een afgekeurd examen of voor een aanvulling zoals automaat, motor of aanhanger.",
     prijs: "Een rijles van 60 minuten kost meestal € 55 tot € 70. Een pakket van 30 lessen ligt vaak tussen de € 2.200 en € 3.200; de examengelden van het CBR voor de tussentijdse toets, het theorie-examen en het praktijkexamen reken je daar apart bij.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/rijschool.webp",
     opties: [
       { id: "rijbewijs-b", label: "Rijbewijs B" },
       { id: "automaat", label: "Automaat" },
@@ -1858,6 +1920,7 @@ const diensten: Dienst[] = [
     intro: "Een scheidingsmediator begeleidt jullie samen door de scheiding: de verdeling, de woning, alimentatie, pensioen en, als er kinderen zijn, het ouderschapsplan. De afspraken komen in een convenant, dat samen met het verzoekschrift bij de rechtbank wordt ingediend.",
     prijs: "Een scheidingsmediator rekent meestal € 150 tot € 250 per uur, of een pakketprijs van € 2.500 tot € 4.500 voor een compleet traject met convenant en ouderschapsplan. Het griffierecht van de rechtbank en het indienen van het verzoekschrift door een advocaat komen daar bovenop.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/scheidingsmediator.webp",
     opties: [
       { id: "scheiding-met-kinderen", label: "Scheiding met kinderen" },
       { id: "verdeling-en-woning", label: "Verdeling en woning" },
@@ -1887,6 +1950,7 @@ const diensten: Dienst[] = [
     intro: "Een taxateur bepaalt de waarde van een woning of een pand en legt die met onderbouwing vast in een rapport. Je hebt er een nodig bij een hypotheek, extra lenen voor een verbouwing, een scheiding, een erfenis of een geschil over de waarde.",
     prijs: "Een gevalideerde woningtaxatie kost meestal € 550 tot € 750, inclusief de kosten van het validatie-instituut. Bedrijfspanden, monumenten en grotere objecten worden per opdracht geprijsd, vaak vanaf € 900, afhankelijk van het doel en de omvang van het rapport.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/taxateur.webp",
     opties: [
       { id: "hypotheek", label: "Hypotheek" },
       { id: "verbouwing", label: "Verbouwing" },
@@ -1916,6 +1980,7 @@ const diensten: Dienst[] = [
     intro: "Een tolk zet gesproken taal om, ter plekke of via telefoon en video, bijvoorbeeld bij de notaris, in een rechtszaal, bij een arts of tijdens een zakelijk gesprek. Voor geschreven stukken heb je een vertaler nodig, dat is een ander vak.",
     prijs: "Een tolk rekent meestal € 65 tot € 110 per uur, vaak met een minimum van één of twee uur, plus reistijd en reiskosten. Voor een beëdigde tolk bij een akte of een zitting en voor simultaan tolken met apparatuur liggen de tarieven hoger.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/tolk.webp",
     opties: [
       { id: "notaris-of-akte", label: "Notaris of akte" },
       { id: "rechtszaak-of-politie", label: "Rechtszaak of politie" },
@@ -1945,6 +2010,7 @@ const diensten: Dienst[] = [
     intro: "Een verkoopmakelaar bepaalt de vraagprijs, laat de woning fotograferen en op Funda plaatsen, doet de bezichtigingen en onderhandelt met de kopers. Hij stelt de koopovereenkomst op en stemt daarna af met de notaris tot de sleuteloverdracht.",
     prijs: "Verkoopbegeleiding kost meestal 1 tot 1,5 procent van de verkoopprijs, of een vast tarief van € 2.500 tot € 4.500. Opstartkosten voor foto's, plattegronden en de Funda-plaatsing staan daar vaak los van, doorgaans € 400 tot € 900.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/verkoopmakelaar.webp",
     opties: [
       { id: "woning-verkopen", label: "Woning verkopen" },
       { id: "appartement-verkopen", label: "Appartement verkopen" },
@@ -1974,6 +2040,7 @@ const diensten: Dienst[] = [
     intro: "Een verzekeringsadviseur neemt je polissen door, kijkt waar je dubbel of juist niet verzekerd bent en regelt nieuwe dekkingen voor jou of je bedrijf. Hij komt ook in beeld bij een schade die de verzekeraar afwijst of maar deels vergoedt.",
     prijs: "Advies over schadeverzekeringen wordt vaak betaald uit provisie die in de premie zit, dan krijg je geen aparte rekening. Losse advisering en zakelijke pakketten gaan per uur, meestal € 100 tot € 150, of via een abonnement van € 25 tot € 100 per maand.",
     categorie: "persoonlijk",
+    foto: "/images/beroepen/verzekeringsadviseur.webp",
     opties: [
       { id: "particuliere-polissen", label: "Particuliere polissen" },
       { id: "woning-en-inboedel", label: "Woning en inboedel" },
@@ -2003,6 +2070,7 @@ const diensten: Dienst[] = [
     intro: "Een accountant stelt je jaarrekening samen, verzorgt de aangiften voor de vennootschaps- of inkomstenbelasting en legt uit hoe je bedrijf er financieel voor staat. Je schakelt er een in als je een bv hebt, als een bank of investeerder cijfers wil zien of als je administratie meer vraagt dan bijhouden alleen.",
     prijs: "Een accountant rekent meestal € 95 tot € 150 per uur. Voor het samenstellen van een jaarrekening met de aangifte vennootschapsbelasting betaal je als bv vaak € 1.200 tot € 2.500 per jaar, afhankelijk van het aantal facturen, of de administratie al bijgewerkt is en of er meerdere vennootschappen zijn.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/accountant.webp",
     opties: [
       { id: "jaarrekening", label: "Jaarrekening" },
       { id: "belastingaangifte", label: "Belastingaangifte" },
@@ -2032,6 +2100,7 @@ const diensten: Dienst[] = [
     intro: "Een beveiligingsbedrijf levert beveiligers voor een pand, terrein of evenement en installeert camera's, alarmsystemen en toegangscontrole. Je schakelt er een in bij risico op inbraak of diefstal, bij een evenement met veel bezoekers of als je verzekeraar aansluiting op een meldkamer eist.",
     prijs: "Een beveiliger inhuren kost meestal € 38 tot € 60 per uur, met toeslagen voor avond, nacht en weekend en vaak een minimum van drie tot vier uur per dienst. Een alarmsysteem met meldkameraansluiting begint rond € 1.500 aan installatie plus € 25 tot € 60 per maand, afhankelijk van het aantal camera's en detectoren en of alarmopvolging is meegenomen.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/beveiligingsbedrijf.webp",
     opties: [
       { id: "objectbeveiliging", label: "Pand en terrein" },
       { id: "evenement", label: "Evenement" },
@@ -2061,6 +2130,7 @@ const diensten: Dienst[] = [
     intro: "Een boekhouder verwerkt je facturen en bankmutaties, verzorgt de btw-aangiften en maakt de jaarcijfers voor je aangifte. Je schakelt er een in als je administratie te veel tijd kost, als je personeel aanneemt of als je zeker wil weten dat je aangiften kloppen.",
     prijs: "Veel boekhouders werken met een maandbedrag: voor een zzp'er ligt dat meestal tussen € 75 en € 175 per maand, inclusief de btw-aangiften en de aangifte inkomstenbelasting. Losse uren kosten € 55 tot € 95, en de prijs hangt vooral af van het aantal transacties, of je een bv hebt en of er personeel op de loonlijst staat.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/boekhouder.webp",
     opties: [
       { id: "administratie", label: "Maandelijkse administratie" },
       { id: "btw", label: "Btw-aangifte" },
@@ -2090,6 +2160,7 @@ const diensten: Dienst[] = [
     intro: "Een grafisch ontwerper maakt het beeld van je bedrijf: logo, kleuren, fonts, drukwerk, verpakking en de opmaak van documenten. Je schakelt er een in bij de start van een bedrijf, bij een nieuwe naam of positionering of als je materiaal er verouderd uitziet.",
     prijs: "Een grafisch ontwerper rekent € 55 tot € 95 per uur, of een vast bedrag per opdracht. Een logo met basishuisstijl ligt meestal tussen € 750 en € 2.500, afhankelijk van het aantal ontwerprichtingen, het aantal correctierondes en of er ook een huisstijlhandboek en drukklare bestanden bij horen.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/grafisch-ontwerper.webp",
     opties: [
       { id: "logo-huisstijl", label: "Logo en huisstijl" },
       { id: "drukwerk", label: "Drukwerk" },
@@ -2119,6 +2190,7 @@ const diensten: Dienst[] = [
     intro: "Een incassobureau neemt onbetaalde facturen over en probeert het bedrag te innen met aanmaningen, telefoontjes en een betalingsregeling; lukt dat niet, dan gaat het dossier via een deurwaarder of advocaat naar de rechter. Je schakelt er een in als een klant na je eigen aanmaningen niet betaalt of niet meer reageert.",
     prijs: "Veel bureaus werken no cure no pay: de wettelijke incassokosten die de debiteur moet betalen zijn hun vergoeding, met een minimum van € 40 en 15 procent over de eerste € 2.500 van de hoofdsom. Slaagt de incasso niet, dan blijf je meestal alleen dossierkosten van € 25 tot € 75 kwijt, en bij een gerechtelijke procedure komen griffierecht en deurwaarderskosten erbij die samen al snel een paar honderd euro zijn.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/incassobureau.webp",
     opties: [
       { id: "zakelijke-vordering", label: "Zakelijke vordering" },
       { id: "particuliere-vordering", label: "Particuliere vordering" },
@@ -2148,6 +2220,7 @@ const diensten: Dienst[] = [
     intro: "Een koffieautomaatleverancier plaatst een automaat op je kantoor of in de kantine, levert bonen, cups en melk en houdt de machine schoon en in bedrijf. Je schakelt er een in bij een nieuw pand, bij groei van je team of als je huidige contract afloopt.",
     prijs: "Een volautomaat voor een kantoor koop je vanaf ongeveer € 900; voor een machine met verse melk en een grotere capaciteit reken je op € 2.000 tot € 4.500. Huren kost meestal € 25 tot € 90 per maand inclusief onderhoud, en daarnaast betaal je € 0,08 tot € 0,25 per kop, afhankelijk van bonen of cups en het aantal koppen per dag.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/koffieautomaat.webp",
     opties: [
       { id: "huur", label: "Automaat huren" },
       { id: "koop", label: "Automaat kopen" },
@@ -2177,6 +2250,7 @@ const diensten: Dienst[] = [
     intro: "Een online marketingbureau zorgt voor bezoek en aanvragen via Google, social media en e-mail, en meet wat elk kanaal oplevert. Je schakelt er een in als je zelf de tijd of kennis niet hebt om campagnes bij te houden, of als je advertentiebudget groeit en het rendement onduidelijk is.",
     prijs: "Bureaus werken meestal met een maandbedrag: voor het beheer van Google Ads of social advertising ligt dat vaak tussen € 500 en € 1.500 per maand, los van je advertentiebudget. Uurtarieven liggen tussen € 85 en € 135, en de prijs hangt af van het aantal kanalen, of er ook content en landingspagina's gemaakt worden en hoeveel budget er omgaat.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/online-marketingbureau.webp",
     opties: [
       { id: "google-ads", label: "Google Ads" },
       { id: "social-ads", label: "Social advertising" },
@@ -2206,6 +2280,7 @@ const diensten: Dienst[] = [
     intro: "Een reclamebureau bedenkt de boodschap en het beeld voor je merk en werkt dat uit in campagnes voor print, buitenreclame, online en video. Je schakelt er een in bij de introductie van een product, een nieuwe positionering of een campagne die verder gaat dan losse advertenties.",
     prijs: "Een reclamebureau rekent € 85 tot € 140 per uur, of een vast bedrag per campagne. Een concept met beeld, tekst en uitwerking voor een paar kanalen begint rond € 3.000 en loopt bij productie met fotografie of film op naar € 10.000 tot € 25.000, afhankelijk van de mediakeuze en het aantal uitingen.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/reclamebureau.webp",
     opties: [
       { id: "campagne", label: "Campagne" },
       { id: "merkidentiteit", label: "Merk en positionering" },
@@ -2235,6 +2310,7 @@ const diensten: Dienst[] = [
     intro: "Een schoonmaakbedrijf houdt je kantoor, bedrijfshal of winkel schoon volgens een vast werkprogramma en doet daarnaast periodiek werk als glasbewassing en vloeronderhoud. Je schakelt er een in bij een nieuwe locatie, bij een oplevering na verbouwing of als schoonmaak nu bij je eigen personeel blijft liggen.",
     prijs: "Kantoorschoonmaak kost meestal € 32 tot € 48 per uur exclusief btw, vaak met een minimum van twee uur per bezoek. Voor oplever- en bouwschoonmaak wordt per vierkante meter gerekend, ongeveer € 3 tot € 7, en de prijs hangt af van de frequentie, de bezetting van het pand en of sanitair, glas en vloeronderhoud meelopen.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/schoonmaakbedrijf.webp",
     opties: [
       { id: "kantoor", label: "Kantoorschoonmaak" },
       { id: "glasbewassing", label: "Glasbewassing" },
@@ -2264,6 +2340,7 @@ const diensten: Dienst[] = [
     intro: "Een seo-specialist zorgt dat je website beter gevonden wordt in Google, door techniek, teksten en verwijzingen van andere sites te verbeteren. Je schakelt er een in als je weinig bezoek uit zoekresultaten krijgt, na de bouw van een nieuwe site of als je alleen bezoek hebt zolang je advertenties aanstaan.",
     prijs: "Een seo-specialist rekent € 70 tot € 120 per uur. Een eenmalige technische audit met actielijst kost meestal € 750 tot € 2.500 en doorlopende begeleiding met teksten en linkbuilding ligt tussen € 500 en € 2.000 per maand, afhankelijk van de grootte van je site en de concurrentie in jouw markt.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/seo-specialist.webp",
     opties: [
       { id: "audit", label: "Technische audit" },
       { id: "teksten", label: "Teksten en content" },
@@ -2293,6 +2370,7 @@ const diensten: Dienst[] = [
     intro: "Een tekstschrijver schrijft de teksten voor je website, blogs, nieuwsbrieven, brochures en vacatures, in de toon die bij je bedrijf hoort. Je schakelt er een in als je zelf niet aan schrijven toekomt, bij een nieuwe website of als klanten niet uit je teksten halen wat je precies doet.",
     prijs: "Tekstschrijvers rekenen per woord, per uur of per tekst: reken op € 0,20 tot € 0,60 per woord of € 60 tot € 100 per uur. Een webpagina van 500 woorden komt daarmee vaak op € 150 tot € 350, en de prijs stijgt als er interviews, vakinhoudelijk onderzoek of zoekwoordonderzoek bij horen.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/tekstschrijver.webp",
     opties: [
       { id: "website", label: "Websiteteksten" },
       { id: "blog", label: "Blogs en artikelen" },
@@ -2322,6 +2400,7 @@ const diensten: Dienst[] = [
     intro: "Een vertaalbureau zet je documenten, website of ondertitels om naar een andere taal en laat de vertaling nakijken door een tweede vertaler. Je schakelt er een in bij export, een anderstalige website of officiële stukken die beëdigd vertaald moeten worden.",
     prijs: "Vertalen gaat per woord: voor gangbare talen als Engels, Duits en Frans betaal je € 0,12 tot € 0,25 per woord, met een minimumtarief van € 35 tot € 75 per opdracht. Een beëdigde vertaling met stempel en verklaring kost € 0,20 tot € 0,35 per woord plus legalisatiekosten, en zeldzame talencombinaties en spoed maken het duurder.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/vertaalbureau.webp",
     opties: [
       { id: "website", label: "Website of webshop" },
       { id: "beedigd", label: "Beëdigde vertaling" },
@@ -2351,6 +2430,7 @@ const diensten: Dienst[] = [
     intro: "Een webdesigner ontwerpt en bouwt je website of webshop, richt het beheersysteem in en zorgt dat de site op telefoon en laptop goed werkt. Je schakelt er een in bij de start van een bedrijf, bij een verouderde site of als er wel bezoekers komen maar niemand contact opneemt.",
     prijs: "Een verzorgde website van vijf tot tien pagina's ligt meestal tussen € 1.500 en € 4.500. Een webshop begint rond € 5.000 en loopt op naar € 15.000 of meer, afhankelijk van het aantal producten, koppelingen met je boekhouding of voorraadsysteem en of je teksten en foto's zelf aanlevert.",
     categorie: "zakelijk",
+    foto: "/images/beroepen/webdesigner.webp",
     opties: [
       { id: "nieuwe-website", label: "Nieuwe website" },
       { id: "restyling", label: "Restyling" },
@@ -2380,6 +2460,7 @@ const diensten: Dienst[] = [
     intro: "Een cateraar verzorgt eten en drinken op locatie, van een lopend buffet tot een uitgeserveerd diner. Je schakelt er een in als de locatie geen eigen keuken heeft of als je met meer gasten bent dan je zelf kunt koken.",
     prijs: "Een eenvoudig buffet begint rond € 17,50 per persoon, een walking dinner of driegangenmenu ligt eerder tussen de € 35 en € 65 per persoon. Wat je betaalt hangt af van het aantal gasten, of er personeel meekomt en of drank, servies en de huur van apparatuur erbij zitten.",
     categorie: "evenementen",
+    foto: "/images/beroepen/cateraar.webp",
     opties: [
       { id: "bruiloft", label: "Bruiloft" },
       { id: "feest-thuis", label: "Feest thuis" },
@@ -2409,6 +2490,7 @@ const diensten: Dienst[] = [
     intro: "Een dj verzorgt de muziek op je feest en stemt de set af op het publiek en het moment van de avond. Je huurt er een in als je een gevulde dansvloer wilt zonder zelf apparatuur, playlists en geluid te regelen.",
     prijs: "Voor een avond van vier tot vijf uur reken je meestal € 550 tot € 1.100, inclusief geluid en basislicht. De prijs hangt af van de duur, de grootte van de zaal, of ook de ceremonie en het diner van muziek worden voorzien en of er extra licht of een live-muzikant bij komt.",
     categorie: "evenementen",
+    foto: "/images/beroepen/dj.webp",
     opties: [
       { id: "bruiloft", label: "Bruiloft" },
       { id: "prive-feest", label: "Verjaardag of privéfeest" },
@@ -2438,6 +2520,7 @@ const diensten: Dienst[] = [
     intro: "Een fotograaf maakt foto's van mensen, producten, ruimtes of evenementen en levert die bewerkt aan. Je schakelt er een in voor zakelijke portretten, beeld voor je website of een dag die je vastgelegd wilt hebben.",
     prijs: "Een shoot van een uur met een set bewerkte foto's kost meestal € 150 tot € 350; een dagdeel op locatie ligt tussen de € 400 en € 750. Wat je betaalt hangt af van het aantal foto's, de reistijd, de uren nabewerking en of je de beelden ook in advertenties mag gebruiken.",
     categorie: "evenementen",
+    foto: "/images/beroepen/fotograaf.webp",
     opties: [
       { id: "zakelijk-portret", label: "Zakelijk portret" },
       { id: "product-interieur", label: "Product of interieur" },
@@ -2467,6 +2550,7 @@ const diensten: Dienst[] = [
     intro: "Een trouwfotograaf legt de trouwdag vast, van het aankleden tot het feest, en levert daarna een bewerkte selectie. Je boekt er meestal ruim vooraf een, omdat de meeste trouwfotografen per zaterdag maar één bruiloft aannemen.",
     prijs: "Een dagdeel begint rond € 900, een volledige dag van voorbereiding tot feest ligt meestal tussen de € 1.500 en € 2.750. De prijs hangt af van het aantal uren, of er een tweede fotograaf meegaat en of een album, prints of een loveshoot erbij zitten.",
     categorie: "evenementen",
+    foto: "/images/beroepen/trouwfotograaf.webp",
     opties: [
       { id: "hele-dag", label: "Hele dag" },
       { id: "dagdeel", label: "Dagdeel" },
@@ -2496,6 +2580,7 @@ const diensten: Dienst[] = [
     intro: "Een uitvaartverzorger regelt de praktische kant van een afscheid: de verzorging, de papieren, het vervoer, de locatie en de dag zelf. Je kunt iemand inschakelen na een overlijden, of eerder om wensen alvast vast te leggen.",
     prijs: "Een uitvaart in Nederland komt meestal uit tussen de € 5.000 en € 12.000; het deel dat de uitvaartverzorger voor eigen werk rekent is daarvan ongeveer € 1.750 tot € 3.500. Het totaal hangt af van begraven of cremeren, de kist, het aantal genodigden, de locatie en de tarieven van de gemeente of het crematorium.",
     categorie: "evenementen",
+    foto: "/images/beroepen/uitvaartverzorger.webp",
     opties: [
       { id: "begrafenis", label: "Begrafenis" },
       { id: "crematie", label: "Crematie" },
@@ -2525,7 +2610,7 @@ const diensten: Dienst[] = [
     intro: "Een videograaf filmt en monteert: een bedrijfsfilm, korte video's voor social media of een reportage van een dag. Je schakelt er een in als je bewegend beeld nodig hebt voor je website, een campagne of een gebeurtenis die je wilt vastleggen.",
     prijs: "Een dagdeel filmen ligt meestal tussen de € 450 en € 900. Voor een complete trouwfilm reken je op € 1.200 tot € 2.500, afhankelijk van het aantal uren, de montage en of er met twee camera's wordt gewerkt.",
     categorie: "evenementen",
-    foto: "/images/videograaf.png",
+    foto: "/images/beroepen/videograaf.webp",
     opties: [
       { id: "bruiloft", label: "Bruiloft" },
       { id: "promotie", label: "Reclame & social" },
@@ -2554,6 +2639,7 @@ const diensten: Dienst[] = [
     intro: "Een weddingplanner regelt de voorbereiding van een bruiloft: locatie, leveranciers, budget, planning en de coördinatie op de dag zelf. Je schakelt er een in als je weinig tijd hebt, in het buitenland trouwt of alleen hulp wilt bij het draaiboek en de dagcoördinatie.",
     prijs: "Alleen dagcoördinatie kost meestal € 750 tot € 1.500; volledige begeleiding van een jaar ligt tussen de € 3.000 en € 6.500. Sommige planners rekenen in plaats daarvan 10 tot 15 procent van het trouwbudget, waarbij het aantal gasten en het aantal leveranciers bepalen hoeveel werk er is.",
     categorie: "evenementen",
+    foto: "/images/beroepen/weddingplanner.webp",
     opties: [
       { id: "volledige-begeleiding", label: "Volledige begeleiding" },
       { id: "dagcoordinatie", label: "Alleen dagcoördinatie" },

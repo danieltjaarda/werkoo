@@ -7,8 +7,9 @@
  * Draaien met:  GEMINI_API_KEY=... node scripts/beroep-images.mjs [slug ...]
  * Opties:       --force        bestaande beelden opnieuw genereren
  *               --model=NAAM   ander model (standaard gemini-3.1-flash-image)
- *               --chroma       genereer op een magenta achtergrond en key die weg;
- *                              nodig bij witte kleding (schilder, stukadoor, kok…)
+ *               --knippen      niets genereren, alleen bordje en uitknippen opnieuw
+ *               --wit          genereer op wit i.p.v. magenta (standaard is magenta
+ *                              met chroma key: wit-op-wit slaat gaten in witte kleding)
  *
  * Het naambordje rechtsonder tekenen we zelf met sharp: het model spelt de
  * tekst anders geregeld verkeerd.
@@ -25,7 +26,8 @@ import { knipUit, knipUitChroma } from "./lib/knip-uit.mjs";
 const args = process.argv.slice(2);
 const force = args.includes("--force");
 const model = args.find((a) => a.startsWith("--model="))?.slice(8) ?? "gemini-3.1-flash-image";
-const chroma = args.includes("--chroma");
+const chroma = !args.includes("--wit");
+const alleenKnippen = args.includes("--knippen");
 const alleenSlugs = args.filter((a) => !a.startsWith("--"));
 
 const apiKey = process.env.GEMINI_API_KEY ?? (await leesEnvLocal("GEMINI_API_KEY"));
@@ -156,7 +158,7 @@ function prompt({ naam: beroep, slug }, persoon) {
   const omschrijving = OMSCHRIJVING[slug] ?? `${beroep} (a Dutch tradesperson) in typical work clothes holding a typical tool of the trade`;
   return [
     `Edit this photo. Keep the exact composition and style: ${chroma ? "a completely flat, uniform, bright magenta (#FF00FF) background instead of the white one (no gradient, no shadows on it)" : "a plain pure-white studio background"}, the single hand-drawn teal wavy outline that loops around the subject, the same framing (person from the waist up, slightly right of center, smiling at the camera) and the same soft studio lighting.`,
-    `Replace the person and everything they hold. The new person is a friendly, natural-looking Dutch ${persoon.vrouw ? "woman" : "man"} in their late twenties to forties, clearly a different person than in the original: a ${omschrijving}. Clothing and objects must be realistic and typical for this profession in the Netherlands. Remove the video camera and tripod entirely unless the profession uses one.`,
+    `Replace the person and everything they hold. The new person is a friendly, natural-looking Dutch ${persoon.vrouw ? "woman" : "man"} in their late twenties to forties, clearly a different person than in the original: a ${omschrijving}. Clothing and objects must be realistic and typical for this profession in the Netherlands. Remove the video camera and tripod entirely unless the profession uses one: nothing of the camera, its top handle, microphone or monitor may remain anywhere in the picture, also not to the left of the person.`,
     "Remove the dark name badge in the bottom-right corner completely; leave that area as it would naturally look without it. No text, letters, logos or brand names anywhere in the image (also not on clothing or objects), no watermark. Photorealistic and sharp.",
   ].join("\n\n");
 }
@@ -167,15 +169,15 @@ function bordje(persoon, beroep, breedte) {
   const naamGrootte = 26 * e;
   const regelGrootte = 22 * e;
   const pad = 22 * e;
-  const tekstBreedte = Math.max(persoon.naam.length * 0.64 * naamGrootte, (beroep.length + 6) * 0.6 * regelGrootte);
-  const w = Math.round(tekstBreedte + pad * 2);
+  const naamBreedte = persoon.naam.length * 0.64 * naamGrootte;
+  const beroepBreedte = beroep.length * 0.6 * regelGrootte;
+  const sterX = pad + beroepBreedte + 4.6 * regelGrootte;
+  const r = regelGrootte * 0.5;
+  const w = Math.round(Math.max(pad + naamBreedte, sterX + r) + pad);
   const h = Math.round(naamGrootte + regelGrootte + pad * 2.1);
   const x = Math.round(breedte * 0.83 - w);
   const y = Math.round(breedte * 0.94 - h);
-  const beroepBreedte = beroep.length * 0.6 * regelGrootte;
-  const sterX = pad + beroepBreedte + 4.6 * regelGrootte;
   const sterY = pad + naamGrootte + regelGrootte * 0.62;
-  const r = regelGrootte * 0.5;
   const ster = Array.from({ length: 10 }, (_, i) => {
     const hoek = -Math.PI / 2 + (i * Math.PI) / 5;
     const rad = i % 2 === 0 ? r : r * 0.45;
@@ -230,18 +232,18 @@ const teDoen = beroepen.filter((b) => alleenSlugs.length === 0 || alleenSlugs.in
 let klaar = 0;
 let mislukt = 0;
 
-async function verwerk(beroep) {
+async function verwerk(beroep, rondes = 0, opnieuw = false) {
   const index = beroepen.indexOf(beroep);
   const persoon = persoonVoor(index);
   const ruw = `assets-src/beroepen/${beroep.slug}.png`;
   const uit = `public/images/beroepen/${beroep.slug}`;
 
-  if (!force && existsSync(ruw)) {
-    console.log(`– ${beroep.slug}: bestaat al, overgeslagen`);
+  if (alleenKnippen || (!force && !opnieuw && existsSync(ruw))) {
+    if (!alleenKnippen) console.log(`– ${beroep.slug}: bestaat al, overgeslagen`);
   } else {
     let poging = 0;
     let gelukt = false;
-    while (poging < 3 && !gelukt) {
+    while (poging < 6 && !gelukt) {
       poging++;
       try {
         const png = await genereer(beroep, persoon);
@@ -251,7 +253,8 @@ async function verwerk(beroep) {
         gelukt = true;
       } catch (fout) {
         console.log(`  ${beroep.slug}: poging ${poging} mislukt: ${fout.message.split("\n")[0]}`);
-        if (poging < 3) await new Promise((r) => setTimeout(r, 4000 * poging));
+        // Bij 429 (spend-based rate limit) helpt alleen geduld.
+        if (poging < 6) await new Promise((r) => setTimeout(r, (fout.message.startsWith("429") ? 30000 : 4000) * poging));
       }
     }
     if (!gelukt) {
@@ -264,16 +267,43 @@ async function verwerk(beroep) {
   // Bordje erop en uitknippen voor de site, net als de videograaf.
   const { width } = await sharp(ruw).metadata();
   const metBordje = await sharp(ruw).composite([bordje(persoon, beroep.naam, width)]).png().toBuffer();
-  const { cutout } = chroma ? await knipUitChroma(metBordje) : await knipUit(metBordje);
-  await cutout.clone().png({ compressionLevel: 9, palette: false }).toFile(`${uit}.png`);
-  await cutout.clone().webp({ quality: 88, alphaQuality: 90 }).toFile(`${uit}.webp`);
+  // Aan de hoek zien we of dit beeld op magenta of op wit is gemaakt.
+  const opMagenta = await isMagenta(ruw);
+  const { cutout } = opMagenta ? await knipUitChroma(metBordje) : await knipUit(metBordje);
+  const png = await cutout.clone().png({ compressionLevel: 9, palette: false }).toBuffer();
+
+  // Soms laat het model een paars restant van de camerahandgreep staan. Dat
+  // valt op als een flinke hoeveelheid paarse pixels; dan nog een keer proberen.
+  if (opMagenta && !alleenKnippen && (await paarsePixels(png)) > PAARS_MAX && (rondes ?? 0) < 2) {
+    console.log(`  ${beroep.slug}: paars restant, opnieuw (${(rondes ?? 0) + 1})`);
+    return verwerk(beroep, (rondes ?? 0) + 1, true);
+  }
+
+  await writeFile(`${uit}.png`, png);
+  await sharp(png).webp({ quality: 88, alphaQuality: 90 }).toFile(`${uit}.webp`);
   klaar++;
 }
 
-// Drie tegelijk: snel genoeg, zonder tegen de limieten van de API aan te lopen.
+async function isMagenta(pad) {
+  const { data } = await sharp(pad).extract({ left: 0, top: 0, width: 8, height: 8 }).raw().toBuffer({ resolveWithObject: true });
+  return Math.min(data[0], data[2]) - data[1] > 100;
+}
+
+// Ongeveer 6000 in een schoon beeld (lippen, badge-rand); een restant zit ruim boven de 9000.
+const PAARS_MAX = 9000;
+async function paarsePixels(png) {
+  const { data } = await sharp(png).raw().toBuffer({ resolveWithObject: true });
+  let n = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] > 200 && Math.min(data[i], data[i + 2]) - data[i + 1] > 50) n++;
+  }
+  return n;
+}
+
+// Twee tegelijk: sneller loopt tegen de spend-based rate limit van Google aan.
 const wachtrij = [...teDoen];
 await Promise.all(
-  Array.from({ length: 3 }, async () => {
+  Array.from({ length: 2 }, async () => {
     while (wachtrij.length) {
       const beroep = wachtrij.shift();
       try {
