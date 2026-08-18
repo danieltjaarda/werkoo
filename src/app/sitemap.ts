@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { categorieen, diensten } from "@/lib/diensten";
 import { plaatsen, slugVanPlaatsnaam } from "@/lib/plaatsen";
 import { absoluut } from "@/lib/site";
-import { dienstenMetBedrijven } from "@/lib/aanvragen";
+import { actieveBedrijfSlugs, dienstenMetBedrijven } from "@/lib/aanvragen";
 
 /**
  * We zetten bewust niet alle 87 × 40 plaatscombinaties in de sitemap. Voor de
@@ -13,7 +13,7 @@ import { dienstenMetBedrijven } from "@/lib/aanvragen";
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const nu = new Date();
-  const metProfielen = await dienstenMetBedrijven();
+  const [metProfielen, bedrijfSlugs] = await Promise.all([dienstenMetBedrijven(), actieveBedrijfSlugs()]);
 
   const vast: MetadataRoute.Sitemap = [
     { url: absoluut("/"), lastModified: nu, changeFrequency: "daily", priority: 1 },
@@ -49,5 +49,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })),
     );
 
-  return [...vast, ...categoriePaginas, ...dienstPaginas, ...plaatsPaginas];
+  const profielPaginas: MetadataRoute.Sitemap = bedrijfSlugs.map((slug) => ({
+    url: absoluut(`/vakman/${slug}`),
+    lastModified: nu,
+    changeFrequency: "weekly",
+    priority: 0.6,
+  }));
+
+  return [...vast, ...categoriePaginas, ...dienstPaginas, ...plaatsPaginas, ...profielPaginas];
 }

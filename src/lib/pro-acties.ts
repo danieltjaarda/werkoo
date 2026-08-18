@@ -18,6 +18,7 @@ export type Uitkomst = { fout?: string; gelukt?: string };
  */
 function verversOpenbaar(): void {
   revalidatePath("/[dienst]/[plaats]", "page");
+  revalidatePath("/vakman/[slug]", "page");
   revalidatePath("/diensten");
 }
 

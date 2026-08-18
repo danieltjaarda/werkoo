@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import localFont from "next/font/local";
-import { SITE_URL } from "@/lib/site";
+import { SITE_NAAM, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -32,7 +32,15 @@ export const metadata: Metadata = {
   },
   description:
     "Vertel kort wat je zoekt en ontvang reacties van vakmensen uit je eigen regio. Gratis, zonder abonnement en zonder verplichtingen.",
+  applicationName: SITE_NAAM,
+  // Elke pagina heeft een eigen opengraph-image-route; hier alleen wat overal gelijk is.
+  openGraph: { type: "website", siteName: SITE_NAAM, locale: "nl_NL" },
+  twitter: { card: "summary_large_image" },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  formatDetection: { telephone: false },
 };
+
+export const viewport: Viewport = { themeColor: "#1eb1df" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

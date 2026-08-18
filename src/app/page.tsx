@@ -20,26 +20,32 @@ import { SiteHeader } from "@/components/site-header";
 import { algemeneVragen } from "@/lib/content";
 import { diensten } from "@/lib/diensten";
 import { bepaalPlaats } from "@/lib/locatie";
+import { normaliseerPlaats } from "@/lib/plaatsen";
+import { OrganisatieData } from "@/components/structured-data";
 
 function eerste(waarde: string | string[] | undefined) {
   return Array.isArray(waarde) ? waarde[0] : waarde;
 }
 
+/**
+ * De titel en beschrijving zijn bewust níét afhankelijk van het ip-adres van
+ * de bezoeker: een crawler uit Nederland zou anders "Vakmensen zoeken in
+ * Bolsward" indexeren voor de homepage van heel Nederland, en een gedeelde
+ * link kreeg de plaats van degene die hem deelde. Alleen een plaats die
+ * expliciet in de url staat mag de titel kleuren; de canonical blijft "/".
+ */
 export async function generateMetadata({ searchParams }: PageProps<"/">): Promise<Metadata> {
-  const { weergave, bron } = await bepaalPlaats(eerste((await searchParams).plaats));
-
-  if (bron === "onbekend") {
-    return {
-      title: "Vakmensen zoeken bij jou in de buurt",
-      description: `Beschrijf je klus en ontvang reacties van vakmensen uit je eigen regio. ${diensten.length} diensten, gratis en zonder verplichtingen.`,
-      alternates: { canonical: "/" },
-    };
-  }
+  const uitUrl = normaliseerPlaats(eerste((await searchParams).plaats));
+  const waar = uitUrl ? `in ${uitUrl}` : "bij jou in de buurt";
+  const regio = uitUrl ? `uit de omgeving van ${uitUrl}` : "uit je eigen regio";
+  const title = `Vakmensen zoeken ${waar}`;
+  const description = `Beschrijf je klus en ontvang reacties van vakmensen ${regio}. ${diensten.length} diensten, gratis en zonder verplichtingen.`;
 
   return {
-    title: `Vakmensen zoeken in ${weergave}`,
-    description: `Beschrijf je klus en ontvang reacties van vakmensen uit de omgeving van ${weergave}. ${diensten.length} diensten, gratis en zonder verplichtingen.`,
+    title,
+    description,
     alternates: { canonical: "/" },
+    openGraph: { title, description, url: "/" },
   };
 }
 
@@ -122,6 +128,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
       </main>
       <SiteFooter />
       <ChatWidget />
+      <OrganisatieData />
     </PaginaOvergang>
   );
 }

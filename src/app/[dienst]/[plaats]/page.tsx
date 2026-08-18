@@ -46,10 +46,14 @@ export async function generateMetadata({ params }: PageProps<"/[dienst]/[plaats]
 
   const { dienst, plaatsnaam, pad } = pagina;
 
+  const title = `${dienst.naam} zoeken in ${plaatsnaam}`;
+  const description = `Vertel kort wat je zoekt en ontvang reacties van ${dienst.meervoud} uit de omgeving van ${plaatsnaam}. Gratis en zonder verplichtingen.`;
+
   return {
-    title: `${dienst.naam} zoeken in ${plaatsnaam}`,
-    description: `Vertel kort wat je zoekt en ontvang reacties van ${dienst.meervoud} uit de omgeving van ${plaatsnaam}. Gratis en zonder verplichtingen.`,
+    title,
+    description,
     alternates: { canonical: pad },
+    openGraph: { title, description, url: pad },
   };
 }
 

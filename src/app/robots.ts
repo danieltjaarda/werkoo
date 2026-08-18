@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       // De aanvraagflow en de inlogpagina hebben geen zoekwaarde en staan vol
       // querystrings; die hoeven niet in de index.
-      disallow: ["/api/", "/aanvraag", "/inloggen"],
+      disallow: ["/api/", "/aanvraag", "/inloggen", "/account", "/pro", "/wachtwoord-vergeten", "/wachtwoord-herstellen"],
     },
     sitemap: absoluut("/sitemap.xml"),
   };

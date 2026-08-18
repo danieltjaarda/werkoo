@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { DienstPagina } from "@/components/dienst-pagina";
 import { getDienst } from "@/lib/diensten";
 import { bepaalPlaats } from "@/lib/locatie";
+import { normaliseerPlaats } from "@/lib/plaatsen";
 
 /**
  * De landingspagina van één dienst. De plaats komt van de bezoeker zelf (url,
@@ -14,6 +15,12 @@ function eerste(waarde: string | string[] | undefined) {
   return Array.isArray(waarde) ? waarde[0] : waarde;
 }
 
+/**
+ * Zie de opmerking bij de homepage: de plaats uit het ip-adres blijft uit de
+ * titel en beschrijving, anders indexeert een crawler een toevallige plaats
+ * op de landelijke dienstpagina. De pagina's mét plaats in het pad zijn er
+ * juist voor het lokale zoekverkeer.
+ */
 export async function generateMetadata({
   params,
   searchParams,
@@ -21,21 +28,17 @@ export async function generateMetadata({
   const dienst = getDienst((await params).dienst);
   if (!dienst) return {};
 
-  const { weergave, bron } = await bepaalPlaats(eerste((await searchParams).plaats));
-  const alternates = { canonical: `/${dienst.slug}` };
-
-  if (bron === "onbekend") {
-    return {
-      title: `${dienst.naam} zoeken bij jou in de buurt`,
-      description: `Vertel kort wat je zoekt en ontvang reacties van ${dienst.meervoud} uit je eigen regio. Gratis en zonder verplichtingen.`,
-      alternates,
-    };
-  }
+  const uitUrl = normaliseerPlaats(eerste((await searchParams).plaats));
+  const waar = uitUrl ? `in ${uitUrl}` : "bij jou in de buurt";
+  const regio = uitUrl ? `uit de omgeving van ${uitUrl}` : "uit je eigen regio";
+  const title = `${dienst.naam} zoeken ${waar}`;
+  const description = `Vertel kort wat je zoekt en ontvang reacties van ${dienst.meervoud} ${regio}. Gratis en zonder verplichtingen.`;
 
   return {
-    title: `${dienst.naam} zoeken in ${weergave}`,
-    description: `Vertel kort wat je zoekt en ontvang reacties van ${dienst.meervoud} uit de omgeving van ${weergave}. Gratis en zonder verplichtingen.`,
-    alternates,
+    title,
+    description,
+    alternates: { canonical: `/${dienst.slug}` },
+    openGraph: { title, description, url: `/${dienst.slug}` },
   };
 }
 

@@ -393,3 +393,37 @@ export async function cijfersVanBedrijf(bedrijfId: string) {
 
   return rij ?? { totaal: 0, open: 0, gereageerd: 0, gewonnen: 0, deze_maand: 0 };
 }
+
+export type Profiel = {
+  bedrijf: Bedrijf;
+  /** Slugs van de diensten die dit bedrijf doet, in catalogusvolgorde. */
+  diensten: string[];
+  /** Plaatsen in het werkgebied; leeg betekent: heel het land. */
+  plaatsen: string[];
+};
+
+/** Alles voor de openbare profielpagina van één bedrijf. */
+export async function profielVanSlug(slug: string): Promise<Profiel | undefined> {
+  return vraagZacht(
+    async () => {
+      const bedrijf = await haalBedrijf(slug);
+      if (!bedrijf) return undefined;
+      const [diensten, plaatsen] = await Promise.all([
+        vraag<{ dienst: string }>("select dienst from bedrijf_diensten where bedrijf_id = $1", [bedrijf.id]),
+        vraag<{ plaats: string }>("select plaats from bedrijf_plaatsen where bedrijf_id = $1 order by plaats", [bedrijf.id]),
+      ]);
+      return { bedrijf, diensten: diensten.map((d) => d.dienst), plaatsen: plaatsen.map((p) => p.plaats) };
+    },
+    undefined,
+    "een profielpagina",
+  );
+}
+
+/** Slugs van alle zichtbare bedrijven, voor de sitemap en de statische build. */
+export async function actieveBedrijfSlugs(): Promise<string[]> {
+  return vraagZacht(
+    async () => (await vraag<{ slug: string }>("select slug from bedrijven where actief order by naam")).map((r) => r.slug),
+    [],
+    "de lijst met profielen",
+  );
+}

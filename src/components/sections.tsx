@@ -33,7 +33,8 @@ import {
   type Dienst,
   type Vraag,
 } from "@/lib/diensten";
-import { bedrijvenVoorDienst, type Troef } from "@/lib/aanvragen";
+import { bedrijvenVoorDienst, dienstenMetBedrijven, type Troef } from "@/lib/aanvragen";
+import { plaatsen, slugVanPlaatsnaam } from "@/lib/plaatsen";
 
 export const categorieIconen: Record<CategorieId, (props: { className?: string }) => React.ReactElement> = {
   verbouwen: HuisIcon,
@@ -148,7 +149,7 @@ const troefKleuren: Record<Troef["soort"], string> = {
   keurmerk: "bg-amber-50 text-amber-700",
 };
 
-function TroefLabel({ troef }: { troef: Troef }) {
+export function TroefLabel({ troef }: { troef: Troef }) {
   const Icoon = troef.soort === "aanbod" ? TagIcon : troef.soort === "snelheid" ? ChatIcon : KeurmerkIcon;
 
   return (
@@ -214,7 +215,7 @@ export async function TopLijst({ dienst, plaats }: { dienst: Dienst; plaats: str
                   {/* Naam op een eigen regel; het cijfer eronder, anders wordt de kop een rommeltje. */}
                   <h3 className="font-display text-h5 text-ink">
                     <Link
-                      href={`${aanvraagPad}&vakman=${vakman.slug}`}
+                      href={`/vakman/${vakman.slug}`}
                       transitionTypes={["nav-vooruit"]}
                       className="text-brand-deep underline-offset-4 hover:underline"
                     >
@@ -513,6 +514,41 @@ export function SlotCta({ dienst, plaats }: { dienst?: Dienst; plaats: string })
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Dezelfde dienst in andere plaatsen. Alleen voor diensten waar we ook echt
+ * vakmensen voor hebben — precies de set die in de sitemap staat — anders
+ * bouwen we een web van lege doorway-pagina's. Op een plaatspagina valt de
+ * eigen plaats uit de lijst.
+ */
+export async function AnderePlaatsen({ dienst, huidige = "" }: { dienst: Dienst; huidige?: string }) {
+  const metProfielen = await dienstenMetBedrijven();
+  if (!metProfielen.has(dienst.slug)) return null;
+
+  const lijst = plaatsen.filter((p) => p !== huidige);
+
+  return (
+    <section className="sectie-onder">
+      <div className="container-page">
+        <h2 className="font-display text-h4 text-ink">
+          {dienst.naam} zoeken in {huidige ? "een andere plaats" : "jouw plaats"}
+        </h2>
+        <ul className="mt-5 flex flex-wrap gap-2">
+          {lijst.map((plaats) => (
+            <li key={plaats}>
+              <Link
+                href={`/${dienst.slug}/${slugVanPlaatsnaam(plaats)}`}
+                className="flex rounded-full border border-lijn bg-white px-4 py-2 text-basis text-ink transition hover:border-brand hover:text-brand-deep"
+              >
+                {plaats}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

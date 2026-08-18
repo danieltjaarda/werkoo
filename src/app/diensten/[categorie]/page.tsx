@@ -7,6 +7,7 @@ import { PaginaOvergang } from "@/components/pagina-overgang";
 import { categorieIconen, HoeHetWerkt, SlotCta } from "@/components/sections";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { CategorieData } from "@/components/structured-data";
 import { categorieen, dienstenVanCategorie, getCategorieVanSlug } from "@/lib/diensten";
 
 export function generateStaticParams() {
@@ -42,6 +43,10 @@ export default async function CategoriePagina({ params }: PageProps<"/diensten/[
         <section className="sectie bg-brand-soft">
           <div className="container-page">
             <nav aria-label="Kruimelpad" className="flex items-center gap-2 text-klein text-ink-soft">
+              <Link href="/" className="underline-offset-4 hover:text-brand-deep hover:underline">
+                Home
+              </Link>
+              <span aria-hidden>/</span>
               <Link href="/diensten" className="underline-offset-4 hover:text-brand-deep hover:underline">
                 Alle diensten
               </Link>
@@ -89,6 +94,7 @@ export default async function CategoriePagina({ params }: PageProps<"/diensten/[
       </main>
       <SiteFooter />
       <ChatWidget />
+      <CategorieData categorie={categorie} lijst={lijst} />
     </PaginaOvergang>
   );
 }
