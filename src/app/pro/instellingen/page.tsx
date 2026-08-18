@@ -42,6 +42,9 @@ export default async function ProInstellingenPagina() {
               tekst: bedrijf.tekst,
               jaren: bedrijf.jaren,
               actief: bedrijf.actief,
+              kvk: bedrijf.kvk,
+              website: bedrijf.website,
+              postcode: bedrijf.postcode,
             }}
             diensten={diensten.map((d) => d.dienst)}
             plaatsen={plaatsen}

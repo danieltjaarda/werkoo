@@ -145,12 +145,16 @@ export type Bedrijf = {
   actief: boolean;
   score: number;
   reviews: number;
+  kvk: string;
+  website: string;
+  postcode: string;
 };
 
 /** Het bedrijfsprofiel van de ingelogde vakman; maakt er een aan als het ontbreekt. */
 export async function bedrijfVanGebruiker(gebruikerId: string): Promise<Bedrijf | undefined> {
   const rij = await vraagEen<Omit<Bedrijf, "score"> & { score: string }>(
-    `select id, naam, slug, plaats, adres, telefoon, belofte, tekst, jaren, foto, actief, score, reviews
+    `select id, naam, slug, plaats, adres, telefoon, belofte, tekst, jaren, foto, actief, score, reviews,
+            kvk, website, postcode
        from bedrijven where gebruiker_id = $1`,
     [gebruikerId],
   );

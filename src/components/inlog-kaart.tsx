@@ -120,6 +120,16 @@ export function InlogKaart({ verder = "", beginModus = "inloggen" }: { verder?: 
               </div>
             </fieldset>
 
+            {soort === "bedrijf" ? (
+              <p className="mt-5 rounded-2xl bg-brand-soft px-4 py-3 text-basis text-ink-soft">
+                Bedrijf aanmelden gaat het makkelijkst via{" "}
+                <Link href="/aanmelden/start" className="font-semibold text-brand-deep underline underline-offset-4">
+                  de aanmelding in drie stappen
+                </Link>
+                : je kiest meteen je diensten en je plaats.
+              </p>
+            ) : null}
+
             <form id="account-formulier" action={regActie} className="mt-5 space-y-4">
               <input type="hidden" name="verder" value={verder} />
               <Veld id="naam" label="Je naam" autoComplete="name" />

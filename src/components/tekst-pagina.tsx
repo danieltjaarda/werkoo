@@ -26,10 +26,13 @@ export function TekstPagina({
   pagina,
   eyebrow,
   cta,
+  kopKnop,
 }: {
   pagina: Paginatekst;
   eyebrow: string;
   cta?: { titel: string; tekst: string; label: string; href: string };
+  /** Knop bovenin de kop, voor pagina's met één duidelijke vervolgstap. */
+  kopKnop?: { label: string; href: string };
 }) {
   return (
     <PaginaOvergang>
@@ -43,6 +46,14 @@ export function TekstPagina({
             <h1 className="mt-3 max-w-3xl text-balance font-display text-h1 text-ink">{pagina.titel}</h1>
             {pagina.inleiding ? (
               <p className="mt-4 max-w-2xl text-lead text-ink-soft">{pagina.inleiding}</p>
+            ) : null}
+            {kopKnop ? (
+              <Link
+                href={kopKnop.href}
+                className="mt-7 inline-flex h-12 items-center justify-center rounded-2xl bg-zon px-7 font-display text-basis font-semibold text-ink transition hover:bg-zon-dark"
+              >
+                {kopKnop.label}
+              </Link>
             ) : null}
           </div>
         </section>

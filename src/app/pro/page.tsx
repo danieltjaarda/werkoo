@@ -26,14 +26,83 @@ function Cijfer({ getal, label, nadruk = false }: { getal: number | string; labe
   );
 }
 
-export default async function ProDashboard() {
-  const { gebruiker, bedrijf } = await vereisBedrijf("/pro");
+type Onboardingstap = { label: string; klaar: boolean; href: string; tip: string };
 
-  const [cijfers, aanvragen, diensten] = await Promise.all([
+/**
+ * De checklist voor een vers profiel. Verdwijnt zodra alles is afgevinkt; tot
+ * die tijd is dit het eerste wat een vakman ziet, want zonder deze stappen
+ * komt er geen aanvraag binnen en dan lijkt het platform stil.
+ */
+function Onboarding({ welkom, stappen, profielPad }: { welkom: boolean; stappen: Onboardingstap[]; profielPad: string }) {
+  const klaar = stappen.filter((s) => s.klaar).length;
+  if (klaar === stappen.length && !welkom) return null;
+
+  return (
+    <section className="kaart mt-6 border-brand p-5 sm:p-6" aria-labelledby="onboarding-kop">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="onboarding-kop" className="font-display text-h4 text-ink">
+          {welkom ? "Welkom bij Werkoo!" : "Maak je profiel af"}
+        </h2>
+        <p className="text-klein text-ink-soft">{klaar} van {stappen.length} klaar</p>
+      </div>
+      <p className="mt-1 text-basis text-ink-soft">
+        {klaar === stappen.length
+          ? "Alles staat. Je profiel is live en je ontvangt aanvragen zodra een klant jou aanwijst."
+          : "Nog een paar stappen en je kunt aanvragen ontvangen."}
+      </p>
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-brand-soft" role="progressbar" aria-valuemin={0} aria-valuemax={stappen.length} aria-valuenow={klaar}>
+        <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${(klaar / stappen.length) * 100}%` }} />
+      </div>
+      <ol className="mt-5 grid gap-3 sm:grid-cols-2">
+        {stappen.map((stap) => (
+          <li key={stap.label}>
+            <Link
+              href={stap.href}
+              className={`flex h-full items-start gap-3 rounded-2xl border px-4 py-3 transition ${
+                stap.klaar ? "border-lijn bg-white" : "border-zon-dark bg-zon-soft hover:border-ink"
+              }`}
+            >
+              <span
+                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                  stap.klaar ? "bg-emerald-600 text-white" : "border-2 border-ink/30"
+                }`}
+                aria-hidden
+              >
+                {stap.klaar ? <CheckIcon className="h-3.5 w-3.5" /> : null}
+              </span>
+              <span>
+                <span className={`block text-basis font-semibold ${stap.klaar ? "text-ink-soft line-through" : "text-ink"}`}>
+                  {stap.label}
+                </span>
+                <span className="mt-0.5 block text-klein text-ink-soft">{stap.tip}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+      {klaar === stappen.length ? (
+        <p className="mt-4">
+          <Link href={profielPad} className="flex items-center gap-1.5 text-basis font-semibold text-brand-deep underline-offset-4 hover:underline">
+            Bekijk je openbare profiel
+            <ArrowRightIcon className="h-4 w-4" />
+          </Link>
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+export default async function ProDashboard({ searchParams }: PageProps<"/pro">) {
+  const { gebruiker, bedrijf } = await vereisBedrijf("/pro");
+  const welkom = (await searchParams).welkom === "1";
+
+  const [cijfers, aanvragen, diensten, gebied] = await Promise.all([
     cijfersVanBedrijf(bedrijf.id),
     aanvragenVanBedrijf(bedrijf.id),
     vraag<{ dienst: string }>("select dienst from bedrijf_diensten where bedrijf_id = $1", [bedrijf.id]),
+    vraag<{ n: number }>("select count(*)::int as n from bedrijf_plaatsen where bedrijf_id = $1", [bedrijf.id]),
   ]);
+  const werkgebied = gebied[0]?.n ?? 0;
 
   const recent = aanvragen.slice(0, 6);
   const uur = new Date().getHours();
@@ -54,31 +123,16 @@ export default async function ProDashboard() {
               : `Er ${cijfers.open === 1 ? "staat 1 aanvraag" : `staan ${cijfers.open} aanvragen`} open.`}
           </p>
 
-          {!bedrijf.actief ? (
-            <div className="mt-6 rounded-2xl border border-zon-dark bg-zon-soft px-5 py-4">
-              <p className="text-basis font-semibold text-ink">Je profiel staat nog op onzichtbaar</p>
-              <p className="mt-1 text-basis text-ink-soft">
-                Zolang dat zo is kom je niet in de lijsten en krijg je geen aanvragen.{" "}
-                <Link href="/pro/instellingen" className="font-semibold text-brand-deep underline underline-offset-4">
-                  Zet je profiel aan
-                </Link>
-                .
-              </p>
-            </div>
-          ) : null}
-
-          {diensten.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-zon-dark bg-zon-soft px-5 py-4">
-              <p className="text-basis font-semibold text-ink">Je hebt nog geen diensten gekozen</p>
-              <p className="mt-1 text-basis text-ink-soft">
-                We weten daardoor niet welke aanvragen bij je passen.{" "}
-                <Link href="/pro/instellingen" className="font-semibold text-brand-deep underline underline-offset-4">
-                  Kies je diensten
-                </Link>
-                .
-              </p>
-            </div>
-          ) : null}
+          <Onboarding
+            welkom={welkom}
+            stappen={[
+              { label: "Diensten gekozen", klaar: diensten.length > 0, href: "/pro/instellingen#diensten", tip: "Alleen aanvragen voor deze diensten komen bij je binnen." },
+              { label: "Werkgebied ingesteld", klaar: werkgebied > 0, href: "/pro/instellingen#werkgebied", tip: "De plaatsen waar je opdrachten wilt aannemen." },
+              { label: "Profieltekst en belofte geschreven", klaar: bedrijf.tekst.trim().length >= 40 && bedrijf.belofte.trim().length > 0, href: "/pro/instellingen#profiel", tip: "Dit is wat klanten lezen voordat ze jou aanwijzen." },
+              { label: "Profiel op zichtbaar", klaar: bedrijf.actief, href: "/pro/instellingen#profiel", tip: "Pas dan sta je in de lijsten en op je eigen pagina." },
+            ]}
+            profielPad={`/vakman/${bedrijf.slug}`}
+          />
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Cijfer getal={cijfers.open} label="Open aanvragen" nadruk={cijfers.open > 0} />

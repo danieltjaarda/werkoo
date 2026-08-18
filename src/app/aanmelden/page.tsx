@@ -18,13 +18,12 @@ export default function AanmeldenPagina() {
     <TekstPagina
       pagina={pagina}
       eyebrow="Voor vakmensen"
+      kopKnop={{ label: "Meld je bedrijf aan", href: "/aanmelden/start" }}
       cta={{
         titel: "Klaar om aanvragen te ontvangen?",
-        // Er is nog geen aanmeldformulier, dus we sturen naar de mail in plaats
-        // van naar een inlogpagina die weer hierheen wijst.
-        tekst: "Mail ons je bedrijfsnaam en KvK-nummer, dan nemen we contact op om je profiel samen op te zetten.",
-        label: "Stuur ons een mail",
-        href: "mailto:hallo@werkoo.nl?subject=Aanmelden%20als%20vakman",
+        tekst: "Meld je bedrijf in drie stappen aan. Het kost niets en je bepaalt zelf wanneer je profiel live gaat.",
+        label: "Meld je bedrijf aan",
+        href: "/aanmelden/start",
       }}
     />
   );

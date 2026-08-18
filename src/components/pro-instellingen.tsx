@@ -50,9 +50,9 @@ function Opslaan({ bezig }: { bezig: boolean }) {
   );
 }
 
-function Blok({ titel, uitleg, children }: { titel: string; uitleg: string; children: React.ReactNode }) {
+function Blok({ id, titel, uitleg, children }: { id: string; titel: string; uitleg: string; children: React.ReactNode }) {
   return (
-    <section className="kaart p-6 sm:p-8">
+    <section id={id} className="kaart scroll-mt-28 p-6 sm:p-8">
       <h2 className="font-display text-h4 text-ink">{titel}</h2>
       <p className="mt-1.5 max-w-2xl text-basis text-ink-soft">{uitleg}</p>
       <div className="mt-6">{children}</div>
@@ -69,6 +69,9 @@ type Profiel = {
   tekst: string;
   jaren: number;
   actief: boolean;
+  kvk: string;
+  website: string;
+  postcode: string;
 };
 
 function ProfielFormulier({ profiel }: { profiel: Profiel }) {
@@ -103,6 +106,27 @@ function ProfielFormulier({ profiel }: { profiel: Profiel }) {
             Adres
           </label>
           <input id="adres" name="adres" defaultValue={profiel.adres} className={veldklassen} />
+        </div>
+
+        <div>
+          <label htmlFor="postcode" className="block text-basis font-semibold text-ink">
+            Postcode
+          </label>
+          <input id="postcode" name="postcode" defaultValue={profiel.postcode} autoComplete="postal-code" className={veldklassen} />
+        </div>
+
+        <div>
+          <label htmlFor="website" className="block text-basis font-semibold text-ink">
+            Website <span className="font-normal text-ink-soft">(niet openbaar)</span>
+          </label>
+          <input id="website" name="website" defaultValue={profiel.website} inputMode="url" className={veldklassen} />
+        </div>
+
+        <div>
+          <label htmlFor="kvk" className="block text-basis font-semibold text-ink">
+            KvK-nummer <span className="font-normal text-ink-soft">(niet openbaar)</span>
+          </label>
+          <input id="kvk" name="kvk" defaultValue={profiel.kvk} inputMode="numeric" className={veldklassen} />
         </div>
 
         <div>
@@ -346,11 +370,12 @@ export function ProInstellingen({
 }) {
   return (
     <div className="mt-10 space-y-6">
-      <Blok titel="Je bedrijfsprofiel" uitleg="Dit is wat klanten van je zien in de lijst en op je kaart.">
+      <Blok id="profiel" titel="Je bedrijfsprofiel" uitleg="Dit is wat klanten van je zien in de lijst en op je kaart.">
         <ProfielFormulier profiel={profiel} />
       </Blok>
 
       <Blok
+        id="diensten"
         titel="Je diensten"
         uitleg="Alleen aanvragen voor deze diensten komen bij jou binnen. Kies er gerust meerdere."
       >
@@ -358,6 +383,7 @@ export function ProInstellingen({
       </Blok>
 
       <Blok
+        id="werkgebied"
         titel="Je werkgebied"
         uitleg="De plaatsen waarvoor je aanvragen wil ontvangen. Vink je niets aan, dan krijg je aanvragen uit heel Nederland."
       >
@@ -365,6 +391,7 @@ export function ProInstellingen({
       </Blok>
 
       <Blok
+        id="beschikbaarheid"
         titel="Je beschikbaarheid"
         uitleg="Dagen waarop je al vol zit. Klanten zien die doorgestreept staan als ze een datum kiezen."
       >

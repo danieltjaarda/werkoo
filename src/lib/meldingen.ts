@@ -104,3 +104,34 @@ ${r.gebruiker_id ? `\nAlle reacties op een rij:\n${absoluut("/account/" + r.refe
 }
 
 export { datumNl };
+
+/** Welkom na de aanmeldwizard: wat er nu gebeurt en waar je verder gaat. */
+export function meldWelkomBedrijf(gebruikerId: string): void {
+  mailNaderhand(async () => {
+    const g = await vraagEen<{ email: string; naam: string; bedrijf: string }>(
+      `select g.email, g.naam, b.naam as bedrijf
+         from gebruikers g join bedrijven b on b.gebruiker_id = g.id
+        where g.id = $1`,
+      [gebruikerId],
+    );
+    if (!g) return [];
+    return [{
+      aan: g.email,
+      onderwerp: `Welkom bij Werkoo, ${g.bedrijf}`,
+      tekst: `Hoi ${g.naam.split(" ")[0]},
+
+Je bedrijf ${g.bedrijf} staat klaar op Werkoo. Nog drie dingen, dan kun je aanvragen ontvangen:
+
+1. Vertel in een paar zinnen wat je doet en wat je belooft.
+2. Zet je werkgebied: de plaatsen waar je opdrachten wilt aannemen.
+3. Zet je profiel op zichtbaar.
+
+Je regelt het hier: ${absoluut("/pro")}
+
+Vragen? Antwoord gewoon op deze mail.
+
+Groet,
+Werkoo`,
+    }];
+  });
+}

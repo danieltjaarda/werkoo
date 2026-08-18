@@ -10,8 +10,10 @@ import {
   type Gebruiker,
 } from "@/lib/auth";
 import { metTransactie, vraag, vraagEen } from "@/lib/db";
+import { getDienst } from "@/lib/diensten";
 import { verstuurMail } from "@/lib/mail";
-import { slugVanPlaatsnaam } from "@/lib/plaatsen";
+import { meldWelkomBedrijf } from "@/lib/meldingen";
+import { normaliseerPlaats, slugVanPlaatsnaam } from "@/lib/plaatsen";
 import { absoluut } from "@/lib/site";
 
 export type Uitkomst = { fout?: string; gelukt?: string };
@@ -287,4 +289,102 @@ export async function wachtwoordHerstellen(_vorige: Uitkomst, data: FormData): P
 
   await maakSessie(rij.gebruiker_id);
   redirect(rij.soort === "bedrijf" ? "/pro" : "/account");
+}
+
+/* ---------- Aanmelden als bedrijf (wizard) ---------- */
+
+const KVK = /^\d{8}$/;
+const POSTCODE = /^\d{4}\s?[A-Za-z]{2}$/;
+
+function lijst(data: FormData, veld: string): string[] {
+  return data.getAll(veld).filter((w): w is string => typeof w === "string" && w.trim() !== "");
+}
+
+/** Maakt website-invoer eenduidig: "bakker.nl" wordt "https://bakker.nl". */
+function normaliseerWebsite(ruw: string): string | null {
+  if (!ruw) return "";
+  const metSchema = /^https?:\/\//i.test(ruw) ? ruw : `https://${ruw}`;
+  try {
+    const url = new URL(metSchema);
+    if (!url.hostname.includes(".")) return null;
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * De aanmeldwizard op /aanmelden/start: bedrijf, werk en contactgegevens in
+ * één keer. Maakt het account, het profiel, de diensten en het werkgebied
+ * aan en logt meteen in; het profiel staat op onzichtbaar tot de vakman hem
+ * in het dashboard aanzet.
+ */
+export async function bedrijfAanmelden(_vorige: Uitkomst, data: FormData): Promise<Uitkomst> {
+  const bedrijfsnaam = tekst(data, "bedrijfsnaam");
+  const kvk = tekst(data, "kvk").replace(/\s/g, "");
+  const website = normaliseerWebsite(tekst(data, "website"));
+  const diensten = [...new Set(lijst(data, "dienst"))].filter((slug) => getDienst(slug)).slice(0, 10);
+  const plaats = normaliseerPlaats(tekst(data, "plaats")) ?? "";
+  const postcode = tekst(data, "postcode").toUpperCase().replace(/\s/g, "");
+  const voornaam = tekst(data, "voornaam");
+  const achternaam = tekst(data, "achternaam");
+  const email = tekst(data, "email").toLowerCase();
+  const telefoon = tekst(data, "telefoon");
+  const wachtwoord = tekst(data, "wachtwoord");
+
+  if (!bedrijfsnaam) return { fout: "Vul de naam van je bedrijf in." };
+  if (kvk && !KVK.test(kvk)) return { fout: "Een KvK-nummer bestaat uit 8 cijfers." };
+  if (website === null) return { fout: "Dat lijkt geen geldig webadres." };
+  if (diensten.length === 0) return { fout: "Kies minstens één dienst die je aanbiedt." };
+  if (!plaats) return { fout: "Vul de plaats in waar je bedrijf zit." };
+  if (postcode && !POSTCODE.test(postcode)) return { fout: "Vul een Nederlandse postcode in, bijvoorbeeld 1012 AB." };
+  if (!voornaam || !achternaam) return { fout: "Vul je voor- en achternaam in." };
+  if (!EMAIL.test(email)) return { fout: "Vul een geldig e-mailadres in." };
+  if (!telefoon) return { fout: "Vul een telefoonnummer in waarop we je kunnen bereiken." };
+  if (wachtwoord.length < MIN_LENGTE) return { fout: `Kies een wachtwoord van minstens ${MIN_LENGTE} tekens.` };
+  if (data.get("akkoord") !== "ja") return { fout: "Ga akkoord met de voorwaarden om verder te gaan." };
+
+  const bestaat = await vraagEen("select 1 from gebruikers where email = $1", [email]);
+  if (bestaat) return { fout: "Er is al een account met dit e-mailadres. Log in of gebruik een ander adres." };
+
+  const hash = await hashWachtwoord(wachtwoord);
+  const naam = `${voornaam} ${achternaam}`;
+  let gebruikerId: string | undefined;
+
+  for (let poging = 0; poging < 5 && !gebruikerId; poging++) {
+    try {
+      gebruikerId = await metTransactie(async (client) => {
+        const { rows } = await client.query<{ id: string }>(
+          `insert into gebruikers (email, wachtwoord_hash, naam, telefoon, soort)
+           values ($1, $2, $3, $4, 'bedrijf') returning id`,
+          [email, hash, naam, telefoon],
+        );
+        const id = rows[0]!.id;
+        const { rows: b } = await client.query<{ id: string }>(
+          `insert into bedrijven (gebruiker_id, naam, slug, telefoon, plaats, postcode, kvk, website)
+           values ($1, $2, $3, $4, $5, $6, $7, $8) returning id`,
+          [id, bedrijfsnaam, `${basisSlug(bedrijfsnaam)}-${randomBytes(2).toString("hex")}`, telefoon, plaats, postcode, kvk, website],
+        );
+        const bedrijfId = b[0]!.id;
+        for (const slug of diensten) {
+          await client.query("insert into bedrijf_diensten (bedrijf_id, dienst) values ($1, $2) on conflict do nothing", [bedrijfId, slug]);
+        }
+        // De eigen plaats is het begin van het werkgebied; uitbreiden kan in het dashboard.
+        await client.query("insert into bedrijf_plaatsen (bedrijf_id, plaats) values ($1, $2) on conflict do nothing", [bedrijfId, plaats]);
+        return id;
+      });
+    } catch (fout) {
+      const code = typeof fout === "object" && fout !== null && "code" in fout ? fout.code : undefined;
+      if (code !== "23505") throw fout;
+      if (await vraagEen("select 1 from gebruikers where email = $1", [email])) {
+        return { fout: "Er is al een account met dit e-mailadres. Log in of gebruik een ander adres." };
+      }
+    }
+  }
+
+  if (!gebruikerId) return { fout: "Het account kon niet worden aangemaakt. Probeer het opnieuw." };
+
+  meldWelkomBedrijf(gebruikerId);
+  await maakSessie(gebruikerId);
+  redirect("/pro?welkom=1");
 }

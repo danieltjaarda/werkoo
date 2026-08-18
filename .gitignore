@@ -41,3 +41,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Bronbeelden per beroep (honderden MB): staan lokaal in assets-src en worden
+# met scripts/beroep-images.mjs geregenereerd; alleen de webp's gaan mee.
+assets-src/beroepen/
+assets-src/beroepen-wit/
+public/images/beroepen/*.png

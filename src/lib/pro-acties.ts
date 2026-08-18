@@ -77,10 +77,16 @@ export async function profielOpslaan(_vorige: Uitkomst, data: FormData): Promise
   const jaren = Number(tekst(data, "jaren")) || 0;
   if (jaren < 0 || jaren > 200) return { fout: "Vul een geloofwaardig aantal jaren in." };
 
+  const kvk = tekst(data, "kvk").replace(/\s/g, "");
+  if (kvk && !/^\d{8}$/.test(kvk)) return { fout: "Een KvK-nummer bestaat uit 8 cijfers." };
+  const postcode = tekst(data, "postcode").toUpperCase().replace(/\s/g, "");
+  if (postcode && !/^\d{4}[A-Z]{2}$/.test(postcode)) return { fout: "Vul een Nederlandse postcode in, bijvoorbeeld 1012 AB." };
+  const website = tekst(data, "website");
+
   await vraagEen(
     `update bedrijven
         set naam = $2, plaats = $3, adres = $4, telefoon = $5, belofte = $6, tekst = $7,
-            jaren = $8, actief = $9
+            jaren = $8, actief = $9, kvk = $10, postcode = $11, website = $12
       where id = $1`,
     [
       bedrijf.id,
@@ -92,6 +98,9 @@ export async function profielOpslaan(_vorige: Uitkomst, data: FormData): Promise
       tekst(data, "tekst"),
       jaren,
       data.get("actief") === "aan",
+      kvk,
+      postcode,
+      website,
     ],
   );
 
