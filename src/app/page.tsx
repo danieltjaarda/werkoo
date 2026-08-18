@@ -64,7 +64,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
             className="pointer-events-none absolute inset-x-0 top-0 hidden h-[34rem] bg-[radial-gradient(65%_100%_at_50%_0%,color-mix(in_oklab,var(--color-brand)_18%,transparent)_0%,transparent_70%)] lg:block"
           />
 
-          <div className="container-page relative flex flex-col items-center gap-7 pb-[var(--ruimte-sectie)] pt-12 text-center lg:pt-16">
+          <div className="container-page relative flex flex-col items-center gap-5 pb-[var(--ruimte-sectie)] pt-6 text-center lg:gap-6 lg:pt-8">
             <p className="inline-flex items-center gap-2 rounded-full bg-brand-soft py-1.5 pl-2 pr-3.5 text-klein font-semibold text-brand-deep">
               <KeurmerkIcon className="h-5 w-5 text-brand" />
               Gratis aanvraag, geen abonnement
