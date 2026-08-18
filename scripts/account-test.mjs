@@ -234,5 +234,33 @@ const pc = await page.locator("#postcode").inputValue();
 console.log("  bewaard: kvk", kvk, "| website", web, "| postcode", pc);
 if (kvk !== "12345678" || !web.includes("wizardschilders.nl") || pc !== "8011AA") throw new Error("wizardgegevens niet goed opgeslagen");
 
+// --- 7. Werkgebied via de provinciekaart ------------------------------------
+stap("Vakman zet zijn werkgebied op de kaart");
+await page.goto(`${basis}/pro/instellingen`, { waitUntil: "networkidle" });
+const kaart = page.locator("svg[role=group]");
+await kaart.waitFor({ timeout: 10000 });
+await kaart.locator("g").filter({ has: page.locator("title", { hasText: "Friesland" }) }).click();
+await page.locator("#werkgebied").getByRole("checkbox", { name: "Overijssel" }).check();
+await page.locator("#werkgebied").getByRole("button", { name: "Opslaan" }).click();
+await page.locator("#werkgebied").getByText(/opgeslagen/).waitFor({ timeout: 15000 });
+console.log("  twee provincies opgeslagen");
+await page.reload({ waitUntil: "networkidle" });
+const aangevinkt = await page.locator("#werkgebied input[type=checkbox]:checked").count();
+console.log("  na herladen nog aangevinkt:", aangevinkt);
+if (aangevinkt < 2) throw new Error("provincies niet bewaard");
+await leg("10-werkgebied-kaart");
+
+// --- 8. Chat toont echte profielen ------------------------------------------
+stap("Chat noemt de vakmensen die er zijn");
+const chat = await fetch(`${basis}/api/chat`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ berichten: [{ role: "user", content: "Ik zoek een videograaf in Sneek, wie hebben jullie?" }] }),
+});
+const antwoordTekst = await chat.text();
+const noemtProfiel = /\/vakman\//.test(antwoordTekst);
+console.log("  linkt naar een profiel:", noemtProfiel ? "ja" : "NEE");
+if (!noemtProfiel) throw new Error("chat noemt geen profielen");
+
 console.log("\nde hele keten werkt");
 await browser.close();

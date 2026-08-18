@@ -85,7 +85,7 @@ function Inline({ tekst }: { tekst: string }) {
   );
 }
 
-export function ChatWidget({ dienst }: { dienst?: string }) {
+export function ChatWidget({ dienst, plaats }: { dienst?: string; plaats?: string }) {
   const [open, setOpen] = useState(false);
   // Gesprek van deze tab terughalen; bij de eerste render op de server is er niets.
   const [berichten, setBerichten] = useState<Bericht[]>(() => {
@@ -134,7 +134,7 @@ export function ChatWidget({ dienst }: { dienst?: string }) {
       const antwoord = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ berichten: geschiedenis, dienst }),
+        body: JSON.stringify({ berichten: geschiedenis, dienst, plaats }),
         signal: ctrl.signal,
       });
 

@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Kalender } from "@/components/kalender";
+import { ProvincieKaart } from "@/components/provincie-kaart";
 import { SearchIcon } from "@/components/icons";
 import {
   beschikbaarheidOpslaan,
@@ -289,40 +290,86 @@ function DienstenFormulier({ gekozen }: { gekozen: string[] }) {
   );
 }
 
-function WerkgebiedFormulier({ plaatsen, gekozen }: { plaatsen: readonly string[]; gekozen: string[] }) {
+function WerkgebiedFormulier({
+  plaatsen,
+  gekozen,
+  provincies,
+}: {
+  plaatsen: readonly string[];
+  gekozen: string[];
+  provincies: string[];
+}) {
   const [staat, actie, bezig] = useActionState(werkgebiedOpslaan, leeg);
   const [selectie, setSelectie] = useState<string[]>(gekozen);
+  const [gebieden, setGebieden] = useState<string[]>(provincies);
+  const [toonPlaatsen, setToonPlaatsen] = useState(gekozen.length > 0);
+
+  function wisselProvincie(naam: string) {
+    setGebieden((vorige) => (vorige.includes(naam) ? vorige.filter((p) => p !== naam) : [...vorige, naam]));
+  }
+
+  const leegGebied = gebieden.length === 0 && selectie.length === 0;
 
   return (
     <form action={actie}>
       {selectie.map((plaats) => (
         <input key={plaats} type="hidden" name="plaats" value={plaats} />
       ))}
+      {gebieden.map((provincie) => (
+        <input key={provincie} type="hidden" name="provincie" value={provincie} />
+      ))}
 
       <p className="text-klein text-ink-soft">
-        {selectie.length === 0
+        {leegGebied
           ? "Niets aangevinkt betekent: heel Nederland."
-          : `${selectie.length} ${selectie.length === 1 ? "plaats" : "plaatsen"} gekozen.`}
+          : [
+              gebieden.length ? `${gebieden.length} ${gebieden.length === 1 ? "provincie" : "provincies"}` : "",
+              selectie.length ? `${selectie.length} losse ${selectie.length === 1 ? "plaats" : "plaatsen"}` : "",
+            ]
+              .filter(Boolean)
+              .join(" en ")}
       </p>
 
-      <ul className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
-        {plaatsen.map((plaats) => (
-          <li key={plaats}>
-            <label className={aankruisklassen}>
-              <input
-                type="checkbox"
-                checked={selectie.includes(plaats)}
-                onChange={() =>
-                  setSelectie((vorige) =>
-                    vorige.includes(plaats) ? vorige.filter((p) => p !== plaats) : [...vorige, plaats],
-                  )
-                }
-              />
-              <span className="text-basis text-ink">{plaats}</span>
-            </label>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-4">
+        <ProvincieKaart gekozen={gebieden} onWissel={wisselProvincie} naam="weergave-provincie" />
+      </div>
+
+      <div className="mt-6 border-t border-lijn pt-5">
+        <button
+          type="button"
+          onClick={() => setToonPlaatsen((v) => !v)}
+          aria-expanded={toonPlaatsen}
+          className="text-basis font-semibold text-brand-deep underline-offset-4 hover:underline"
+        >
+          {toonPlaatsen ? "Losse plaatsen verbergen" : "Liever losse plaatsen kiezen? Open de lijst"}
+        </button>
+        {toonPlaatsen ? (
+          <>
+            <p className="mt-2 text-klein text-ink-soft">
+              Handig als je maar in een paar steden werkt. Dit staat los van de provincies hierboven; alles wat je
+              aanvinkt telt mee.
+            </p>
+            <ul className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
+              {plaatsen.map((plaats) => (
+                <li key={plaats}>
+                  <label className={aankruisklassen}>
+                    <input
+                      type="checkbox"
+                      checked={selectie.includes(plaats)}
+                      onChange={() =>
+                        setSelectie((vorige) =>
+                          vorige.includes(plaats) ? vorige.filter((p) => p !== plaats) : [...vorige, plaats],
+                        )
+                      }
+                    />
+                    <span className="text-basis text-ink">{plaats}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+      </div>
 
       <Melding staat={staat} />
       <Opslaan bezig={bezig} />
@@ -360,12 +407,14 @@ export function ProInstellingen({
   diensten,
   plaatsen,
   werkgebied,
+  provincies,
   bezet,
 }: {
   profiel: Profiel;
   diensten: string[];
   plaatsen: readonly string[];
   werkgebied: string[];
+  provincies: string[];
   bezet: string[];
 }) {
   return (
@@ -385,9 +434,9 @@ export function ProInstellingen({
       <Blok
         id="werkgebied"
         titel="Je werkgebied"
-        uitleg="De plaatsen waarvoor je aanvragen wil ontvangen. Vink je niets aan, dan krijg je aanvragen uit heel Nederland."
+        uitleg="Klik op de kaart in welke provincies je werkt. Vink je niets aan, dan krijg je aanvragen uit heel Nederland."
       >
-        <WerkgebiedFormulier plaatsen={plaatsen} gekozen={werkgebied} />
+        <WerkgebiedFormulier plaatsen={plaatsen} gekozen={werkgebied} provincies={provincies} />
       </Blok>
 
       <Blok

@@ -14,6 +14,7 @@ import { getDienst } from "@/lib/diensten";
 import { verstuurMail } from "@/lib/mail";
 import { meldWelkomBedrijf } from "@/lib/meldingen";
 import { normaliseerPlaats, slugVanPlaatsnaam } from "@/lib/plaatsen";
+import { isProvincie } from "@/lib/provincie-kaart";
 import { absoluut } from "@/lib/site";
 
 export type Uitkomst = { fout?: string; gelukt?: string };
@@ -326,6 +327,7 @@ export async function bedrijfAanmelden(_vorige: Uitkomst, data: FormData): Promi
   const diensten = [...new Set(lijst(data, "dienst"))].filter((slug) => getDienst(slug)).slice(0, 10);
   const plaats = normaliseerPlaats(tekst(data, "plaats")) ?? "";
   const postcode = tekst(data, "postcode").toUpperCase().replace(/\s/g, "");
+  const provincies = [...new Set(lijst(data, "provincie"))].filter(isProvincie);
   const voornaam = tekst(data, "voornaam");
   const achternaam = tekst(data, "achternaam");
   const email = tekst(data, "email").toLowerCase();
@@ -369,8 +371,13 @@ export async function bedrijfAanmelden(_vorige: Uitkomst, data: FormData): Promi
         for (const slug of diensten) {
           await client.query("insert into bedrijf_diensten (bedrijf_id, dienst) values ($1, $2) on conflict do nothing", [bedrijfId, slug]);
         }
-        // De eigen plaats is het begin van het werkgebied; uitbreiden kan in het dashboard.
-        await client.query("insert into bedrijf_plaatsen (bedrijf_id, plaats) values ($1, $2) on conflict do nothing", [bedrijfId, plaats]);
+        // Provincies van de kaart; zonder keuze is de eigen plaats het begin van het werkgebied.
+        for (const provincie of provincies) {
+          await client.query("insert into bedrijf_provincies (bedrijf_id, provincie) values ($1, $2) on conflict do nothing", [bedrijfId, provincie]);
+        }
+        if (provincies.length === 0) {
+          await client.query("insert into bedrijf_plaatsen (bedrijf_id, plaats) values ($1, $2) on conflict do nothing", [bedrijfId, plaats]);
+        }
         return id;
       });
     } catch (fout) {

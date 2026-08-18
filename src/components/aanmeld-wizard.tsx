@@ -5,6 +5,8 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { DienstZoeker } from "@/components/dienst-zoeker";
 import { ArrowLeftIcon, CheckIcon, SlotIcon } from "@/components/icons";
 import { PlaatsInvoer } from "@/components/plaats-invoer";
+import { ProvincieKaart } from "@/components/provincie-kaart";
+import { WachtwoordVeld } from "@/components/wachtwoord-sterkte";
 import { bedrijfAanmelden, type Uitkomst } from "@/lib/auth-acties";
 import { getDienst, type Dienst } from "@/lib/diensten";
 
@@ -27,6 +29,7 @@ type Formulier = {
   diensten: string[];
   plaats: string;
   postcode: string;
+  provincies: string[];
   voornaam: string;
   achternaam: string;
   email: string;
@@ -36,7 +39,7 @@ type Formulier = {
 };
 
 const leeg: Formulier = {
-  bedrijfsnaam: "", kvk: "", website: "", diensten: [], plaats: "", postcode: "",
+  bedrijfsnaam: "", kvk: "", website: "", diensten: [], plaats: "", postcode: "", provincies: [],
   voornaam: "", achternaam: "", email: "", telefoon: "", wachtwoord: "", akkoord: false,
 };
 
@@ -157,6 +160,7 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
         {w.diensten.map((slug) => <input key={slug} type="hidden" name="dienst" value={slug} />)}
         <input type="hidden" name="plaats" value={w.plaats} />
         <input type="hidden" name="postcode" value={w.postcode} />
+        {w.provincies.map((p) => <input key={p} type="hidden" name="provincie" value={p} />)}
         <input type="hidden" name="voornaam" value={w.voornaam} />
         <input type="hidden" name="achternaam" value={w.achternaam} />
         <input type="hidden" name="email" value={w.email} />
@@ -223,6 +227,23 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
               </div>
               <Veld id="postcode" label="Postcode" value={w.postcode} onChange={(v) => zet("postcode", v)} optioneel placeholder="1012 AB" autoComplete="postal-code" />
             </div>
+
+            <div>
+              <p className="block text-basis font-semibold text-ink">In welke provincies neem je opdrachten aan?</p>
+              <p className="mt-1 text-klein text-ink-soft">
+                Klik op de kaart. Kies je niets, dan krijg je voorlopig alleen aanvragen uit je eigen plaats; je past het later aan in je dashboard.
+              </p>
+              <div className="mt-3">
+                <ProvincieKaart
+                  compact
+                  gekozen={w.provincies}
+                  naam="weergave-provincie"
+                  onWissel={(p) =>
+                    zet("provincies", w.provincies.includes(p) ? w.provincies.filter((x) => x !== p) : [...w.provincies, p])
+                  }
+                />
+              </div>
+            </div>
           </>
         ) : null}
 
@@ -234,7 +255,7 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
             </div>
             <Veld id="email" label="E-mailadres" type="email" value={w.email} onChange={(v) => zet("email", v)} autoComplete="email" inputMode="email" hint="Hierop ontvang je nieuwe aanvragen en log je in." />
             <Veld id="telefoon" label="Telefoonnummer" type="tel" value={w.telefoon} onChange={(v) => zet("telefoon", v)} autoComplete="tel" inputMode="tel" />
-            <Veld id="wachtwoord" label="Kies een wachtwoord" type="password" value={w.wachtwoord} onChange={(v) => zet("wachtwoord", v)} autoComplete="new-password" hint="Minstens 8 tekens." />
+            <WachtwoordVeld id="wachtwoord" naam="weergave-wachtwoord" label="Kies een wachtwoord" klassen={invoer} waarde={w.wachtwoord} onWaarde={(v) => zet("wachtwoord", v)} />
             <label className="flex cursor-pointer items-start gap-3 text-basis text-ink-soft">
               <input type="checkbox" checked={w.akkoord} onChange={(e) => zet("akkoord", e.target.checked)} className="mt-1" />
               <span>

@@ -15,9 +15,10 @@ export const metadata: Metadata = {
 export default async function ProInstellingenPagina() {
   const { gebruiker, bedrijf } = await vereisBedrijf("/pro/instellingen");
 
-  const [diensten, werkgebied, bezet] = await Promise.all([
+  const [diensten, werkgebied, provincieRijen, bezet] = await Promise.all([
     vraag<{ dienst: string }>("select dienst from bedrijf_diensten where bedrijf_id = $1", [bedrijf.id]),
     vraag<{ plaats: string }>("select plaats from bedrijf_plaatsen where bedrijf_id = $1", [bedrijf.id]),
+    vraag<{ provincie: string }>("select provincie from bedrijf_provincies where bedrijf_id = $1 order by provincie", [bedrijf.id]),
     bezetteDagen(bedrijf.id),
   ]);
 
@@ -49,6 +50,7 @@ export default async function ProInstellingenPagina() {
             diensten={diensten.map((d) => d.dienst)}
             plaatsen={plaatsen}
             werkgebied={werkgebied.map((p) => p.plaats)}
+            provincies={provincieRijen.map((p) => p.provincie)}
             bezet={bezet}
           />
         </div>

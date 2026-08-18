@@ -7,6 +7,7 @@ import { vraag, vraagEen } from "@/lib/db";
 import { getDienst } from "@/lib/diensten";
 import { meldNieuweReactie } from "@/lib/meldingen";
 import { bekendePlaats } from "@/lib/plaatsen";
+import { isProvincie } from "@/lib/provincie-kaart";
 
 export type Uitkomst = { fout?: string; gelukt?: string };
 
@@ -141,18 +142,32 @@ export async function werkgebiedOpslaan(_vorige: Uitkomst, data: FormData): Prom
     .map((naam) => bekendePlaats(naam))
     .filter((naam): naam is string => Boolean(naam));
 
+  const provincies = [...new Set(data.getAll("provincie").filter((w): w is string => typeof w === "string"))].filter(
+    isProvincie,
+  );
+
   await vraag("delete from bedrijf_plaatsen where bedrijf_id = $1", [bedrijf.id]);
   for (const plaats of plaatsen) {
     await vraagEen("insert into bedrijf_plaatsen (bedrijf_id, plaats) values ($1, $2)", [bedrijf.id, plaats]);
   }
 
+  await vraag("delete from bedrijf_provincies where bedrijf_id = $1", [bedrijf.id]);
+  for (const provincie of provincies) {
+    await vraagEen("insert into bedrijf_provincies (bedrijf_id, provincie) values ($1, $2)", [bedrijf.id, provincie]);
+  }
+
   revalidatePath("/pro/instellingen");
   verversOpenbaar();
-  return {
-    gelukt: plaatsen.length === 0
-      ? "Je werkgebied staat op heel Nederland."
-      : `${plaatsen.length} ${plaatsen.length === 1 ? "plaats" : "plaatsen"} opgeslagen.`,
-  };
+  if (plaatsen.length === 0 && provincies.length === 0) {
+    return { gelukt: "Je werkgebied staat op heel Nederland." };
+  }
+
+  const delen = [
+    provincies.length ? `${provincies.length} ${provincies.length === 1 ? "provincie" : "provincies"}` : "",
+    plaatsen.length ? `${plaatsen.length} ${plaatsen.length === 1 ? "plaats" : "plaatsen"}` : "",
+  ].filter(Boolean);
+
+  return { gelukt: `${delen.join(" en ")} opgeslagen.` };
 }
 
 /** Slaat de hele lijst bezette dagen in één keer op. */

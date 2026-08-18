@@ -1,6 +1,7 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
 import { vraag, vraagEen, vraagZacht } from "@/lib/db";
+import { provincieVanPlaats } from "@/lib/provincies";
 
 export type Troef = {
   label: string;
@@ -86,7 +87,13 @@ export async function bedrijvenVoorDienst(dienstSlug: string, plaats = ""): Prom
   return vraagZacht(() => haalBedrijven(dienstSlug, plaats), [], "de lijst met vakmensen");
 }
 
+/**
+ * Het werkgebied van een bedrijf bestaat uit provincies (van de kaart) en/of
+ * losse plaatsen. Niets ingesteld betekent: heel Nederland. Een plaats past
+ * als hij letterlijk in de lijst staat óf in een aangevinkte provincie ligt.
+ */
 async function haalBedrijven(dienstSlug: string, plaats: string): Promise<Bedrijf[]> {
+  const provincie = plaats ? await provincieVanPlaats(plaats) : "";
   const rijen = await vraag<BedrijfRij>(
     `select ${BEDRIJF_KOLOMMEN}
        from bedrijven b
@@ -94,14 +101,21 @@ async function haalBedrijven(dienstSlug: string, plaats: string): Promise<Bedrij
       where b.actief
         and (
           $2 = ''
-          or not exists (select 1 from bedrijf_plaatsen p where p.bedrijf_id = b.id)
+          or (
+            not exists (select 1 from bedrijf_plaatsen p where p.bedrijf_id = b.id)
+            and not exists (select 1 from bedrijf_provincies v where v.bedrijf_id = b.id)
+          )
           or exists (
             select 1 from bedrijf_plaatsen p
              where p.bedrijf_id = b.id and lower(p.plaats) = lower($2)
           )
+          or ($3 <> '' and exists (
+            select 1 from bedrijf_provincies v
+             where v.bedrijf_id = b.id and v.provincie = $3
+          ))
         )
       order by b.uitgelicht desc, ($2 <> '' and lower(b.plaats) = lower($2)) desc, b.score desc, b.naam`,
-    [dienstSlug, plaats],
+    [dienstSlug, plaats, provincie],
   );
 
   return metTroeven(rijen);
@@ -200,10 +214,12 @@ export async function bewaarAanvraag(
     )?.id ??
     null;
 
+  const provincie = await provincieVanPlaats(invoer.plaats);
+
   const aanvraag = await vraagEen<{ id: string }>(
     `insert into aanvragen
-       (referentie, gebruiker_id, dienst, type, plaats, adres, wensen, dagen, naam, email, telefoon, whatsapp)
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+       (referentie, gebruiker_id, dienst, type, plaats, adres, wensen, dagen, naam, email, telefoon, whatsapp, provincie)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
      returning id`,
     [
       referentie,
@@ -218,6 +234,7 @@ export async function bewaarAanvraag(
       invoer.email.toLowerCase(),
       invoer.telefoon,
       invoer.whatsapp,
+      provincie,
     ],
   );
 
@@ -400,6 +417,8 @@ export type Profiel = {
   diensten: string[];
   /** Plaatsen in het werkgebied; leeg betekent: heel het land. */
   plaatsen: string[];
+  /** Provincies in het werkgebied, van de kaart. */
+  provincies: string[];
 };
 
 /** Alles voor de openbare profielpagina van één bedrijf. */
@@ -408,11 +427,17 @@ export async function profielVanSlug(slug: string): Promise<Profiel | undefined>
     async () => {
       const bedrijf = await haalBedrijf(slug);
       if (!bedrijf) return undefined;
-      const [diensten, plaatsen] = await Promise.all([
+      const [diensten, plaatsen, provincies] = await Promise.all([
         vraag<{ dienst: string }>("select dienst from bedrijf_diensten where bedrijf_id = $1", [bedrijf.id]),
         vraag<{ plaats: string }>("select plaats from bedrijf_plaatsen where bedrijf_id = $1 order by plaats", [bedrijf.id]),
+        vraag<{ provincie: string }>("select provincie from bedrijf_provincies where bedrijf_id = $1 order by provincie", [bedrijf.id]),
       ]);
-      return { bedrijf, diensten: diensten.map((d) => d.dienst), plaatsen: plaatsen.map((p) => p.plaats) };
+      return {
+        bedrijf,
+        diensten: diensten.map((d) => d.dienst),
+        plaatsen: plaatsen.map((p) => p.plaats),
+        provincies: provincies.map((p) => p.provincie),
+      };
     },
     undefined,
     "een profielpagina",

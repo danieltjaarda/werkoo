@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { genoemdeDiensten, systeemPrompt } from "@/lib/chat-kennis";
+import { genoemdeDiensten, genoemdePlaats, systeemPrompt, vakmensenVoor } from "@/lib/chat-kennis";
 import { getDienst } from "@/lib/diensten";
 
 /**
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "onbekend";
   if (afgeremd(ip)) return NextResponse.json({ fout: "Even rustig aan — probeer het over een paar minuten opnieuw." }, { status: 429 });
 
-  let body: { berichten?: unknown; dienst?: unknown };
+  let body: { berichten?: unknown; dienst?: unknown; plaats?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -67,7 +67,19 @@ export async function POST(request: Request) {
   }
 
   const huidigeDienst = typeof body.dienst === "string" && getDienst(body.dienst) ? body.dienst : undefined;
-  const extraDiensten = genoemdeDiensten(berichten.map((b) => b.content).join(" "));
+  const gesprek = berichten.map((b) => b.content).join(" ");
+  const extraDiensten = genoemdeDiensten(gesprek);
+
+  /**
+   * Zoekt de bezoeker een vakman, dan halen we de profielen erbij die er echt
+   * staan. De dienst uit het gesprek weegt zwaarder dan de pagina waar hij op
+   * zit: wie op /loodgieter naar een videograaf vraagt, hoort videografen.
+   */
+  const dienstVoorLijst = extraDiensten[0] ?? huidigeDienst;
+  const plaats = typeof body.plaats === "string" && body.plaats ? body.plaats : await genoemdePlaats(gesprek);
+  const vakmensen = dienstVoorLijst
+    ? { dienst: dienstVoorLijst, plaats, lijst: await vakmensenVoor(dienstVoorLijst, plaats) }
+    : undefined;
 
   const antwoord = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -83,7 +95,7 @@ export async function POST(request: Request) {
       stream: true,
       max_tokens: 500,
       temperature: 0.4,
-      messages: [{ role: "system", content: systeemPrompt({ huidigeDienst, extraDiensten }) }, ...berichten],
+      messages: [{ role: "system", content: systeemPrompt({ huidigeDienst, extraDiensten, vakmensen }) }, ...berichten],
     }),
   });
 

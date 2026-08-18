@@ -167,9 +167,10 @@ async function aanvraag(velden) {
 
   // Werkgebied: alleen Zwolle.
   const gebiedBlok = page.locator("section").filter({ hasText: "Je werkgebied" }).locator("form");
+  await gebiedBlok.getByRole("button", { name: /losse plaatsen/i }).click();
   await gebiedBlok.locator("label").filter({ hasText: /^Zwolle$/ }).click();
   await gebiedBlok.getByRole("button", { name: /Opslaan/ }).click();
-  await page.getByText(/1 plaats opgeslagen/).waitFor({ timeout: 15000 });
+  await gebiedBlok.getByText(/1 plaats opgeslagen/).waitFor({ timeout: 15000 });
 
   const inZwolle = (await (await fetch(`${basis}/videograaf/zwolle`)).text()).includes(bedrijfsnaam);
   meld(inZwolle, "een bedrijf met werkgebied Zwolle staat op de Zwolse pagina");
@@ -192,6 +193,40 @@ async function aanvraag(velden) {
     "een zelf aangevinkt bedrijf buiten zijn werkgebied krijgt de aanvraag niet",
     `ontvangers: ${buitenGebied.body.ontvangers}`,
   );
+  // Provinciewerkgebied: Overijssel aanvinken op de kaart moet Deventer erbij
+  // halen (zelfde provincie) en Amsterdam buiten de deur houden.
+  await gebiedBlok.locator("svg[role=group] g").filter({ has: page.locator("title", { hasText: "Overijssel" }) }).click();
+  await gebiedBlok.getByRole("button", { name: /Opslaan/ }).click();
+  await gebiedBlok.getByText(/opgeslagen/).waitFor({ timeout: 15000 });
+
+  const inDeventer = (await (await fetch(`${basis}/videograaf/deventer`)).text()).includes(bedrijfsnaam);
+  meld(inDeventer, "werkgebied Overijssel laat het bedrijf ook in Deventer zien");
+
+  const nogSteedsNietAmsterdam = (await (await fetch(`${basis}/videograaf/amsterdam`)).text()).includes(bedrijfsnaam);
+  meld(!nogSteedsNietAmsterdam, "een provincie erbij zet niet de deur naar heel Nederland open");
+
+  // De echte slug heeft een willekeurige staart; die halen we van de pagina.
+  const deventerHtml = await (await fetch(`${basis}/videograaf/deventer`)).text();
+  const slug =
+    deventerHtml
+      .slice(0, deventerHtml.indexOf(bedrijfsnaam))
+      .match(/\/vakman\/([a-z0-9-]+)"(?![\s\S]*\/vakman\/)/)?.[1] ?? "";
+
+  const inProvincie = await aanvraag({
+    dienst: "videograaf",
+    type: "bruiloft",
+    plaats: "Deventer",
+    naam: "Binnen Provincie",
+    email: `sec-${stempel}-provincie@test.nl`,
+    telefoon: "0612340004",
+    vakmensen: [slug],
+  });
+  meld(
+    inProvincie.body.ontvangers === 1,
+    "een aanvraag uit dezelfde provincie komt wél bij het bedrijf",
+    `ontvangers: ${inProvincie.body.ontvangers}`,
+  );
+
   await page.context().close();
 }
 

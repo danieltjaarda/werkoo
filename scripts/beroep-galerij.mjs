@@ -5,8 +5,8 @@
  * Draaien met: node scripts/beroep-galerij.mjs   → http://localhost:4747
  */
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
-import { readFile, stat } from "node:fs/promises";
+import { existsSync, readdirSync } from "node:fs";
+import { copyFile, readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 
 const POORT = 4747;
@@ -27,6 +27,34 @@ function draaiOpnieuw(slug) {
   kind.on("exit", () => bezig.delete(slug));
 }
 
+/** De groepsfoto's: assets-src/groep-<variant>.png, uitgeknipt in public/images/groep/. */
+function groepVarianten() {
+  if (!existsSync("public/images/groep")) return [];
+  return readdirSync("public/images/groep")
+    .filter((n) => n.endsWith(".png"))
+    .map((n) => n.replace(".png", ""))
+    .sort((a, b) => Number(a) - Number(b));
+}
+
+function nieuweGroep() {
+  const varianten = groepVarianten();
+  const volgende = String(Math.max(0, ...varianten.map(Number)) + 1);
+  bezig.add(`groep-${volgende}`);
+  const kind = spawn(process.execPath, ["scripts/beroep-groep.mjs", `--variant=${volgende}`], { stdio: "inherit" });
+  kind.on("exit", () => bezig.delete(`groep-${volgende}`));
+  return volgende;
+}
+
+/** Welke variant de site nu gebruikt; vergelijken op inhoud, want het is een kopie. */
+async function gekozenVariant() {
+  if (!existsSync("public/images/beroepen-groep.png")) return null;
+  const huidig = await readFile("public/images/beroepen-groep.png");
+  for (const v of groepVarianten()) {
+    if (huidig.equals(await readFile(`public/images/groep/${v}.png`))) return v;
+  }
+  return null;
+}
+
 async function pagina() {
   const perCategorie = new Map();
   for (const b of beroepen) {
@@ -35,6 +63,28 @@ async function pagina() {
   }
   let klaar = 0;
   const secties = [];
+
+  const varianten = groepVarianten();
+  const gekozen = await gekozenVariant();
+  const groepBezig = [...bezig].filter((n) => n.startsWith("groep-"));
+  const groepKaarten = await Promise.all(
+    varianten.map(async (v) => {
+      const versie = (await stat(`public/images/groep/${v}.png`)).mtimeMs;
+      return `<figure class="kaart groep ${v === gekozen ? "gekozen" : ""}">
+        <div class="beeld breed"><img src="/groep/${v}.webp?v=${versie}" alt="Groepsfoto variant ${v}" loading="lazy"></div>
+        <figcaption><strong>Variant ${v}</strong>${v === gekozen ? "<span class=\"vink\">in gebruik op de site</span>" : ""}</figcaption>
+        <div class="knoppen">
+          <a class="knopje" href="/groep/${v}.png?download=1" download="werkoo-groepsfoto-${v}.png">Download png</a>
+          ${v === gekozen ? "" : `<button data-kies="${v}">Gebruik deze</button>`}
+        </div>
+      </figure>`;
+    }),
+  );
+  secties.push(`<section><h2>Groepsfoto <small>(7 vakmensen uit alle werkgebieden)</small></h2>
+    <div class="rooster breed">${groepKaarten.join("") || "<p>Nog geen groepsfoto.</p>"}</div>
+    <p class="regel">${groepBezig.length ? `Bezig met ${groepBezig.join(", ")}…` : ""}
+      <button id="nieuwe-groep">Nieuwe variant genereren</button></p>
+  </section>`);
   for (const [cat, lijst] of perCategorie) {
     const kaarten = [];
     for (const b of lijst) {
@@ -65,6 +115,15 @@ async function pagina() {
   main{padding:20px 24px 60px;max-width:1500px;margin:0 auto}
   h2{font-size:16px;margin:28px 0 12px}
   h2 small{color:#5a6478;font-weight:400}
+  .rooster.breed{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
+  .beeld.breed{aspect-ratio:16/9}
+  .kaart.gekozen{outline:2px solid #1eb1df}
+  .vink{color:#0d6f92;font-size:12px}
+  .knoppen{display:flex;gap:8px}
+  .knoppen>*{flex:1;text-align:center}
+  .knopje{background:#fff;border:1px solid #cfd6e0;border-radius:8px;padding:6px;font-size:13px;text-decoration:none;color:#12141a}
+  .regel{display:flex;gap:12px;align-items:center;color:#5a6478;font-size:14px;margin:12px 0 0}
+  .regel button{background:#fff;border:1px solid #cfd6e0;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer}
   .rooster{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
   .kaart{margin:0;background:#fff;border:1px solid #e4e8ef;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
   .kaart.bezig{outline:2px solid #f6ae2d}
@@ -92,6 +151,17 @@ async function pagina() {
       if ((await r.text()) === "klaar") { clearInterval(wacht); location.reload(); }
     }, 3000);
   }));
+  document.querySelectorAll("[data-kies]").forEach((knop) => knop.addEventListener("click", async () => {
+    knop.disabled = true;
+    await fetch("/groep-kies/" + knop.dataset.kies, { method: "POST" });
+    location.reload();
+  }));
+  const nieuw = document.getElementById("nieuwe-groep");
+  if (nieuw) nieuw.addEventListener("click", async () => {
+    nieuw.disabled = true; nieuw.textContent = "Bezig… (duurt ongeveer een minuut)";
+    await fetch("/groep-nieuw", { method: "POST" });
+    setTimeout(() => location.reload(), 20000);
+  });
   // Automatisch verversen zolang er iets bezig is (bijvoorbeeld de grote batch).
   setTimeout(() => { if (document.querySelector(".kaart.bezig") || ${klaar} < ${beroepen.length}) location.reload(); }, 30000);
 </script>
@@ -124,6 +194,33 @@ createServer(async (req, res) => {
     zip.stdout.pipe(res);
     zip.on("error", () => res.end());
     return;
+  }
+  if (url.pathname.startsWith("/groep/")) {
+    const naam = url.pathname.slice(7).replace(/[^0-9a-z.]/g, "");
+    try {
+      const data = await readFile(`public/images/groep/${naam}`);
+      const kop = { "content-type": naam.endsWith(".webp") ? "image/webp" : "image/png", "cache-control": "no-store" };
+      if (url.searchParams.has("download")) kop["content-disposition"] = `attachment; filename="werkoo-groepsfoto-${naam}"`;
+      res.writeHead(200, kop);
+      return res.end(data);
+    } catch {
+      res.writeHead(404);
+      return res.end();
+    }
+  }
+  if (req.method === "POST" && url.pathname.startsWith("/groep-kies/")) {
+    const v = url.pathname.slice(12).replace(/[^0-9]/g, "");
+    if (existsSync(`public/images/groep/${v}.png`)) {
+      await copyFile(`public/images/groep/${v}.png`, "public/images/beroepen-groep.png");
+      await copyFile(`public/images/groep/${v}.webp`, "public/images/beroepen-groep.webp");
+    }
+    res.writeHead(204);
+    return res.end();
+  }
+  if (req.method === "POST" && url.pathname === "/groep-nieuw") {
+    nieuweGroep();
+    res.writeHead(202);
+    return res.end();
   }
   if (req.method === "POST" && url.pathname.startsWith("/opnieuw/")) {
     const slug = url.pathname.slice(9);

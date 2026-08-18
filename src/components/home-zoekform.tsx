@@ -21,7 +21,7 @@ const invoerklassen =
  * dan gaat de bezoeker naar de statische plaatspagina; anders naar de dienst met
  * de plaats als zoekterm erachter.
  */
-export function HomeZoekform({ beginPlaats = "" }: { beginPlaats?: string }) {
+export function HomeZoekform({ beginPlaats = "", kaal = false }: { beginPlaats?: string; kaal?: boolean }) {
   const router = useRouter();
   const [dienstTerm, setDienstTerm] = useState("");
   const [dienst, setDienst] = useState<Dienst | null>(null);
@@ -60,7 +60,7 @@ export function HomeZoekform({ beginPlaats = "" }: { beginPlaats?: string }) {
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="kaart p-4 text-left shadow-paneel sm:p-5"
+        className={kaal ? "text-left" : "kaart p-4 text-left shadow-paneel sm:p-5"}
         aria-label="Zoek een vakman"
       >
         <div className="grid gap-2.5 md:grid-cols-[1.15fr_1fr_auto]">
@@ -128,7 +128,7 @@ export function HomeZoekform({ beginPlaats = "" }: { beginPlaats?: string }) {
         ) : null}
       </form>
 
-      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+      <div className={`flex flex-wrap items-center justify-center gap-2 ${kaal ? "mt-4" : "mt-5"}`}>
         <span className="text-klein text-ink-soft">Vaak gezocht:</span>
         {populaireDiensten().map((populair) => (
           <Link

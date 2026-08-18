@@ -68,7 +68,7 @@ export function DienstPagina({
         <SlotCta dienst={dienst} plaats={plaats} />
       </main>
       <SiteFooter />
-      <ChatWidget dienst={dienst.slug} />
+      <ChatWidget dienst={dienst.slug} plaats={opPlaats ? plaats : ""} />
       <GestructureerdeData dienst={dienst} plaats={plaats} pad={pad} vragen={vragen} />
     </PaginaOvergang>
   );

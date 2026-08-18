@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { WachtwoordVeld } from "@/components/wachtwoord-sterkte";
 import { wachtwoordHerstellen, wachtwoordVergeten, type Uitkomst } from "@/lib/auth-acties";
 
 const leeg: Uitkomst = {};
@@ -72,20 +73,7 @@ export function WachtwoordHerstellenKaart({ token }: { token: string }) {
 
       <form action={actie} className="mt-6 space-y-4">
         <input type="hidden" name="token" value={token} />
-        <div>
-          <label htmlFor="wachtwoord" className="block text-basis font-semibold text-ink">
-            Nieuw wachtwoord
-          </label>
-          <input
-            id="wachtwoord"
-            name="wachtwoord"
-            type="password"
-            autoComplete="new-password"
-            required
-            minLength={8}
-            className={veldklassen}
-          />
-        </div>
+        <WachtwoordVeld id="wachtwoord" label="Nieuw wachtwoord" klassen={veldklassen} />
         <Melding staat={staat} />
         <button type="submit" aria-disabled={bezig} className={knopklassen}>
           {bezig ? "Bezig…" : "Wachtwoord opslaan"}

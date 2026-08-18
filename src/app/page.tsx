@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChatWidget } from "@/components/chat-widget";
 import { CijferBalk } from "@/components/cijfer-balk";
-import { HomeZoekform } from "@/components/home-zoekform";
+import { OpdrachtVlak } from "@/components/opdracht-vlak";
 import { ArrowRightIcon, CheckIcon, KeurmerkIcon } from "@/components/icons";
 import { PaginaOvergang } from "@/components/pagina-overgang";
 import { Rating } from "@/components/rating";
@@ -80,7 +80,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
               {diensten.length} diensten waarvoor we vakmensen in je eigen regio zoeken.
             </p>
 
-            <HomeZoekform beginPlaats={plaats.invoer} />
+            <OpdrachtVlak beginPlaats={plaats.invoer} />
 
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-klein text-ink-soft">
               <span className="flex items-center gap-2">

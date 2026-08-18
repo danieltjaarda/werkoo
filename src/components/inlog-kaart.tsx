@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
+import { WachtwoordVeld } from "@/components/wachtwoord-sterkte";
 import { inloggen, registreren, type Uitkomst } from "@/lib/auth-acties";
 
 type Modus = "inloggen" | "registreren";
@@ -138,13 +139,7 @@ export function InlogKaart({ verder = "", beginModus = "inloggen" }: { verder?: 
               ) : null}
               <Veld id="email" label="E-mailadres" type="email" autoComplete="email" />
               <Veld id="telefoon" label="Telefoonnummer" type="tel" autoComplete="tel" verplicht={false} />
-              <Veld
-                id="wachtwoord"
-                label="Wachtwoord"
-                type="password"
-                autoComplete="new-password"
-                hint="Minstens 8 tekens."
-              />
+              <WachtwoordVeld id="wachtwoord" label="Wachtwoord" klassen={veldklassen} />
 
               {staat.fout ? (
                 <p role="alert" className="rounded-2xl bg-red-50 px-4 py-3 text-basis font-medium text-red-700">
