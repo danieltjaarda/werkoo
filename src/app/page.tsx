@@ -76,9 +76,8 @@ export default async function Home({ searchParams }: PageProps<"/">) {
               passen
             </h1>
 
-            <p className="max-w-2xl text-lead text-ink-soft">
-              Eén aanvraag, meerdere reacties, en jij kiest. Van dakdekker tot webdesigner:{" "}
-              {diensten.length} diensten waarvoor we vakmensen in je eigen regio zoeken.
+            <p className="max-w-3xl text-balance text-lead text-ink-soft">
+              Eén aanvraag, meerdere reacties uit je eigen regio, en jij kiest.
             </p>
 
             <OpdrachtVlak beginPlaats={plaats.invoer} />
