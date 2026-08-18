@@ -43,6 +43,27 @@ function groepVarianten() {
     .sort((a, b) => Number(a) - Number(b));
 }
 
+/**
+ * De extra iconen uit src/components/icons-extra.tsx, zodat je ze naast de
+ * illustraties kunt bekijken. De jsx-schrijfwijze (strokeWidth) wordt hier
+ * terugvertaald naar gewone svg.
+ */
+async function iconen() {
+  if (!existsSync("src/components/icons-extra.tsx")) return [];
+  const bron = await readFile("src/components/icons-extra.tsx", "utf8");
+  return [...bron.matchAll(/export function (\w+)\(\{ className \}: IconProps\) \{\s*return \(\s*([\s\S]*?)\s*\);\s*\}/g)].map(
+    ([, naam, svg]) => ({
+      naam,
+      svg: svg
+        .replace(/className=\{className\}/g, 'width="44" height="44"')
+        .replace(/strokeWidth/g, "stroke-width")
+        .replace(/strokeLinecap/g, "stroke-linecap")
+        .replace(/strokeLinejoin/g, "stroke-linejoin")
+        .replace(/\{[^}]*\}/g, ""),
+    }),
+  );
+}
+
 /** De losse sitebeelden (categorieën, stappen, klanten, 404). */
 function siteBeelden() {
   if (!existsSync("public/images/site")) return [];
@@ -103,6 +124,14 @@ async function pagina() {
       <button id="nieuwe-groep">Nieuwe variant genereren</button></p>
   </section>`);
 
+  const iconLijst = await iconen();
+  if (iconLijst.length) {
+    secties.push(`<section><h2>Iconen <small>(${iconLijst.length}, uit src/components/icons-extra.tsx)</small></h2>
+      <div class="icoon-rooster">${iconLijst
+        .map((i) => `<figure class="icoon"><div>${i.svg}</div><figcaption>${i.naam.replace(/Icon$/, "")}</figcaption></figure>`)
+        .join("")}</div></section>`);
+  }
+
   const siteKaarten = await Promise.all(
     siteBeelden().map(async (id) => {
       const versie = (await stat(`public/images/site/${id}.png`)).mtimeMs;
@@ -154,6 +183,9 @@ async function pagina() {
   h2{font-size:16px;margin:28px 0 12px}
   h2 small{color:#5a6478;font-weight:400}
   .kop-knop{margin-left:10px;font-size:13px;font-weight:500;color:#0d6f92;background:#eaf7fc;border-radius:8px;padding:5px 10px;text-decoration:none}
+  .icoon-rooster{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+  .icoon{margin:0;background:#fff;border:1px solid #e4e8ef;border-radius:12px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#12141a}
+  .icoon figcaption{font-size:12px;color:#5a6478;text-align:center}
   .rooster.breed{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
   .beeld.breed{aspect-ratio:16/9}
   .kaart.gekozen{outline:2px solid #1eb1df}

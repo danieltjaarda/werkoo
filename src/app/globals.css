@@ -6,8 +6,9 @@
   /* Alleen voor de dienstnaam in de titel. */
   --font-serif: var(--font-sentient), ui-serif, Georgia, serif;
 
-  /* Achtergrond van de header en de hero. */
-  --color-hero: #ffffff;
+  /* Achtergrond van de header en de hero: het lichte merkblauw, zodat de kop
+     en het zoekvlak op één gekleurd vlak staan in plaats van op wit. */
+  --color-hero: #eaf7fc;
 
   /* Cyaan uit het logo-icoon, turquoise uit de lijn rond de hero-foto. */
   --color-brand: #1eb1df;

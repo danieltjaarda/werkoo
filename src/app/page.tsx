@@ -61,7 +61,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           {/* Zie hero.tsx: radiaal verloop in plaats van een cirkel met een rand. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 hidden h-[34rem] bg-[radial-gradient(60%_100%_at_50%_0%,var(--color-brand-soft)_0%,transparent_72%)] lg:block"
+            className="pointer-events-none absolute inset-x-0 top-0 hidden h-[34rem] bg-[radial-gradient(65%_100%_at_50%_0%,color-mix(in_oklab,var(--color-brand)_18%,transparent)_0%,transparent_70%)] lg:block"
           />
 
           <div className="container-page relative flex flex-col items-center gap-7 pb-[var(--ruimte-sectie)] pt-12 text-center lg:pt-16">
