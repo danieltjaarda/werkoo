@@ -23,18 +23,22 @@ export const stappen = [
 
 export const voordelen = [
   {
+    icoon: "nagekeken",
     titel: "Iedereen is nagekeken",
     tekst: "We controleren de KvK-inschrijving en eerder werk voordat iemand op het platform komt.",
   },
   {
+    icoon: "prijzen",
     titel: "Prijzen naast elkaar",
     tekst: "Meerdere reacties op één aanvraag laten meteen zien wat een eerlijke prijs is voor jouw klus.",
   },
   {
+    icoon: "vrij",
     titel: "Nergens aan vast",
     tekst: "Geen abonnement, geen bemiddelingskosten en geen verplichting om iemand te boeken.",
   },
   {
+    icoon: "telefoon",
     titel: "Mensen aan de telefoon",
     tekst: "Ons team zit in Nederland en denkt mee als je twijfelt over je keuze of je budget.",
   },

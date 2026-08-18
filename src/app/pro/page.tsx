@@ -3,8 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { DashboardKop } from "@/components/dashboard-kop";
 import { ArrowRightIcon, CheckIcon, KeurmerkIcon } from "@/components/icons";
+import { AntwoordIcon, BekerIcon, GrafiekIcon, PostvakIcon, WaarschuwingIcon } from "@/components/icons-extra";
 import { Rating } from "@/components/rating";
-import { aanvragenVanBedrijf, cijfersVanBedrijf, statusLabels } from "@/lib/aanvragen";
+import { aanvragenVanBedrijf, cijfersVanBedrijf } from "@/lib/aanvragen";
+import { StatusLabel } from "@/components/status-label";
 import { vereisBedrijf } from "@/lib/auth";
 import { vraag } from "@/lib/db";
 import { getDienst } from "@/lib/diensten";
@@ -17,10 +19,23 @@ export const metadata: Metadata = {
 
 const datum = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "short", year: "numeric" });
 
-function Cijfer({ getal, label, nadruk = false }: { getal: number | string; label: string; nadruk?: boolean }) {
+function Cijfer({
+  getal,
+  label,
+  Icoon,
+  nadruk = false,
+}: {
+  getal: number | string;
+  label: string;
+  Icoon: (props: { className?: string }) => React.ReactElement;
+  nadruk?: boolean;
+}) {
   return (
     <div className={`kaart p-5 ${nadruk ? "border-brand" : ""}`}>
-      <p className="font-display text-h2 leading-none text-ink">{getal}</p>
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-display text-h2 leading-none text-ink">{getal}</p>
+        <Icoon className="h-9 w-9 shrink-0 text-brand-deep" />
+      </div>
       <p className="mt-2 text-klein text-ink-soft">{label}</p>
     </div>
   );
@@ -40,7 +55,8 @@ function Onboarding({ welkom, stappen, profielPad }: { welkom: boolean; stappen:
   return (
     <section className="kaart mt-6 border-brand p-5 sm:p-6" aria-labelledby="onboarding-kop">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="onboarding-kop" className="font-display text-h4 text-ink">
+        <h2 id="onboarding-kop" className="flex items-center gap-2 font-display text-h4 text-ink">
+          {klaar < stappen.length ? <WaarschuwingIcon className="h-7 w-7 text-zon-dark" /> : null}
           {welkom ? "Welkom bij Werkoo!" : "Maak je profiel af"}
         </h2>
         <p className="text-klein text-ink-soft">{klaar} van {stappen.length} klaar</p>
@@ -135,10 +151,10 @@ export default async function ProDashboard({ searchParams }: PageProps<"/pro">) 
           />
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Cijfer getal={cijfers.open} label="Open aanvragen" nadruk={cijfers.open > 0} />
-            <Cijfer getal={cijfers.deze_maand} label="Binnengekomen, 30 dagen" />
-            <Cijfer getal={cijfers.gereageerd} label="Gereageerd" />
-            <Cijfer getal={cijfers.gewonnen} label="Gewonnen" />
+            <Cijfer getal={cijfers.open} label="Open aanvragen" Icoon={PostvakIcon} nadruk={cijfers.open > 0} />
+            <Cijfer getal={cijfers.deze_maand} label="Binnengekomen, 30 dagen" Icoon={GrafiekIcon} />
+            <Cijfer getal={cijfers.gereageerd} label="Gereageerd" Icoon={AntwoordIcon} />
+            <Cijfer getal={cijfers.gewonnen} label="Gewonnen" Icoon={BekerIcon} />
           </div>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1.6fr] lg:gap-8">
@@ -247,7 +263,7 @@ export default async function ProDashboard({ searchParams }: PageProps<"/pro">) 
                                   : "bg-brand-soft text-brand-deep"
                             }`}
                           >
-                            {statusLabels[aanvraag.status]}
+                            <StatusLabel status={aanvraag.status} />
                           </span>
                           <span className="text-klein text-ink-soft">
                             {datum.format(new Date(aanvraag.aangemaakt_op))}

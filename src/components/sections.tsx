@@ -20,6 +20,7 @@ import {
   TuinIcon,
   ZegelIcon,
 } from "@/components/icons";
+import { HeadsetIcon, SchildVinkIcon, SlotOpenIcon, WeegschaalIcon } from "@/components/icons-extra";
 import { Rating } from "@/components/rating";
 import { UitgelichtLabel } from "@/components/uitgelicht-label";
 import { portretVoor, reviewsVoorDienst, stappen, voordelen } from "@/lib/content";
@@ -44,6 +45,18 @@ export const categorieIconen: Record<CategorieId, (props: { className?: string }
   zakelijk: KofferIcon,
   evenementen: FeestIcon,
 };
+
+const voordeelIconen: Record<string, (props: { className?: string }) => React.ReactElement> = {
+  nagekeken: SchildVinkIcon,
+  prijzen: WeegschaalIcon,
+  vrij: SlotOpenIcon,
+  telefoon: HeadsetIcon,
+};
+
+function VoordeelIcoon({ soort, className }: { soort: string; className?: string }) {
+  const Icoon = voordeelIconen[soort] ?? SchildVinkIcon;
+  return <Icoon className={className} />;
+}
 
 export function SectionTitle({
   eyebrow,
@@ -138,9 +151,8 @@ export function Voordelen({ dienstSlug }: { dienstSlug?: string }) {
         <ul className="grid gap-4 sm:grid-cols-2">
           {voordelen.map((voordeel) => (
             <li key={voordeel.titel} className="kaart p-6">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/12 text-brand-deep">
-                <CheckIcon className="h-4 w-4" />
-              </span>
+              {/* De iconen dragen hun eigen ring, dus geen gekleurd vlakje eronder. */}
+              <VoordeelIcoon soort={voordeel.icoon} className="h-10 w-10 text-brand-deep" />
               <h3 className="mt-4 font-display text-h5 text-ink">{voordeel.titel}</h3>
               <p className="mt-2 text-basis text-ink-soft">{voordeel.tekst}</p>
             </li>

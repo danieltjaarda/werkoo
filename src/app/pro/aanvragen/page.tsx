@@ -4,6 +4,7 @@ import Link from "next/link";
 import { DashboardKop } from "@/components/dashboard-kop";
 import { ArrowRightIcon } from "@/components/icons";
 import { aanvragenVanBedrijf, statusLabels, type Status } from "@/lib/aanvragen";
+import { StatusLabel } from "@/components/status-label";
 import { vereisBedrijf } from "@/lib/auth";
 import { getDienst } from "@/lib/diensten";
 import { PRO_LINKS } from "@/lib/pro-links";
@@ -110,7 +111,7 @@ export default async function ProAanvragen({ searchParams }: PageProps<"/pro/aan
                     </span>
 
                     <span className={`shrink-0 rounded-full px-2.5 py-1 text-mini font-semibold ${statusKleur[aanvraag.status]}`}>
-                      {statusLabels[aanvraag.status]}
+                      <StatusLabel status={aanvraag.status} />
                     </span>
                     <span className="w-24 shrink-0 text-klein text-ink-soft">
                       {datum.format(new Date(aanvraag.aangemaakt_op))}
