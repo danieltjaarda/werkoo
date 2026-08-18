@@ -1,6 +1,12 @@
 /**
  * Controleert de plaatsbepaling door de geo-headers na te bootsen die Vercel en
  * Cloudflare in productie meesturen. Draai de dev- of productieserver ernaast.
+ *
+ * We lezen de zichtbare kop (h1), niet de <title>. Dat onderscheid is bewust:
+ * de pagina begroet de bezoeker met zijn eigen plaats, maar de titel en de
+ * beschrijving blijven landelijk — anders indexeert Google de homepage onder
+ * de plaats van de crawler en krijgt een gedeelde link de plaats van degene
+ * die hem deelde. De laatste controle bewaakt precies dat.
  */
 const basis = process.env.URL ?? "http://localhost:3000";
 
@@ -57,16 +63,26 @@ let mislukt = 0;
 for (const geval of gevallen) {
   const antwoord = await fetch(basis, { headers: geval.headers });
   const html = await antwoord.text();
-  const titel = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "";
-  const gevonden = titel
+  const kop = (html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? "")
+    .replace(/<[^>]+>/g, "")
     .replace(/&#x27;/g, "'")
-    .replace(/^.* in /, "")
-    .replace(/^.*bij jou in de buurt$/, "de buurt");
+    .replace(/&amp;/g, "&")
+    .trim();
+  const gevonden = kop.replace(/^Vakmensen in /, "").replace(/ die bij jouw klus passen$/, "");
 
   const goed = gevonden === geval.verwacht;
   if (!goed) mislukt += 1;
   console.log(`${goed ? "ok  " : "FOUT"} ${geval.naam}: "${gevonden}"`);
 }
 
-console.log(mislukt === 0 ? "\nalles goed" : `\n${mislukt} van de ${gevallen.length} mislukt`);
+// De titel mag juist NIET meebewegen met het ip-adres; zie de opmerking bovenaan.
+{
+  const html = await (await fetch(basis, { headers: { "x-vercel-ip-country": "NL", "x-vercel-ip-city": "Amsterdam" } })).text();
+  const titel = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "";
+  const landelijk = !titel.includes("Amsterdam");
+  if (!landelijk) mislukt += 1;
+  console.log(`${landelijk ? "ok  " : "FOUT"} de titel blijft landelijk, ook met een geo-header: "${titel}"`);
+}
+
+console.log(mislukt === 0 ? "\nalles goed" : `\n${mislukt} mislukt`);
 process.exit(mislukt === 0 ? 0 : 1);
