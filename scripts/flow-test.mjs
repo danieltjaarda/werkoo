@@ -13,6 +13,8 @@ const vraag = () => page.locator("main h1").first().innerText();
 await page.goto(`${basis}/`, { waitUntil: "networkidle" });
 await leg("0-home");
 
+// Het zoekvlak heeft twee tabbladen; het klassieke dienstveld zit onder het tweede.
+await page.getByRole("tab", { name: /Zoeken op dienst/ }).click();
 await page.getByPlaceholder("Welke vakman zoek je?").fill("videograaf");
 await page.getByRole("option", { name: /Videografen/ }).click();
 await page.getByPlaceholder("In welke plaats?").fill("Amsterdam");
