@@ -12,6 +12,7 @@ import {
   VinkjeTekentIcon,
 } from "@/components/icons";
 import { Kalender } from "@/components/kalender";
+import { beeld } from "@/lib/site-beelden";
 import { PlaatsInvoer } from "@/components/plaats-invoer";
 import { Rating } from "@/components/rating";
 import { UitgelichtLabel } from "@/components/uitgelicht-label";
@@ -51,6 +52,23 @@ const alleStappen: StapId[] = [
   "naam",
   "telefoon",
 ];
+
+/**
+ * De illustratie die bij elke vraag hoort. `beeld()` geeft undefined zolang een
+ * bestand nog niet bestaat, en dan blijft de plek leeg in plaats van een
+ * gebroken plaatje te tonen. Ze zijn puur decoratief, dus alt blijft leeg.
+ */
+const stapBeelden: Record<StapId, string> = {
+  plaats: "plaats",
+  type: "type",
+  datum: "datum",
+  adres: "adres",
+  wensen: "wensen",
+  vakmensen: "vakmensen",
+  email: "email",
+  naam: "naam",
+  telefoon: "telefoon",
+};
 
 /** Zoveel vakmensen mag iemand tegelijk aanvragen. */
 const MAX_KEUZE = 4;
@@ -311,7 +329,7 @@ export function AanvraagStappen({
           ) : null}
         </div>
 
-        <Zijkolom vakman={vakman} />
+        <Zijkolom vakman={vakman} beeld={beeld(stapBeelden[huidig])} />
       </div>
 
       <div className="sticky bottom-0 border-t border-lijn bg-white/95 py-4 backdrop-blur">
@@ -715,9 +733,23 @@ function Belofte() {
   );
 }
 
-function Zijkolom({ vakman }: { vakman?: Bedrijf }) {
+function Zijkolom({ vakman, beeld }: { vakman?: Bedrijf; beeld?: string }) {
   return (
     <aside className="hidden lg:block">
+      {/* De illustratie wisselt met de vraag; de sleutel zorgt dat hij opnieuw invliegt. */}
+      {beeld ? (
+        <ViewTransition key={beeld} enter="stap-vooruit" exit="none" default="none">
+          <Image
+            src={beeld}
+            alt=""
+            width={700}
+            height={700}
+            sizes="300px"
+            className="mb-6 h-[230px] w-full object-contain"
+          />
+        </ViewTransition>
+      ) : null}
+
       {vakman ? (
         <div className="kaart p-5">
           <p className="font-display text-basis font-bold text-ink">Gekozen vakman</p>
@@ -784,7 +816,16 @@ function Klaar({
   return (
     <div className="container-page py-14">
       <div className="mx-auto max-w-lg text-center">
-        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand/12 text-brand-deep">
+        <Image
+          src={beeld("klaar") ?? "/images/site/klaar.webp"}
+          alt=""
+          width={700}
+          height={814}
+          sizes="260px"
+          className="mx-auto h-[240px] w-auto object-contain"
+          priority
+        />
+        <span className="mx-auto mt-2 flex h-12 w-12 items-center justify-center rounded-full bg-brand/12 text-brand-deep">
           <VinkjeTekentIcon className="h-6 w-6" />
         </span>
         <h1 className="mt-5 font-display text-h3 text-ink">

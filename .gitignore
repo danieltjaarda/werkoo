@@ -46,4 +46,6 @@ next-env.d.ts
 # met scripts/beroep-images.mjs geregenereerd; alleen de webp's gaan mee.
 assets-src/beroepen/
 assets-src/beroepen-wit/
+assets-src/site/
 public/images/beroepen/*.png
+public/images/site/*.png

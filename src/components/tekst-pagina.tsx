@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ChatWidget } from "@/components/chat-widget";
 import { ArrowRightIcon, CheckIcon } from "@/components/icons";
@@ -27,19 +28,23 @@ export function TekstPagina({
   eyebrow,
   cta,
   kopKnop,
+  kopBeeld,
 }: {
   pagina: Paginatekst;
   eyebrow: string;
   cta?: { titel: string; tekst: string; label: string; href: string };
   /** Knop bovenin de kop, voor pagina's met één duidelijke vervolgstap. */
   kopKnop?: { label: string; href: string };
+  /** Illustratie naast de kop. */
+  kopBeeld?: string;
 }) {
   return (
     <PaginaOvergang>
       <SiteHeader />
       <main className="flex-1">
         <section className="sectie bg-brand-soft">
-          <div className="container-page">
+          <div className={kopBeeld ? "container-page grid items-center gap-8 lg:grid-cols-[1.4fr_1fr]" : "container-page"}>
+            <div>
             <p className="font-display text-klein font-medium uppercase tracking-[0.14em] text-brand-deep">
               {eyebrow}
             </p>
@@ -54,6 +59,18 @@ export function TekstPagina({
               >
                 {kopKnop.label}
               </Link>
+            ) : null}
+            </div>
+            {kopBeeld ? (
+              <Image
+                src={kopBeeld}
+                alt=""
+                width={700}
+                height={700}
+                sizes="(min-width: 1024px) 380px, 260px"
+                className="mx-auto h-[280px] w-auto object-contain lg:h-[340px]"
+                priority
+              />
             ) : null}
           </div>
         </section>

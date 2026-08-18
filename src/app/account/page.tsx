@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon, ChatIcon, MapPinIcon } from "@/components/icons";
 import { DashboardKop } from "@/components/dashboard-kop";
 import { aanvragenVanGebruiker } from "@/lib/aanvragen";
 import { vereisGebruiker } from "@/lib/auth";
 import { getDienst } from "@/lib/diensten";
+import { beeld } from "@/lib/site-beelden";
 
 export const metadata: Metadata = {
   title: "Mijn aanvragen",
@@ -35,13 +37,25 @@ export default async function AccountPagina() {
           </p>
 
           {aanvragen.length === 0 ? (
-            <Link
-              href="/diensten"
-              className="mt-8 inline-flex h-veld items-center gap-2 rounded-2xl bg-ink px-6 font-display text-basis font-medium text-white transition hover:bg-brand-deep"
-            >
-              Beschrijf je klus
-              <ArrowRightIcon className="h-4 w-4" />
-            </Link>
+            <div className="mt-8 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+              {beeld("geen-aanvragen") ? (
+                <Image
+                  src={beeld("geen-aanvragen")!}
+                  alt=""
+                  width={700}
+                  height={700}
+                  sizes="200px"
+                  className="h-[180px] w-auto shrink-0 object-contain"
+                />
+              ) : null}
+              <Link
+                href="/diensten"
+                className="inline-flex h-veld items-center gap-2 rounded-2xl bg-ink px-6 font-display text-basis font-medium text-white transition hover:bg-brand-deep"
+              >
+                Beschrijf je klus
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+            </div>
           ) : (
             <ul className="mt-10 space-y-4">
               {aanvragen.map((aanvraag) => {

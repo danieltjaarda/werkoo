@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon, RasterIcon } from "@/components/icons";
 import { SiteFooter } from "@/components/site-footer";
@@ -16,7 +17,16 @@ export default function NietGevonden() {
       <main className="flex flex-1 items-center">
         <div className="container-page sectie">
           <div className="mx-auto max-w-xl text-center">
-            <p className="font-display text-klein font-medium uppercase tracking-[0.14em] text-brand-deep">
+            <Image
+              src="/images/site/niet-gevonden.webp"
+              alt=""
+              width={700}
+              height={700}
+              sizes="240px"
+              className="mx-auto h-[220px] w-auto object-contain"
+              priority
+            />
+            <p className="mt-6 font-display text-klein font-medium uppercase tracking-[0.14em] text-brand-deep">
               404
             </p>
             <h1 className="mt-3 text-balance font-display text-h1 text-ink">Deze pagina bestaat niet</h1>

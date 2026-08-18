@@ -17,7 +17,9 @@
     "seed": "node --env-file=.env.local scripts/seed.mjs",
     "account": "node scripts/account-test.mjs",
     "beveiliging": "node scripts/beveiliging-test.mjs",
-    "seo": "node scripts/seo-check.mjs"
+    "seo": "node scripts/seo-check.mjs",
+    "beelden": "node scripts/beelden-test.mjs",
+    "beelden:index": "node scripts/beelden-index.mjs"
   },
   "dependencies": {
     "next": "16.3.0",

@@ -19,6 +19,7 @@ export default function AanmeldenPagina() {
       pagina={pagina}
       eyebrow="Voor vakmensen"
       kopKnop={{ label: "Meld je bedrijf aan", href: "/aanmelden/start" }}
+      kopBeeld="/images/site/vakman-aanmelden.webp"
       cta={{
         titel: "Klaar om aanvragen te ontvangen?",
         tekst: "Meld je bedrijf in drie stappen aan. Het kost niets en je bepaalt zelf wanneer je profiel live gaat.",

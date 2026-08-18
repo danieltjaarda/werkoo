@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { DienstZoeker } from "@/components/dienst-zoeker";
@@ -9,6 +10,7 @@ import { ProvincieKaart } from "@/components/provincie-kaart";
 import { WachtwoordVeld } from "@/components/wachtwoord-sterkte";
 import { bedrijfAanmelden, type Uitkomst } from "@/lib/auth-acties";
 import { getDienst, type Dienst } from "@/lib/diensten";
+import { beeld } from "@/lib/site-beelden";
 
 /**
  * Aanmelden als bedrijf in drie schermen, naar het model van de aanvraagflow:
@@ -47,6 +49,9 @@ const invoer =
   "mt-2 h-veld w-full rounded-2xl border border-lijn bg-white px-4 text-basis text-ink outline-none transition placeholder:text-ink-soft focus:border-brand focus:ring-4 focus:ring-brand/15";
 
 const MAX_DIENSTEN = 10;
+
+/** Eén illustratie per stap, in dezelfde stijl als de aanvraagflow. */
+const STAP_BEELDEN = ["bedrijf", "werkgebied", "contact"];
 
 function Veld({
   id, label, type = "text", value, onChange, placeholder, autoComplete, optioneel = false, hint, inputMode,
@@ -134,13 +139,27 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
         ))}
       </ol>
 
-      <p className="mt-6 font-display text-klein font-medium uppercase tracking-[0.14em] text-brand-deep">
-        Stap {stap + 1} van {STAPPEN.length}
-      </p>
-      <h1 ref={kop} tabIndex={-1} className="mt-2 font-display text-h3 text-ink outline-none">
-        {huidige.kop}
-      </h1>
-      <p className="mt-2 text-basis text-ink-soft">{huidige.sub}</p>
+      <div className="mt-6 flex items-start justify-between gap-4">
+        <div>
+          <p className="font-display text-klein font-medium uppercase tracking-[0.14em] text-brand-deep">
+            Stap {stap + 1} van {STAPPEN.length}
+          </p>
+          <h1 ref={kop} tabIndex={-1} className="mt-2 font-display text-h3 text-ink outline-none">
+            {huidige.kop}
+          </h1>
+          <p className="mt-2 text-basis text-ink-soft">{huidige.sub}</p>
+        </div>
+        {beeld(STAP_BEELDEN[stap]) ? (
+          <Image
+            src={beeld(STAP_BEELDEN[stap])!}
+            alt=""
+            width={700}
+            height={700}
+            sizes="150px"
+            className="hidden h-[130px] w-auto shrink-0 object-contain sm:block"
+          />
+        ) : null}
+      </div>
 
       <form
         action={actie}

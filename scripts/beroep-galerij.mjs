@@ -27,6 +27,13 @@ function draaiOpnieuw(slug) {
   kind.on("exit", () => bezig.delete(slug));
 }
 
+function draaiSiteOpnieuw(id) {
+  if (bezig.has(`site-${id}`)) return;
+  bezig.add(`site-${id}`);
+  const kind = spawn(process.execPath, ["scripts/site-beelden.mjs", "--force", id], { stdio: "inherit" });
+  kind.on("exit", () => bezig.delete(`site-${id}`));
+}
+
 /** De groepsfoto's: assets-src/groep-<variant>.png, uitgeknipt in public/images/groep/. */
 function groepVarianten() {
   if (!existsSync("public/images/groep")) return [];
@@ -34,6 +41,15 @@ function groepVarianten() {
     .filter((n) => n.endsWith(".png"))
     .map((n) => n.replace(".png", ""))
     .sort((a, b) => Number(a) - Number(b));
+}
+
+/** De losse sitebeelden (categorieën, stappen, klanten, 404). */
+function siteBeelden() {
+  if (!existsSync("public/images/site")) return [];
+  return readdirSync("public/images/site")
+    .filter((n) => n.endsWith(".png"))
+    .map((n) => n.replace(".png", ""))
+    .sort();
 }
 
 function nieuweGroep() {
@@ -80,11 +96,33 @@ async function pagina() {
       </figure>`;
     }),
   );
-  secties.push(`<section><h2>Groepsfoto <small>(7 vakmensen uit alle werkgebieden)</small></h2>
+  secties.push(`<section><h2>Groepsfoto <small>(7 vakmensen uit alle werkgebieden)</small>
+    <a class="kop-knop" href="/download/groep.zip">Download deze set (zip)</a></h2>
     <div class="rooster breed">${groepKaarten.join("") || "<p>Nog geen groepsfoto.</p>"}</div>
     <p class="regel">${groepBezig.length ? `Bezig met ${groepBezig.join(", ")}…` : ""}
       <button id="nieuwe-groep">Nieuwe variant genereren</button></p>
   </section>`);
+
+  const siteKaarten = await Promise.all(
+    siteBeelden().map(async (id) => {
+      const versie = (await stat(`public/images/site/${id}.png`)).mtimeMs;
+      const werkt = bezig.has(`site-${id}`);
+      return `<figure class="kaart site ${werkt ? "bezig" : ""}" data-site="${id}">
+        <div class="beeld"><img src="/site/${id}.webp?v=${versie}" alt="${id}" loading="lazy"></div>
+        <figcaption><strong>${id.replace(/-/g, " ")}</strong><code>/images/site/${id}.webp</code></figcaption>
+        <div class="knoppen">
+          <a class="knopje" href="/site/${id}.webp?download=1" download="${id}.webp">webp</a>
+          <a class="knopje" href="/site/${id}.png?download=1" download="${id}.png">png</a>
+        </div>
+        <button ${werkt ? "disabled" : ""}>${werkt ? "Bezig…" : "Opnieuw genereren"}</button>
+      </figure>`;
+    }),
+  );
+  if (siteKaarten.length) {
+    secties.push(`<section><h2>Sitebeelden <small>(categorieën, stappen, klanten, 404)</small>
+      <a class="kop-knop" href="/download/sitebeelden.zip">Download deze set (zip)</a></h2>
+      <div class="rooster">${siteKaarten.join("")}</div></section>`);
+  }
   for (const [cat, lijst] of perCategorie) {
     const kaarten = [];
     for (const b of lijst) {
@@ -115,6 +153,7 @@ async function pagina() {
   main{padding:20px 24px 60px;max-width:1500px;margin:0 auto}
   h2{font-size:16px;margin:28px 0 12px}
   h2 small{color:#5a6478;font-weight:400}
+  .kop-knop{margin-left:10px;font-size:13px;font-weight:500;color:#0d6f92;background:#eaf7fc;border-radius:8px;padding:5px 10px;text-decoration:none}
   .rooster.breed{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
   .beeld.breed{aspect-ratio:16/9}
   .kaart.gekozen{outline:2px solid #1eb1df}
@@ -151,6 +190,12 @@ async function pagina() {
       if ((await r.text()) === "klaar") { clearInterval(wacht); location.reload(); }
     }, 3000);
   }));
+  document.querySelectorAll(".kaart.site button").forEach((knop) => knop.addEventListener("click", async () => {
+    const kaart = knop.closest(".kaart");
+    knop.disabled = true; knop.textContent = "Bezig…"; kaart.classList.add("bezig");
+    await fetch("/site-opnieuw/" + kaart.dataset.site, { method: "POST" });
+    setTimeout(() => location.reload(), 25000);
+  }));
   document.querySelectorAll("[data-kies]").forEach((knop) => knop.addEventListener("click", async () => {
     knop.disabled = true;
     await fetch("/groep-kies/" + knop.dataset.kies, { method: "POST" });
@@ -185,12 +230,25 @@ createServer(async (req, res) => {
       return res.end();
     }
   }
+  if (url.pathname === "/download/sitebeelden.zip" || url.pathname === "/download/beroepen.zip" || url.pathname === "/download/groep.zip") {
+    const welke = url.pathname.slice(10).replace(".zip", "");
+    const map = { sitebeelden: "site", beroepen: "beroepen", groep: "groep" }[welke];
+    res.writeHead(200, {
+      "content-type": "application/zip",
+      "content-disposition": `attachment; filename="werkoo-${welke}.zip"`,
+    });
+    const zip = spawn("zip", ["-r", "-q", "-", map], { cwd: "public/images" });
+    zip.stdout.pipe(res);
+    zip.on("error", () => res.end());
+    return;
+  }
   if (url.pathname === "/download/site.zip" || url.pathname === "/download/origineel.zip") {
     // Zip rechtstreeks naar de browser streamen; map heet in de zip "beroepen".
     const map = url.pathname.endsWith("site.zip") ? "public/images" : "assets-src";
+    const mappen = url.pathname.endsWith("site.zip") ? ["beroepen", "site", "groep"] : ["beroepen", "site"];
     const bestandsnaam = url.pathname.endsWith("site.zip") ? "werkoo-beroepen.zip" : "werkoo-beroepen-origineel.zip";
     res.writeHead(200, { "content-type": "application/zip", "content-disposition": `attachment; filename="${bestandsnaam}"` });
-    const zip = spawn("zip", ["-r", "-q", "-", "beroepen"], { cwd: map });
+    const zip = spawn("zip", ["-r", "-q", "-", ...mappen.filter((m) => existsSync(`${map}/${m}`))], { cwd: map });
     zip.stdout.pipe(res);
     zip.on("error", () => res.end());
     return;
@@ -207,6 +265,25 @@ createServer(async (req, res) => {
       res.writeHead(404);
       return res.end();
     }
+  }
+  if (url.pathname.startsWith("/site/")) {
+    const naam = url.pathname.slice(6).replace(/[^a-z0-9.-]/g, "");
+    try {
+      const data = await readFile(`public/images/site/${naam}`);
+      const kop = { "content-type": naam.endsWith(".webp") ? "image/webp" : "image/png", "cache-control": "no-store" };
+      if (url.searchParams.has("download")) kop["content-disposition"] = `attachment; filename="${naam}"`;
+      res.writeHead(200, kop);
+      return res.end(data);
+    } catch {
+      res.writeHead(404);
+      return res.end();
+    }
+  }
+  if (req.method === "POST" && url.pathname.startsWith("/site-opnieuw/")) {
+    const id = url.pathname.slice(14).replace(/[^a-z0-9-]/g, "");
+    if (siteBeelden().includes(id)) draaiSiteOpnieuw(id);
+    res.writeHead(202);
+    return res.end();
   }
   if (req.method === "POST" && url.pathname.startsWith("/groep-kies/")) {
     const v = url.pathname.slice(12).replace(/[^0-9]/g, "");

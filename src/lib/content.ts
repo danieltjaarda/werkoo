@@ -2,16 +2,19 @@ import { deelLidwoord, type Dienst, type Vraag } from "@/lib/diensten";
 
 export const stappen = [
   {
+    afbeelding: "/images/site/stap-1-beschrijf.webp",
     titel: "Beschrijf je klus",
     tekst:
       "Een paar vragen over wat je zoekt, waar en wanneer. Je bent in een minuut klaar en het kost je niets.",
   },
   {
+    afbeelding: "/images/site/stap-2-reacties.webp",
     titel: "Wij zoeken de match",
     tekst:
       "We leggen je vraag voor aan vakmensen die op dat moment vrij zijn en het soort werk doen dat jij zoekt.",
   },
   {
+    afbeelding: "/images/site/stap-3-kies.webp",
     titel: "Jij kiest wie mag komen",
     tekst:
       "Bekijk hun werk, prijzen en ervaringen van eerdere klanten. Niets erbij? Dan houdt het gewoon op.",
@@ -43,6 +46,36 @@ export type Review = {
   score: number;
   tekst: string;
 };
+
+/**
+ * Een vast portret per naam. Zo houdt dezelfde persoon overal hetzelfde
+ * gezicht, ook als hij op meerdere dienstpagina's terugkomt, en hoeft de foto
+ * niet bij elke ervaring herhaald te worden. Namen die we niet kennen krijgen
+ * een portret op basis van hun letters — altijd hetzelfde, nooit leeg.
+ */
+const portretten = [
+  "/images/site/klant-1.webp",
+  "/images/site/klant-2.webp",
+  "/images/site/klant-3.webp",
+  "/images/site/klant-4.webp",
+  "/images/site/klant-5.webp",
+  "/images/site/klant-6.webp",
+];
+
+const vastePortretten: Record<string, string> = {
+  "Bas Terpstra": portretten[1]!,
+  "Sanne Bouma": portretten[0]!,
+  "Youssef el Amrani": portretten[5]!,
+  "Lianne Hoekstra": portretten[2]!,
+};
+
+export function portretVoor(naam: string): string {
+  const vast = vastePortretten[naam];
+  if (vast) return vast;
+
+  const som = [...naam].reduce((totaal, teken) => totaal + teken.charCodeAt(0), 0);
+  return portretten[som % portretten.length]!;
+}
 
 /** Ervaringen die over Werkoo zelf gaan en dus bij elke dienst kloppen. */
 const algemeneReviews: Review[] = [

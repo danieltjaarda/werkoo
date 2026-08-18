@@ -22,7 +22,7 @@ import {
 } from "@/components/icons";
 import { Rating } from "@/components/rating";
 import { UitgelichtLabel } from "@/components/uitgelicht-label";
-import { reviewsVoorDienst, stappen, voordelen } from "@/lib/content";
+import { portretVoor, reviewsVoorDienst, stappen, voordelen } from "@/lib/content";
 import {
   categorieen,
   deelLidwoord,
@@ -97,7 +97,15 @@ export function HoeHetWerkt() {
               <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-brand-deep font-display text-h5 text-white ring-8 ring-brand-soft">
                 {index + 1}
               </span>
-              <h3 className="mt-5 font-display text-h4 text-ink">{stap.titel}</h3>
+              <Image
+                src={stap.afbeelding}
+                alt=""
+                width={700}
+                height={700}
+                sizes="(min-width: 768px) 320px, 220px"
+                className="mt-6 h-[190px] w-auto object-contain object-left"
+              />
+              <h3 className="mt-4 font-display text-h4 text-ink">{stap.titel}</h3>
               <p className="mt-2.5 text-basis text-ink-soft">{stap.tekst}</p>
             </li>
           ))}
@@ -362,11 +370,19 @@ export function Beoordelingen({ dienstSlug }: { dienstSlug?: string }) {
             <li key={review.naam} className="kaart p-7">
               <QuoteIcon className="h-7 w-7 text-brand/50" />
               <p className="mt-4 text-basis text-ink">{review.tekst}</p>
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-lijn pt-4">
-                <p className="min-w-0 text-klein font-semibold text-ink">
-                  {review.naam}
-                  <span className="ml-1.5 font-normal text-ink-soft">{review.plaats}</span>
-                </p>
+              <div className="mt-6 flex items-center gap-3 border-t border-lijn pt-4">
+                <Image
+                  src={portretVoor(review.naam)}
+                  alt=""
+                  width={200}
+                  height={200}
+                  sizes="44px"
+                  className="h-11 w-11 shrink-0 rounded-full bg-brand-soft object-cover object-top"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-klein font-semibold text-ink">{review.naam}</p>
+                  <p className="truncate text-mini text-ink-soft">{review.plaats}</p>
+                </div>
                 <Rating score={review.score} className="shrink-0" />
               </div>
             </li>
@@ -457,16 +473,25 @@ export function CategorieRaster({ toonAlles = false }: { toonAlles?: boolean }) 
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {categorieen.map((categorie) => {
         const lijst = dienstenVanCategorie(categorie.id);
-        const Icoon = categorieIconen[categorie.id];
         const zichtbaar = toonAlles ? lijst : lijst.slice(0, 5);
 
         return (
-          <li key={categorie.id} className="kaart relative flex flex-col p-6 transition hover:shadow-kaart-op">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand/12 text-brand-deep">
-              <Icoon className="h-5 w-5" />
-            </span>
+          <li key={categorie.id} className="kaart relative flex flex-col overflow-hidden transition hover:shadow-kaart-op">
+            {/* De illustratie hoort bij de categorie; het icoon blijft als klein
+                herkenningspunt staan, ook voor wie de afbeelding niet laadt. */}
+            <div className="flex h-[150px] items-center justify-center bg-brand-soft/70">
+              <Image
+                src={`/images/site/categorie-${categorie.id}.webp`}
+                alt=""
+                width={700}
+                height={560}
+                sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+                className="h-full w-auto object-contain"
+              />
+            </div>
 
-            <h3 className="mt-5 font-display text-h4 text-ink">
+            <div className="flex flex-1 flex-col p-6">
+            <h3 className="font-display text-h4 text-ink">
               <Link href={`/diensten/${categorie.slug}`} className="kaart-link underline-offset-4 hover:underline">
                 {categorie.titel}
               </Link>
@@ -485,6 +510,7 @@ export function CategorieRaster({ toonAlles = false }: { toonAlles?: boolean }) 
               Alle {lijst.length} diensten
               <ArrowRightIcon className="h-4 w-4" />
             </p>
+            </div>
           </li>
         );
       })}
