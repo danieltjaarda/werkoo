@@ -6,6 +6,7 @@ import { PaginaOvergang } from "@/components/pagina-overgang";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { huidigeGebruiker } from "@/lib/auth";
+import { beeld } from "@/lib/site-beelden";
 
 export const metadata: Metadata = {
   title: "Inloggen",
@@ -33,6 +34,16 @@ export default async function InloggenPagina({ searchParams }: PageProps<"/inlog
             <div className="flex justify-center">
               <Image src="/logo-werkoo.svg" alt="Werkoo" width={160} height={32} className="h-8 w-auto" />
             </div>
+            {beeld("welkom") ? (
+              <Image
+                src={beeld("welkom")!}
+                alt=""
+                width={700}
+                height={700}
+                sizes="180px"
+                className="mx-auto mt-6 h-[170px] w-auto object-contain"
+              />
+            ) : null}
             <InlogKaart
               verder={eerste(params.verder)}
               beginModus={eerste(params.modus) === "registreren" ? "registreren" : "inloggen"}

@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useActionState } from "react";
 import { WachtwoordVeld } from "@/components/wachtwoord-sterkte";
+import { beeld } from "@/lib/site-beelden";
 import { wachtwoordHerstellen, wachtwoordVergeten, type Uitkomst } from "@/lib/auth-acties";
 
 const leeg: Uitkomst = {};
@@ -12,6 +14,22 @@ const veldklassen =
 
 const knopklassen =
   "flex h-12 w-full items-center justify-center rounded-2xl bg-ink font-display text-basis font-medium text-white transition hover:bg-brand-deep";
+
+/** Illustratie boven de kaart; verdwijnt vanzelf zolang het bestand er niet is. */
+function Beeld({ naam }: { naam: string }) {
+  const pad = beeld(naam);
+  if (!pad) return null;
+  return (
+    <Image
+      src={pad}
+      alt=""
+      width={700}
+      height={700}
+      sizes="150px"
+      className="mx-auto mb-4 h-[140px] w-auto object-contain"
+    />
+  );
+}
 
 function Melding({ staat }: { staat: Uitkomst }) {
   if (staat.fout)
@@ -35,6 +53,7 @@ export function WachtwoordVergetenKaart() {
 
   return (
     <div className="kaart mt-8 p-6 sm:p-8">
+      <Beeld naam="wachtwoord" />
       <h1 className="text-center font-display text-h4 text-ink">Wachtwoord vergeten</h1>
       <p className="mt-2 text-center text-basis text-ink-soft">
         Vul je e-mailadres in en we sturen je een link om een nieuw wachtwoord te kiezen.
@@ -68,6 +87,7 @@ export function WachtwoordHerstellenKaart({ token }: { token: string }) {
 
   return (
     <div className="kaart mt-8 p-6 sm:p-8">
+      <Beeld naam="wachtwoord" />
       <h1 className="text-center font-display text-h4 text-ink">Nieuw wachtwoord</h1>
       <p className="mt-2 text-center text-basis text-ink-soft">Kies een nieuw wachtwoord van minstens 8 tekens.</p>
 

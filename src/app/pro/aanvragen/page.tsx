@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { DashboardKop } from "@/components/dashboard-kop";
 import { ArrowRightIcon } from "@/components/icons";
@@ -6,6 +7,7 @@ import { aanvragenVanBedrijf, statusLabels, type Status } from "@/lib/aanvragen"
 import { vereisBedrijf } from "@/lib/auth";
 import { getDienst } from "@/lib/diensten";
 import { PRO_LINKS } from "@/lib/pro-links";
+import { beeld } from "@/lib/site-beelden";
 
 export const metadata: Metadata = {
   title: "Aanvragen",
@@ -72,11 +74,23 @@ export default async function ProAanvragen({ searchParams }: PageProps<"/pro/aan
           </div>
 
           {lijst.length === 0 ? (
-            <p className="kaart mt-8 p-6 text-basis text-ink-soft">
-              {alles.length === 0
-                ? "Er zijn nog geen aanvragen binnengekomen. Controleer of je profiel zichtbaar staat en of je de juiste diensten hebt gekozen."
-                : "Geen aanvragen met deze status."}
-            </p>
+            <div className="kaart mt-8 flex flex-col items-start gap-5 p-6 sm:flex-row sm:items-center">
+              {alles.length === 0 && beeld("geen-werk") ? (
+                <Image
+                  src={beeld("geen-werk")!}
+                  alt=""
+                  width={700}
+                  height={700}
+                  sizes="160px"
+                  className="h-[150px] w-auto shrink-0 object-contain"
+                />
+              ) : null}
+              <p className="text-basis text-ink-soft">
+                {alles.length === 0
+                  ? "Er zijn nog geen aanvragen binnengekomen. Controleer of je profiel zichtbaar staat en of je de juiste diensten hebt gekozen."
+                  : "Geen aanvragen met deze status."}
+              </p>
+            </div>
           ) : (
             <ul className="kaart mt-8 divide-y divide-lijn">
               {lijst.map((aanvraag) => (

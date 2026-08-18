@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { ArrowRightIcon, ChatIcon, CloseIcon } from "@/components/icons";
+import { beeld } from "@/lib/site-beelden";
 
 /**
  * De chatassistent rechtsonder op elke pagina. Praat via /api/chat met een
@@ -190,9 +192,19 @@ export function ChatWidget({ dienst, plaats }: { dienst?: string; plaats?: strin
           className="kaart flex h-[min(600px,calc(100dvh-7.5rem))] w-[min(380px,calc(100vw-2.5rem))] flex-col overflow-hidden shadow-paneel"
         >
           <header className="flex items-center gap-3 border-b border-lijn bg-brand-soft px-4 py-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-deep font-display text-basis font-bold text-white">
-              W
-            </span>
+            {beeld("wout") ? (
+              <Image
+                src={beeld("wout")!}
+                alt=""
+                width={200}
+                height={200}
+                className="h-10 w-10 shrink-0 rounded-full bg-white object-cover object-top"
+              />
+            ) : (
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-deep font-display text-basis font-bold text-white">
+                W
+              </span>
+            )}
             <div className="min-w-0 flex-1">
               <p className="font-display text-basis font-semibold text-ink">{NAAM} van Werkoo</p>
               <p className="flex items-center gap-1.5 text-mini text-ink-soft">
