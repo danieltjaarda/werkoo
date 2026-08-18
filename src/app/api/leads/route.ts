@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { bewaarAanvraag } from "@/lib/aanvragen";
+import { meldNieuweAanvraag } from "@/lib/meldingen";
 import { huidigeGebruiker } from "@/lib/auth";
 import { getDienst } from "@/lib/diensten";
 import { normaliseerPlaats } from "@/lib/plaatsen";
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
   const gebruiker = await huidigeGebruiker();
 
   try {
-    const { referentie, ontvangers } = await bewaarAanvraag({
+    const { id, referentie, ontvangers } = await bewaarAanvraag({
       dienst: dienst.slug,
       type: body.type!,
       plaats,
@@ -114,6 +115,8 @@ export async function POST(request: Request) {
       bedrijfSlugs: body.vakmensen.filter((slug): slug is string => typeof slug === "string"),
       gebruikerId: gebruiker?.id ?? null,
     });
+
+    meldNieuweAanvraag(id);
 
     return NextResponse.json({ referentie, ontvangers }, { status: 201 });
   } catch (fout) {

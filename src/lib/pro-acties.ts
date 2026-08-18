@@ -5,6 +5,7 @@ import { bewaarReactie, isUuid, zetStatus, type Status } from "@/lib/aanvragen";
 import { vereisBedrijf } from "@/lib/auth";
 import { vraag, vraagEen } from "@/lib/db";
 import { getDienst } from "@/lib/diensten";
+import { meldNieuweReactie } from "@/lib/meldingen";
 import { bekendePlaats } from "@/lib/plaatsen";
 
 export type Uitkomst = { fout?: string; gelukt?: string };
@@ -45,6 +46,7 @@ export async function reageren(_vorige: Uitkomst, data: FormData): Promise<Uitko
   if (!hoortErbij) return { fout: "Deze aanvraag staat niet bij jouw bedrijf." };
 
   await bewaarReactie(aanvraagId, bedrijf.id, bericht, prijs);
+  meldNieuweReactie(aanvraagId, bedrijf.id);
   revalidatePath(`/pro/aanvragen/${aanvraagId}`);
   revalidatePath("/pro/aanvragen");
   revalidatePath("/pro");

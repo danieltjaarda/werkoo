@@ -168,5 +168,24 @@ await leg("7-klant-reactie");
 const tekst = await page.locator("main").innerText();
 console.log("  bedrijf in beeld:", tekst.includes(vakman.bedrijf) ? "ja" : "NEE");
 
+await logUit();
+
+// --- 5. Wachtwoord vergeten --------------------------------------------------
+stap("Wachtwoord vergeten");
+await page.goto(`${basis}/inloggen`, { waitUntil: "networkidle" });
+await page.getByRole("link", { name: "Wachtwoord vergeten?" }).click();
+await page.waitForURL(/\/wachtwoord-vergeten/, { timeout: 15000 });
+await page.getByLabel("E-mailadres").fill(klant.email);
+await page.getByRole("button", { name: "Stuur me een link" }).click();
+await page.getByText(/staat er binnen een paar minuten een mail/).waitFor({ timeout: 15000 });
+console.log("  herstellink aangevraagd (zelfde melding voor bekend en onbekend adres)");
+
+await page.goto(`${basis}/wachtwoord-herstellen?token=onzin`, { waitUntil: "networkidle" });
+await page.getByLabel("Nieuw wachtwoord").fill("nogeenlangwachtwoord");
+await page.getByRole("button", { name: "Wachtwoord opslaan" }).click();
+await page.getByText(/verlopen of al gebruikt/).waitFor({ timeout: 15000 });
+console.log("  onzinnig token wordt geweigerd");
+await leg("8-wachtwoord");
+
 console.log("\nde hele keten werkt");
 await browser.close();

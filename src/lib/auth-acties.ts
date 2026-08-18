@@ -1,6 +1,6 @@
 "use server";
 
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { redirect } from "next/navigation";
 import {
   beeindigSessie,
@@ -10,9 +10,11 @@ import {
   type Gebruiker,
 } from "@/lib/auth";
 import { metTransactie, vraag, vraagEen } from "@/lib/db";
+import { verstuurMail } from "@/lib/mail";
 import { slugVanPlaatsnaam } from "@/lib/plaatsen";
+import { absoluut } from "@/lib/site";
 
-export type Uitkomst = { fout?: string };
+export type Uitkomst = { fout?: string; gelukt?: string };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -203,4 +205,86 @@ export async function inloggen(_vorige: Uitkomst, data: FormData): Promise<Uitko
 export async function uitloggen(): Promise<void> {
   await beeindigSessie();
   redirect("/");
+}
+
+/* ---------- Wachtwoord vergeten ---------- */
+
+const HERSTEL_MINUTEN = 60;
+
+function tokenHash(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+/**
+ * Stuurt een herstellink. De melding is altijd dezelfde, of het adres nu
+ * bestaat of niet — anders is dit formulier een manier om uit te vragen wie er
+ * een account heeft.
+ */
+export async function wachtwoordVergeten(_vorige: Uitkomst, data: FormData): Promise<Uitkomst> {
+  const email = tekst(data, "email").toLowerCase();
+  if (!EMAIL.test(email)) return { fout: "Vul een geldig e-mailadres in." };
+
+  const gebruiker = await vraagEen<{ id: string; naam: string }>(
+    "select id, naam from gebruikers where email = $1",
+    [email],
+  );
+
+  if (gebruiker) {
+    const token = randomBytes(32).toString("base64url");
+    await vraag(
+      `insert into wachtwoord_herstel (token_hash, gebruiker_id, verloopt_op)
+       values ($1, $2, now() + ($3 || ' minutes')::interval)`,
+      [tokenHash(token), gebruiker.id, HERSTEL_MINUTEN],
+    );
+
+    const link = absoluut(`/wachtwoord-herstellen?token=${token}`);
+    try {
+      await verstuurMail({
+        aan: email,
+        onderwerp: "Nieuw wachtwoord voor Werkoo",
+        tekst: `Hoi ${gebruiker.naam},
+
+Iemand — hopelijk jij — vroeg een nieuw wachtwoord aan voor je Werkoo-account. Kies via deze link een nieuw wachtwoord; hij is een uur geldig:
+
+${link}
+
+Was jij dit niet? Dan kun je deze mail negeren; je wachtwoord blijft zoals het was.`,
+      });
+    } catch (fout) {
+      console.error("Herstelmail mislukt:", fout);
+      return { fout: "De mail kon niet worden verstuurd. Probeer het zo nog eens." };
+    }
+  }
+
+  return { gelukt: "Als dit adres bij ons bekend is, staat er binnen een paar minuten een mail in je inbox." };
+}
+
+/** Zet met een geldig token een nieuw wachtwoord en logt meteen in. */
+export async function wachtwoordHerstellen(_vorige: Uitkomst, data: FormData): Promise<Uitkomst> {
+  const token = tekst(data, "token");
+  const wachtwoord = tekst(data, "wachtwoord");
+
+  if (wachtwoord.length < MIN_LENGTE) return { fout: `Kies een wachtwoord van minstens ${MIN_LENGTE} tekens.` };
+  if (!token) return { fout: "Deze link is niet compleet. Vraag een nieuwe aan." };
+
+  const rij = await vraagEen<{ gebruiker_id: string; soort: string }>(
+    `select h.gebruiker_id, g.soort
+       from wachtwoord_herstel h
+       join gebruikers g on g.id = h.gebruiker_id
+      where h.token_hash = $1 and h.gebruikt_op is null and h.verloopt_op > now()`,
+    [tokenHash(token)],
+  );
+  if (!rij) return { fout: "Deze link is verlopen of al gebruikt. Vraag een nieuwe aan." };
+
+  const hash = await hashWachtwoord(wachtwoord);
+  await metTransactie(async (client) => {
+    await client.query("update gebruikers set wachtwoord_hash = $1 where id = $2", [hash, rij.gebruiker_id]);
+    await client.query("update wachtwoord_herstel set gebruikt_op = now() where token_hash = $1", [tokenHash(token)]);
+    // Oude sessies zijn na een reset niet meer te vertrouwen.
+    await client.query("delete from sessies where gebruiker_id = $1", [rij.gebruiker_id]);
+    await client.query("delete from inlogpogingen where email = (select email from gebruikers where id = $1)", [rij.gebruiker_id]);
+  });
+
+  await maakSessie(rij.gebruiker_id);
+  redirect(rij.soort === "bedrijf" ? "/pro" : "/account");
 }

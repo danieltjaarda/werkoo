@@ -180,7 +180,9 @@ export type NieuweAanvraag = {
 /** Zoveel bedrijven krijgen een aanvraag als de bezoeker niet zelf koos. */
 const MAX_ONTVANGERS = 4;
 
-export async function bewaarAanvraag(invoer: NieuweAanvraag): Promise<{ referentie: string; ontvangers: number }> {
+export async function bewaarAanvraag(
+  invoer: NieuweAanvraag,
+): Promise<{ id: string; referentie: string; ontvangers: number }> {
   const referentie = `WK-${randomBytes(6).toString("hex").toUpperCase()}`;
 
   /**
@@ -242,7 +244,7 @@ export async function bewaarAanvraag(invoer: NieuweAanvraag): Promise<{ referent
     );
   }
 
-  return { referentie, ontvangers: gekozen.length };
+  return { id: aanvraag.id, referentie, ontvangers: gekozen.length };
 }
 
 export type AanvraagRij = {

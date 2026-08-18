@@ -174,6 +174,11 @@ export function InlogKaart({ verder = "", beginModus = "inloggen" }: { verder?: 
               <input type="hidden" name="verder" value={verder} />
               <Veld id="email" label="E-mailadres" type="email" autoComplete="email" />
               <Veld id="wachtwoord" label="Wachtwoord" type="password" autoComplete="current-password" />
+              <p className="-mt-2 text-right text-klein">
+                <Link href="/wachtwoord-vergeten" className="font-semibold text-brand-deep underline underline-offset-4">
+                  Wachtwoord vergeten?
+                </Link>
+              </p>
 
               {staat.fout ? (
                 <p role="alert" className="rounded-2xl bg-red-50 px-4 py-3 text-basis font-medium text-red-700">
