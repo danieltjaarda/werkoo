@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ChatWidget } from "@/components/chat-widget";
 import { CijferBalk } from "@/components/cijfer-balk";
@@ -91,6 +92,24 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                 <CheckIcon className="h-4 w-4 text-brand" />
                 Meestal 3 reacties binnen een dag
               </span>
+            </div>
+
+            {/*
+              De vakmensen zelf, groot en meteen zichtbaar: de foto staat onder
+              het zoekvlak zodat hij de aandacht niet van de invoer wegtrekt,
+              maar wel boven de vouw meekomt. Op mobiel schaalt hij mee en
+              schuift hij iets buiten de marge, zodat de gezichten groot blijven.
+            */}
+            <div className="-mx-4 mt-2 w-[calc(100%+2rem)] sm:mx-0 sm:mt-4 sm:w-full">
+              <Image
+                src="/images/beroepen-groep.webp"
+                alt="Een timmerman, schilder, zonnepaneelmonteur, loodgieter, makelaar, schoonmaker en fotograaf die via Werkoo werk aannemen"
+                width={2000}
+                height={942}
+                sizes="(min-width: 1280px) 1120px, 100vw"
+                className="h-auto w-full"
+                preload
+              />
             </div>
           </div>
         </section>
