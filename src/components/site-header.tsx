@@ -3,6 +3,7 @@ import Link from "next/link";
 import { DienstenMenu } from "@/components/diensten-menu";
 import { ChevronDownIcon } from "@/components/icons";
 import { MobileMenu } from "@/components/mobile-menu";
+import { StiftRing } from "@/components/stift-ring";
 
 export const overLinks = [
   { label: "Over Werkoo", href: "/over-ons" },
@@ -74,11 +75,13 @@ export function SiteHeader() {
           >
             Inloggen
           </Link>
+          {/* De omcirkeling is met de hand getrokken, net als de lijn om de foto's. */}
           <Link
             href="/aanmelden"
-            className="ml-2 rounded-full border-2 border-ink px-5 py-2 font-display text-basis font-medium text-ink transition hover:bg-ink hover:text-white"
+            className="group relative ml-3 px-5 py-2 font-display text-basis font-medium text-ink transition hover:text-brand-deep"
           >
-            Werk ontvangen
+            <StiftRing className="scale-[1.06] text-turquoise transition-colors duration-200 group-hover:text-brand-deep" />
+            <span className="relative">Werk ontvangen</span>
           </Link>
         </nav>
 
