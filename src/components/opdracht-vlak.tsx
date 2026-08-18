@@ -155,11 +155,11 @@ export function OpdrachtVlak({ beginPlaats = "" }: { beginPlaats?: string }) {
                     }
                   }}
                   rows={3}
-                  className="w-full resize-none rounded-2xl border border-transparent bg-transparent p-2 text-lead text-ink outline-none transition focus:border-lijn"
+                  className="w-full resize-none rounded-2xl border border-lijn bg-white p-3.5 text-lead text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15"
                 />
                 {/* De typende voorbeeldzin ligt achter het lege veld; hij is decoratie, geen echte placeholder. */}
                 {tekst === "" ? (
-                  <p aria-hidden className="pointer-events-none absolute inset-0 p-2 text-lead text-ink-soft">
+                  <p aria-hidden className="pointer-events-none absolute inset-0 p-3.5 text-lead text-ink-soft">
                     {voorbeeld}
                     <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[0.15em] animate-pulse bg-ink-soft align-middle" />
                   </p>
