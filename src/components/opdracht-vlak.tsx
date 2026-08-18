@@ -69,6 +69,16 @@ function useTypendeTekst(actief: boolean): string {
   return tekst;
 }
 
+/** Draaiend rondje dat aangeeft dat we bezig zijn. */
+function Draaier({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={`animate-spin ${className}`}>
+      <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="2.5" className="opacity-25" />
+      <path d="M17.5 10A7.5 7.5 0 0 0 10 2.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function OpdrachtVlak({ beginPlaats = "" }: { beginPlaats?: string }) {
   const router = useRouter();
   const [tab, setTab] = useState<"beschrijven" | "dienst">("beschrijven");
@@ -178,7 +188,8 @@ export function OpdrachtVlak({ beginPlaats = "" }: { beginPlaats?: string }) {
                   className="flex h-veld items-center justify-center gap-2 rounded-2xl bg-zon px-6 font-display text-basis font-semibold text-ink transition hover:bg-zon-dark aria-disabled:opacity-70"
                 >
                   {bezig ? "Even zoeken…" : "Help mij zoeken"}
-                  <ArrowRightIcon className="h-[18px] w-[18px]" />
+                  {/* Zoeken duurt een seconde of twee; zonder teken lijkt de knop te hangen. */}
+                  {bezig ? <Draaier className="h-[18px] w-[18px]" /> : <ArrowRightIcon className="h-[18px] w-[18px]" />}
                 </button>
               </div>
             </form>

@@ -45,5 +45,32 @@ for (const geval of gevallen) {
   console.log(`${goed ? "ok  " : "FOUT"} ${geval.pad} (${geval.status})${uitleg}`);
 }
 
-console.log(mislukt === 0 ? "\nalles goed" : `\n${mislukt} van de ${gevallen.length} mislukt`);
+/**
+ * Elke url in de sitemap moet ook echt gecrawld mogen worden. Deze controle
+ * bestaat omdat "Disallow: /account" ooit stilletjes ook /accountant blokkeerde:
+ * de dienstpagina stond netjes in de sitemap en was tegelijk verboden terrein.
+ */
+{
+  const sitemap = await (await fetch(`${basis}/sitemap.xml`)).text();
+  const paden = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((t) => new URL(t[1]).pathname);
+  const robots = await (await fetch(`${basis}/robots.txt`)).text();
+  const regels = [...robots.matchAll(/^Disallow:\s*(\S+)$/gm)].map((t) => t[1]);
+
+  const geblokkeerd = paden.filter((pad) =>
+    regels.some((regel) => {
+      if (regel.endsWith("$")) return pad === regel.slice(0, -1);
+      if (regel.includes("?")) return false;
+      return pad.startsWith(regel);
+    }),
+  );
+
+  const goed = geblokkeerd.length === 0;
+  if (!goed) mislukt += 1;
+  console.log(
+    `${goed ? "ok  " : "FOUT"} elke url in de sitemap mag gecrawld worden${goed ? ` (${paden.length} urls)` : `: ${geblokkeerd.slice(0, 5).join(", ")}`}`,
+  );
+}
+
+console.log(mislukt === 0 ? "\nalles goed" : `\n${mislukt} mislukt`);
 process.exit(mislukt === 0 ? 0 : 1);
+
