@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { Kalender } from "@/components/kalender";
 import { ProvincieKaart } from "@/components/provincie-kaart";
-import { SearchIcon } from "@/components/icons";
+import { CloseIcon, SearchIcon } from "@/components/icons";
 import {
   beschikbaarheidOpslaan,
   dienstenOpslaan,
@@ -11,7 +11,7 @@ import {
   werkgebiedOpslaan,
   type Uitkomst,
 } from "@/lib/pro-acties";
-import { categorieen, dienstenVanCategorie, zoekDiensten, type Dienst } from "@/lib/diensten";
+import { categorieen, dienstenVanCategorie, getDienst, zoekDiensten, type Dienst } from "@/lib/diensten";
 
 const leeg: Uitkomst = {};
 
@@ -230,10 +230,11 @@ function DienstenFormulier({ gekozen }: { gekozen: string[] }) {
               <button
                 type="button"
                 onClick={() => wissel(slug)}
-                className="flex items-center gap-2 rounded-full bg-ink px-3.5 py-1.5 text-klein font-medium text-white transition hover:bg-brand-deep"
+                className="flex items-center gap-1.5 rounded-full bg-ink py-1.5 pl-3.5 pr-2.5 text-klein font-medium text-white transition hover:bg-brand-deep"
               >
-                {slug}
-                <span aria-hidden>×</span>
+                {/* De naam zoals in het menu; de slug is een adres, geen label. */}
+                {getDienst(slug)?.menuLabel ?? slug}
+                <CloseIcon className="h-3.5 w-3.5" />
                 <span className="sr-only">verwijderen</span>
               </button>
             </li>

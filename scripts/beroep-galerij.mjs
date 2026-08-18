@@ -8,6 +8,7 @@ import { spawn } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { copyFile, readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
+import { leesIconen } from "./iconen-export.mjs";
 
 const POORT = 4747;
 
@@ -16,6 +17,21 @@ const beroepen = [...bron.matchAll(/^\s+slug: "([^"]+)",\s*\n\s+naam: "([^"]+)",
   ([, slug, naam, categorie]) => ({ slug, naam, categorie }),
 );
 const catNamen = Object.fromEntries([...bron.matchAll(/^\s+id: "([^"]+)",\s*\n\s+titel: "([^"]+)"/gm)].map(([, id, titel]) => [id, titel]));
+
+/**
+ * De losse icoonbestanden bijwerken vlak voordat iemand ze downloadt, zodat een
+ * wijziging in icons-extra.tsx meteen meekomt.
+ */
+let iconenGeschreven = 0;
+async function schrijfIconen() {
+  const gewijzigd = (await stat("src/components/icons-extra.tsx")).mtimeMs;
+  if (iconenGeschreven === gewijzigd) return;
+  await new Promise((klaar) => {
+    const kind = spawn(process.execPath, ["scripts/iconen-export.mjs"], { stdio: "inherit" });
+    kind.on("exit", klaar);
+  });
+  iconenGeschreven = gewijzigd;
+}
 
 /** Slugs die op dit moment opnieuw worden gemaakt. */
 const bezig = new Set();
@@ -50,20 +66,9 @@ function groepVarianten() {
  */
 async function iconen() {
   if (!existsSync("src/components/icons-extra.tsx")) return [];
-  const bron = await readFile("src/components/icons-extra.tsx", "utf8");
-  const kringen = [...bron.matchAll(/"(M[^"]+)"/g)].map((m) => m[1]).slice(0, 3);
-  return [
-    ...bron.matchAll(
-      /export function (\w+)\(\{ className \}: IconProps\) \{\s*return \(\s*<Icoon className=\{className\} kring=\{(\d)\}>\s*([\s\S]*?)\s*<\/Icoon>/g,
-    ),
-  ].map(([, naam, kring, inner]) => ({
-    naam,
-    svg: `<svg viewBox="0 0 28 28" width="46" height="46" fill="none"><path d="${kringen[Number(kring)]}" stroke="#2ed4d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(4 4)">${inner
-      .replace(/strokeWidth/g, "stroke-width")
-      .replace(/strokeLinecap/g, "stroke-linecap")
-      .replace(/strokeLinejoin/g, "stroke-linejoin")
-      .replace(/\{[^}]*\}/g, "")}</g></svg>`,
-  }));
+  const lijst = await leesIconen();
+  // Voor het scherm iets groter tonen dan de 28 van de viewBox.
+  return lijst.map((i) => ({ ...i, svg: i.svg.replace('width="28" height="28"', 'width="46" height="46"') }));
 }
 
 /** De losse sitebeelden (categorieën, stappen, klanten, 404). */
@@ -128,9 +133,16 @@ async function pagina() {
 
   const iconLijst = await iconen();
   if (iconLijst.length) {
-    secties.push(`<section><h2>Iconen <small>(${iconLijst.length}, uit src/components/icons-extra.tsx)</small></h2>
+    secties.push(`<section><h2>Iconen <small>(${iconLijst.length}, uit src/components/icons-extra.tsx)</small>
+      <a class="kop-knop" href="/download/iconen.zip">Download deze set (zip)</a></h2>
       <div class="icoon-rooster">${iconLijst
-        .map((i) => `<figure class="icoon"><div>${i.svg}</div><figcaption>${i.naam.replace(/Icon$/, "")}</figcaption></figure>`)
+        .map(
+          (i) => `<figure class="icoon"><div>${i.svg}</div><figcaption>${i.naam.replace(/Icon$/, "")}</figcaption>
+            <div class="knoppen">
+              <a class="knopje" href="/icoon/${i.bestand}.svg" download="${i.bestand}.svg">svg</a>
+              <a class="knopje" href="/icoon/${i.bestand}.png" download="${i.bestand}.png">png</a>
+            </div></figure>`,
+        )
         .join("")}</div></section>`);
   }
 
@@ -188,6 +200,8 @@ async function pagina() {
   .icoon-rooster{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
   .icoon{margin:0;background:#fff;border:1px solid #e4e8ef;border-radius:12px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#12141a}
   .icoon figcaption{font-size:12px;color:#5a6478;text-align:center}
+  .icoon .knoppen{width:100%}
+  .icoon .knopje{padding:3px 0;font-size:12px}
   .rooster.breed{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
   .beeld.breed{aspect-ratio:16/9}
   .kaart.gekozen{outline:2px solid #1eb1df}
@@ -299,6 +313,30 @@ createServer(async (req, res) => {
       res.writeHead(404);
       return res.end();
     }
+  }
+  if (url.pathname.startsWith("/icoon/")) {
+    const naam = url.pathname.slice(7).replace(/[^a-z0-9.-]/g, "");
+    await schrijfIconen();
+    try {
+      const data = await readFile(`assets-src/iconen/${naam}`);
+      res.writeHead(200, {
+        "content-type": naam.endsWith(".svg") ? "image/svg+xml" : "image/png",
+        "content-disposition": `attachment; filename="${naam}"`,
+        "cache-control": "no-store",
+      });
+      return res.end(data);
+    } catch {
+      res.writeHead(404);
+      return res.end();
+    }
+  }
+  if (url.pathname === "/download/iconen.zip") {
+    await schrijfIconen();
+    res.writeHead(200, { "content-type": "application/zip", "content-disposition": 'attachment; filename="werkoo-iconen.zip"' });
+    const zip = spawn("zip", ["-r", "-q", "-", "iconen"], { cwd: "assets-src" });
+    zip.stdout.pipe(res);
+    zip.on("error", () => res.end());
+    return;
   }
   if (url.pathname.startsWith("/site/")) {
     const naam = url.pathname.slice(6).replace(/[^a-z0-9.-]/g, "");
