@@ -31,16 +31,41 @@ function stap(tekst) {
   console.log(`\n— ${tekst}`);
 }
 
-async function registreer({ naam, email, wachtwoord, bedrijf, telefoon }) {
+async function registreer({ naam, email, wachtwoord, telefoon }) {
   await page.goto(`${basis}/inloggen?modus=registreren`, { waitUntil: "networkidle" });
-  await page.locator(`input[name="soort"][value="${bedrijf ? "bedrijf" : "particulier"}"]`).click({ force: true });
+  await page.locator('input[name="soort"][value="particulier"]').click({ force: true });
   await page.getByLabel("Je naam").fill(naam);
-  if (bedrijf) await page.getByLabel("Naam van je bedrijf").fill(bedrijf);
   await page.getByLabel("E-mailadres").fill(email);
   if (telefoon) await page.getByLabel(/Telefoonnummer/).fill(telefoon);
   await page.getByLabel("Wachtwoord").fill(wachtwoord);
   await page.locator("#account-formulier").getByRole("button", { name: "Account maken" }).click();
-  await page.waitForURL(/\/(pro|account)/, { timeout: 15000 });
+  await page.waitForURL(/\/account/, { timeout: 15000 });
+}
+
+/**
+ * Een vakman meldt zich aan via de wizard; het korte formulier op /inloggen is
+ * alleen nog voor particulieren. De wizard zet meteen een dienst en een plaats,
+ * dus het profiel is bruikbaar zodra hij klaar is.
+ */
+async function registreerVakman({ naam, email, bedrijf, wachtwoord, dienst = "videograaf", plaats = "Zwolle" }) {
+  await page.goto(`${basis}/aanmelden/start`, { waitUntil: "networkidle" });
+  await page.getByLabel("Bedrijfsnaam").fill(bedrijf);
+  await page.getByRole("button", { name: "Verder" }).click();
+  await page.locator("#dienst-zoek").fill(dienst);
+  await page.locator("#dienst-zoek").press("ArrowDown");
+  await page.locator("#dienst-zoek").press("Enter");
+  await page.getByRole("list", { name: "Gekozen diensten" }).locator("li").first().waitFor({ timeout: 10000 });
+  await page.locator("#plaats").fill(plaats);
+  await page.getByRole("button", { name: "Verder" }).click();
+  const [voor, ...rest] = naam.split(" ");
+  await page.getByLabel("Voornaam").fill(voor);
+  await page.getByLabel("Achternaam").fill(rest.join(" ") || "Vakman");
+  await page.getByLabel("E-mailadres").fill(email);
+  await page.getByLabel("Telefoonnummer").fill("0612345678");
+  await page.getByLabel("Kies een wachtwoord").fill(wachtwoord);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Gratis aanmelden" }).click();
+  await page.waitForURL(/\/pro/, { timeout: 25000 });
 }
 
 async function logUit() {
@@ -58,7 +83,7 @@ async function logIn(email, wachtwoord) {
 
 // --- 1. Vakman meldt zich aan ------------------------------------------------
 stap("Vakman registreert");
-await registreer(vakman);
+await registreerVakman({ ...vakman, plaats: "Amsterdam" });
 console.log("  na registratie:", page.url());
 await leg("1-pro-leeg");
 
@@ -72,12 +97,14 @@ await page.locator('form:has(#naam) button[type=submit]').click();
 await page.getByText("Je profiel is opgeslagen").waitFor({ timeout: 10000 });
 console.log("  profiel opgeslagen");
 
+// De wizard zette videograaf al klaar; hier komt er een tweede dienst bij,
+// zodat we zien dat het kiezen in de instellingen ook echt werkt.
 const dienstBlok = page.locator("form").filter({ has: page.getByPlaceholder("Zoek een dienst") });
-await dienstBlok.getByPlaceholder("Zoek een dienst").fill("videograaf");
-await dienstBlok.getByText("Videografen", { exact: true }).click();
+await dienstBlok.getByPlaceholder("Zoek een dienst").fill("fotograaf");
+await dienstBlok.getByText("Fotografen", { exact: true }).click();
 await dienstBlok.getByRole("button", { name: /Opslaan/ }).click();
-await page.getByText(/1 dienst opgeslagen/).waitFor({ timeout: 10000 });
-console.log("  dienst gekoppeld");
+await page.getByText(/2 diensten opgeslagen/).waitFor({ timeout: 10000 });
+console.log("  tweede dienst gekoppeld");
 await leg("2-instellingen");
 
 await logUit();

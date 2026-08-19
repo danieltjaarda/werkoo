@@ -22,15 +22,40 @@ async function versePagina() {
   return context.newPage();
 }
 
-async function registreer(page, { naam, email, bedrijf }) {
+async function registreer(page, { naam, email }) {
   await page.goto(`${basis}/inloggen?modus=registreren`, { waitUntil: "networkidle" });
-  await page.locator(`input[name="soort"][value="${bedrijf ? "bedrijf" : "particulier"}"]`).click({ force: true });
+  await page.locator('input[name="soort"][value="particulier"]').click({ force: true });
   await page.getByLabel("Je naam").fill(naam);
-  if (bedrijf) await page.getByLabel("Naam van je bedrijf").fill(bedrijf);
   await page.getByLabel("E-mailadres").fill(email);
   await page.getByLabel("Wachtwoord").fill(WW);
   await page.locator("#account-formulier").getByRole("button", { name: "Account maken" }).click();
-  await page.waitForURL(/\/(pro|account)/, { timeout: 20000 });
+  await page.waitForURL(/\/account/, { timeout: 20000 });
+}
+
+/**
+ * Een vakman meldt zich aan via de wizard; het korte formulier op /inloggen is
+ * alleen nog voor particulieren. De wizard zet meteen een dienst en een plaats,
+ * dus het profiel is bruikbaar zodra hij klaar is.
+ */
+async function registreerVakman(page, { naam, email, bedrijf, wachtwoord = WW, dienst = "videograaf", plaats = "Zwolle" }) {
+  await page.goto(`${basis}/aanmelden/start`, { waitUntil: "networkidle" });
+  await page.getByLabel("Bedrijfsnaam").fill(bedrijf);
+  await page.getByRole("button", { name: "Verder" }).click();
+  await page.locator("#dienst-zoek").fill(dienst);
+  await page.locator("#dienst-zoek").press("ArrowDown");
+  await page.locator("#dienst-zoek").press("Enter");
+  await page.getByRole("list", { name: "Gekozen diensten" }).locator("li").first().waitFor({ timeout: 10000 });
+  await page.locator("#plaats").fill(plaats);
+  await page.getByRole("button", { name: "Verder" }).click();
+  const [voor, ...rest] = naam.split(" ");
+  await page.getByLabel("Voornaam").fill(voor);
+  await page.getByLabel("Achternaam").fill(rest.join(" ") || "Vakman");
+  await page.getByLabel("E-mailadres").fill(email);
+  await page.getByLabel("Telefoonnummer").fill("0612345678");
+  await page.getByLabel("Kies een wachtwoord").fill(wachtwoord);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Gratis aanmelden" }).click();
+  await page.waitForURL(/\/pro/, { timeout: 25000 });
 }
 
 async function aanvraag(velden) {
@@ -141,7 +166,7 @@ async function aanvraag(velden) {
 {
   const email = `sec-${stempel}-uuid@test.nl`;
   const page = await versePagina();
-  await registreer(page, { naam: "Uuid Test", email, bedrijf: `Sec Uuid ${stempel}` });
+  await registreerVakman(page, { naam: "Uuid Test", email, bedrijf: `Sec Uuid ${stempel}` });
   const antwoord = await page.request.get(`${basis}/pro/aanvragen/geen-uuid`);
   meld(antwoord.status() === 404, "een onzinnig aanvraag-id geeft 404", `kreeg ${antwoord.status()}`);
   await page.context().close();
@@ -152,25 +177,27 @@ async function aanvraag(velden) {
   const email = `sec-${stempel}-gebied@test.nl`;
   const bedrijfsnaam = `Sec Gebied ${stempel}`;
   const page = await versePagina();
-  await registreer(page, { naam: "Gebied Test", email, bedrijf: bedrijfsnaam });
+  await registreerVakman(page, { naam: "Gebied Test", email, bedrijf: bedrijfsnaam });
 
   await page.goto(`${basis}/pro/instellingen`, { waitUntil: "networkidle" });
   await page.getByLabel("Mijn profiel is zichtbaar").check();
   await page.locator("form:has(#naam) button[type=submit]").click();
   await page.getByText("Je profiel is opgeslagen").waitFor({ timeout: 15000 });
 
-  const dienstBlok = page.locator("form").filter({ has: page.getByPlaceholder("Zoek een dienst") });
-  await dienstBlok.getByPlaceholder("Zoek een dienst").fill("videograaf");
-  await dienstBlok.getByText("Videografen", { exact: true }).click();
-  await dienstBlok.getByRole("button", { name: /Opslaan/ }).click();
-  await page.getByText(/1 dienst opgeslagen/).waitFor({ timeout: 15000 });
+  // De dienst videograaf zette de wizard al; hier gaat het alleen om het werkgebied.
 
   // Werkgebied: alleen Zwolle.
   const gebiedBlok = page.locator("section").filter({ hasText: "Je werkgebied" }).locator("form");
-  await gebiedBlok.getByRole("button", { name: /losse plaatsen/i }).click();
-  await gebiedBlok.locator("label").filter({ hasText: /^Zwolle$/ }).click();
+  // De lijst met losse plaatsen staat open zodra er al een plaats gekozen is;
+  // alleen als hij dicht is klappen we hem zelf uit.
+  const zwolle = gebiedBlok.locator("label").filter({ hasText: /^Zwolle$/ });
+  if ((await zwolle.count()) === 0) {
+    await gebiedBlok.getByRole("button", { name: /losse plaatsen/i }).click();
+  }
+  await zwolle.waitFor({ timeout: 10000 });
+  if (!(await zwolle.locator("input").isChecked())) await zwolle.click();
   await gebiedBlok.getByRole("button", { name: /Opslaan/ }).click();
-  await gebiedBlok.getByText(/1 plaats opgeslagen/).waitFor({ timeout: 15000 });
+  await gebiedBlok.getByText(/opgeslagen/).waitFor({ timeout: 15000 });
 
   const inZwolle = (await (await fetch(`${basis}/videograaf/zwolle`)).text()).includes(bedrijfsnaam);
   meld(inZwolle, "een bedrijf met werkgebied Zwolle staat op de Zwolse pagina");

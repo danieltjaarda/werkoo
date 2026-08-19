@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CheckIcon } from "@/components/icons";
 import { useActionState, useState } from "react";
 import { WachtwoordVeld } from "@/components/wachtwoord-sterkte";
 import { inloggen, registreren, type Uitkomst } from "@/lib/auth-acties";
@@ -89,7 +90,9 @@ export function InlogKaart({ verder = "", beginModus = "inloggen" }: { verder?: 
           <>
             <h1 className="text-center font-display text-h4 text-ink">Maak een account</h1>
             <p className="mt-2 text-center text-basis text-ink-soft">
-              Zo zie je al je aanvragen en de reacties daarop bij elkaar.
+              {soort === "bedrijf"
+                ? "Als vakman ontvang je aanvragen uit de diensten en de regio die je zelf instelt."
+                : "Zo zie je al je aanvragen en de reacties daarop bij elkaar."}
             </p>
 
             <fieldset className="mt-6">
@@ -122,21 +125,43 @@ export function InlogKaart({ verder = "", beginModus = "inloggen" }: { verder?: 
             </fieldset>
 
             {soort === "bedrijf" ? (
-              <p className="mt-5 rounded-2xl bg-brand-soft px-4 py-3 text-basis text-ink-soft">
-                Bedrijf aanmelden gaat het makkelijkst via{" "}
-                <Link href="/aanmelden/start" className="font-semibold text-brand-deep underline underline-offset-4">
-                  de aanmelding in drie stappen
-                </Link>
-                : je kiest meteen je diensten en je plaats.
-              </p>
-            ) : null}
+              /**
+               * Vakmensen sturen we naar de aanmelding in drie stappen. Daar
+               * kiezen ze meteen hun diensten, plaats en werkgebied; dit korte
+               * formulier zou een leeg profiel achterlaten dat daarna alsnog
+               * ingevuld moet worden. Twee wegen naar hetzelfde doel op één
+               * scherm is bovendien alleen maar verwarrend.
+               */
+              <div className="mt-6">
+                <ul className="space-y-2.5">
+                  {[
+                    "Je kiest je diensten en je werkgebied",
+                    "Gratis, geen abonnement",
+                    "Je betaalt pas als je een opdracht binnenhaalt",
+                  ].map((punt) => (
+                    <li key={punt} className="flex items-start gap-2.5 text-basis text-ink-soft">
+                      <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-emerald-600" />
+                      {punt}
+                    </li>
+                  ))}
+                </ul>
 
+                <Link
+                  href="/aanmelden/start"
+                  className="mt-6 flex h-12 w-full items-center justify-center rounded-2xl bg-zon font-display text-basis font-semibold text-ink transition hover:bg-zon-dark"
+                >
+                  Meld je bedrijf aan
+                </Link>
+
+                <p className="mt-3 text-center text-klein text-ink-soft">
+                  Duurt een paar minuten en verplicht je tot niets.
+                </p>
+              </div>
+            ) : (
+              <>
             <form id="account-formulier" action={regActie} className="mt-5 space-y-4">
               <input type="hidden" name="verder" value={verder} />
               <Veld id="naam" label="Je naam" autoComplete="name" />
-              {soort === "bedrijf" ? (
-                <Veld id="bedrijfsnaam" label="Naam van je bedrijf" autoComplete="organization" />
-              ) : null}
               <Veld id="email" label="E-mailadres" type="email" autoComplete="email" />
               <Veld id="telefoon" label="Telefoonnummer" type="tel" autoComplete="tel" verplicht={false} />
               <WachtwoordVeld id="wachtwoord" label="Wachtwoord" klassen={veldklassen} />
@@ -155,6 +180,8 @@ export function InlogKaart({ verder = "", beginModus = "inloggen" }: { verder?: 
                 {bezig ? "Bezig…" : "Account maken"}
               </button>
             </form>
+              </>
+            )}
 
             <p className="mt-5 text-center text-klein text-ink-soft">
               Door een account te maken ga je akkoord met onze{" "}
