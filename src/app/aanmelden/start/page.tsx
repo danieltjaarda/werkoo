@@ -38,7 +38,7 @@ export default async function AanmeldStartPagina({ searchParams }: PageProps<"/a
       <main className="flex-1 bg-brand-soft py-12 sm:py-16">
         <div className="container-page grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14">
           <div className="mx-auto w-full max-w-2xl">
-            <AanmeldWizard startDienst={eerste(params.dienst)} />
+            <AanmeldWizard startDienst={eerste(params.dienst)} kvkOpzoeken={Boolean(process.env.KVK_API_KEY)} />
             <p className="mt-5 text-center text-klein text-ink-soft">
               Al een account?{" "}
               <Link href="/inloggen" className="font-semibold text-brand-deep underline underline-offset-4">

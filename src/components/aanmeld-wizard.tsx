@@ -84,7 +84,7 @@ function Veld({
   );
 }
 
-export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
+export function AanmeldWizard({ startDienst = "", kvkOpzoeken = false }: { startDienst?: string; kvkOpzoeken?: boolean }) {
   const [stap, setStap] = useState(0);
   const [w, setW] = useState<Formulier>({ ...leeg, diensten: getDienst(startDienst) ? [startDienst] : [] });
   const [lokaleFout, setLokaleFout] = useState("");
@@ -127,7 +127,7 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
    */
   async function zoekKvk(nummer: string) {
     const schoon = nummer.replace(/\s/g, "");
-    if (!/^\d{8}$/.test(schoon) || kvkBezig) return;
+    if (!kvkOpzoeken || !/^\d{8}$/.test(schoon) || kvkBezig) return;
 
     setKvkBezig(true);
     setKvkMelding("");
@@ -275,7 +275,10 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
                 ) : null}
               </div>
               <p className={`mt-1.5 text-klein ${kvkMelding.startsWith("Gevonden") ? "text-emerald-700" : kvkMelding ? "text-ink-soft" : "text-ink-soft"}`}>
-                {kvkMelding || "Vul je nummer in, dan halen we je bedrijfsnaam en plaats erbij."}
+                {kvkMelding ||
+                  (kvkOpzoeken
+                    ? "Vul je nummer in, dan halen we je bedrijfsnaam en plaats erbij."
+                    : "8 cijfers. We controleren je inschrijving voordat je profiel live gaat.")}
               </p>
             </div>
             <Veld id="website" label="Website" value={w.website} onChange={(v) => zet("website", v)} optioneel inputMode="url" placeholder="www.jouwbedrijf.nl" autoComplete="url" />

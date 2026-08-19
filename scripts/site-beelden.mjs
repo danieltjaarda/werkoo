@@ -35,7 +35,7 @@ async function leesEnvLocal(naam) {
 const stijlFoto = await sharp("assets-src/foto.png").resize({ width: 1024 }).jpeg({ quality: 90 }).toBuffer();
 
 const MAGENTA =
-  "The background must be a completely flat, uniform, bright magenta (#FF00FF): no gradient, no shadow on the background, no floor line, no horizon.";
+  "The background must be one single completely flat, uniform colour: pure bright magenta #FF00FF, exactly the same value in every corner. Absolutely no gradient, no vignette, no coloured light spill, no shadow on the background, no floor line, no horizon, no studio backdrop.";
 const MAGENTA_KORT =
   "a completely flat, uniform, bright magenta (#FF00FF) background: no gradient, no shadow on the background, no window, no room, no floor line.";
 const GEEN_TEKST =

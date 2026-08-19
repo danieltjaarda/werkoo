@@ -4,13 +4,19 @@
  * `npm run beelden:index` nadat je een bestand hebt toegevoegd.
  */
 const AANWEZIG = new Set([
+  "adres",
+  "bedrijf",
   "categorie-duurzaam",
   "categorie-evenementen",
   "categorie-huis-tuin",
   "categorie-persoonlijk",
   "categorie-verbouwen",
   "categorie-zakelijk",
+  "contact",
   "datum",
+  "email",
+  "geen-aanvragen",
+  "geen-werk",
   "klaar",
   "klant-1",
   "klant-2",
@@ -28,8 +34,11 @@ const AANWEZIG = new Set([
   "type",
   "vakman-aanmelden",
   "vakmensen",
+  "wachtwoord",
+  "welkom",
   "wensen",
   "werkgebied",
+  "wout",
 ]);
 
 /**

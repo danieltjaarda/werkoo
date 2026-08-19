@@ -4,17 +4,16 @@ import { NextResponse } from "next/server";
  * Zoekt een bedrijf op KvK-nummer bij het handelsregister, zodat de vakman zijn
  * bedrijfsnaam en plaats niet zelf hoeft over te typen.
  *
- * De sleutel staat in KVK_API_KEY. Zonder eigen sleutel praten we met de
- * testomgeving van de KVK: die heeft een openbare sleutel en een handvol
- * verzonnen bedrijven, genoeg om de flow te bouwen en te testen. In productie
- * hoort er een echte sleutel te staan, anders vindt hij echte nummers niet.
+ * Dit werkt alleen met een eigen sleutel in KVK_API_KEY: de aansluiting op de
+ * Zoeken API kost een paar euro per maand (de bevragingen zelf zijn gratis).
+ * Staat er geen sleutel, dan blijft deze route uit en toont de aanmelding een
+ * gewoon invoerveld — beter dan een zoekfunctie die alleen verzonnen bedrijven
+ * uit de testomgeving kent. Zet de sleutel en alles werkt vanzelf.
  */
 export const runtime = "nodejs";
 export const maxDuration = 15;
 
-const TEST_SLEUTEL = "l7xx1f2691f2520d487b902f4e0b57a0b197";
-const TEST_BASIS = "https://api.kvk.nl/test/api/v2/zoeken";
-const ECHT_BASIS = "https://api.kvk.nl/api/v2/zoeken";
+const BASIS = "https://api.kvk.nl/api/v2/zoeken";
 
 type Resultaat = {
   kvkNummer?: string;
@@ -29,12 +28,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ fout: "Een KvK-nummer bestaat uit 8 cijfers." }, { status: 400 });
   }
 
-  const eigen = process.env.KVK_API_KEY;
-  const sleutel = eigen ?? TEST_SLEUTEL;
-  const basis = eigen ? ECHT_BASIS : TEST_BASIS;
+  const sleutel = process.env.KVK_API_KEY;
+  if (!sleutel) {
+    return NextResponse.json({ fout: "Opzoeken bij de KvK staat uit." }, { status: 503 });
+  }
 
   try {
-    const antwoord = await fetch(`${basis}?kvkNummer=${nummer}`, {
+    const antwoord = await fetch(`${BASIS}?kvkNummer=${nummer}`, {
       headers: { apikey: sleutel },
       signal: AbortSignal.timeout(8000),
       // Een bedrijf verandert zelden; een dag cache scheelt bevragingen.
@@ -42,21 +42,7 @@ export async function GET(request: Request) {
     });
 
     if (antwoord.status === 404) {
-      /**
-       * Zonder eigen sleutel kennen we alleen de verzonnen bedrijven van de
-       * testomgeving. Dan is "niet gevonden" misleidend: het nummer klopt
-       * waarschijnlijk prima, wij kunnen het alleen niet opzoeken.
-       */
-      return NextResponse.json(
-        {
-          gevonden: false,
-          test: !eigen,
-          fout: eigen
-            ? "We vinden geen bedrijf met dit KvK-nummer."
-            : "Automatisch opzoeken werkt nog niet; vul je bedrijfsnaam zelf in.",
-        },
-        { status: 404 },
-      );
+      return NextResponse.json({ gevonden: false, fout: "We vinden geen bedrijf met dit KvK-nummer." }, { status: 404 });
     }
     if (!antwoord.ok) {
       console.error("KVK gaf", antwoord.status, (await antwoord.text().catch(() => "")).slice(0, 200));
@@ -87,8 +73,6 @@ export async function GET(request: Request) {
       plaats: adres?.plaats ?? "",
       postcode: adres?.postcode ?? "",
       straat: adres?.straatnaam ? `${adres.straatnaam}${adres.huisnummer ? ` ${adres.huisnummer}` : ""}` : "",
-      /** Zonder eigen sleutel komt dit uit de testomgeving met verzonnen bedrijven. */
-      test: !eigen,
     });
   } catch (fout) {
     console.error("KVK-bevraging mislukt:", fout);
