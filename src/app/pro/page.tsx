@@ -5,7 +5,8 @@ import { DashboardKop } from "@/components/dashboard-kop";
 import { ArrowRightIcon, CheckIcon, KeurmerkIcon } from "@/components/icons";
 import { AntwoordIcon, BekerIcon, GrafiekIcon, PostvakIcon, WaarschuwingIcon } from "@/components/icons-extra";
 import { Rating } from "@/components/rating";
-import { aanvragenVanBedrijf, cijfersVanBedrijf } from "@/lib/aanvragen";
+import { aanvragenVanBedrijf, cijfersVanBedrijf, opvolgingVanBedrijf } from "@/lib/aanvragen";
+import { Opvolging } from "@/components/opvolging";
 import { StatusLabel } from "@/components/status-label";
 import { vereisBedrijf } from "@/lib/auth";
 import { vraag } from "@/lib/db";
@@ -112,11 +113,12 @@ export default async function ProDashboard({ searchParams }: PageProps<"/pro">) 
   const { gebruiker, bedrijf } = await vereisBedrijf("/pro");
   const welkom = (await searchParams).welkom === "1";
 
-  const [cijfers, aanvragen, diensten, gebied] = await Promise.all([
+  const [cijfers, aanvragen, diensten, gebied, opvolging] = await Promise.all([
     cijfersVanBedrijf(bedrijf.id),
     aanvragenVanBedrijf(bedrijf.id),
     vraag<{ dienst: string }>("select dienst from bedrijf_diensten where bedrijf_id = $1", [bedrijf.id]),
     vraag<{ n: number }>("select count(*)::int as n from bedrijf_plaatsen where bedrijf_id = $1", [bedrijf.id]),
+    opvolgingVanBedrijf(bedrijf.id),
   ]);
   const werkgebied = gebied[0]?.n ?? 0;
 
@@ -157,7 +159,11 @@ export default async function ProDashboard({ searchParams }: PageProps<"/pro">) 
             <Cijfer getal={cijfers.gewonnen} label="Gewonnen" Icoon={BekerIcon} />
           </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1.6fr] lg:gap-8">
+          <div className="mt-6">
+            <Opvolging cijfers={opvolging} />
+          </div>
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.6fr] lg:gap-8">
             <section>
               <h2 className="font-display text-h4 text-ink">Jouw profiel</h2>
               <div className="kaart mt-4 p-5">

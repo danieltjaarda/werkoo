@@ -452,3 +452,75 @@ export async function actieveBedrijfSlugs(): Promise<string[]> {
     "de lijst met profielen",
   );
 }
+
+export type Opvolging = {
+  /** Aanvragen in de periode, en hoeveel daarvan een reactie kregen. */
+  totaal: number;
+  gereageerd: number;
+  /** Verdeling van de reactietijd; de laatste bak zijn aanvragen zonder reactie. */
+  binnen4: number;
+  binnen8: number;
+  binnen24: number;
+  na24: number;
+  geen: number;
+  /** Mediane reactietijd in uren, of null als er nog niets is beantwoord. */
+  medianeUren: number | null;
+};
+
+/**
+ * Hoe snel dit bedrijf reageert. We rekenen vanaf het moment dat de aanvraag
+ * binnenkwam tot de eerste reactie van dít bedrijf; aanvragen zonder reactie
+ * tellen als "niet gereageerd" en niet als oneindig lang, want dan zou één
+ * genegeerde aanvraag het hele beeld bepalen.
+ */
+export async function opvolgingVanBedrijf(bedrijfId: string, dagen = 30): Promise<Opvolging> {
+  return vraagZacht(
+    async () => {
+      const rij = await vraagEen<{
+        totaal: number;
+        gereageerd: number;
+        binnen4: number;
+        binnen8: number;
+        binnen24: number;
+        na24: number;
+        mediaan: string | null;
+      }>(
+        `with eerste as (
+           select ab.aanvraag_id,
+                  a.aangemaakt_op as binnen,
+                  (select min(r.aangemaakt_op) from reacties r
+                    where r.aanvraag_id = ab.aanvraag_id and r.bedrijf_id = ab.bedrijf_id) as gereageerd_op
+             from aanvraag_bedrijven ab
+             join aanvragen a on a.id = ab.aanvraag_id
+            where ab.bedrijf_id = $1
+              and a.aangemaakt_op > now() - ($2 || ' days')::interval
+         ), met_uren as (
+           select *, extract(epoch from (gereageerd_op - binnen)) / 3600 as uren from eerste
+         )
+         select count(*)::int as totaal,
+                count(gereageerd_op)::int as gereageerd,
+                count(*) filter (where uren <= 4)::int as binnen4,
+                count(*) filter (where uren > 4 and uren <= 8)::int as binnen8,
+                count(*) filter (where uren > 8 and uren <= 24)::int as binnen24,
+                count(*) filter (where uren > 24)::int as na24,
+                percentile_cont(0.5) within group (order by uren) filter (where uren is not null) as mediaan
+           from met_uren`,
+        [bedrijfId, dagen],
+      );
+
+      const t = rij ?? { totaal: 0, gereageerd: 0, binnen4: 0, binnen8: 0, binnen24: 0, na24: 0, mediaan: null };
+      return {
+        totaal: t.totaal,
+        gereageerd: t.gereageerd,
+        binnen4: t.binnen4,
+        binnen8: t.binnen8,
+        binnen24: t.binnen24,
+        na24: t.na24,
+        geen: t.totaal - t.gereageerd,
+        medianeUren: t.mediaan === null ? null : Number(t.mediaan),
+      };
+    },
+    { totaal: 0, gereageerd: 0, binnen4: 0, binnen8: 0, binnen24: 0, na24: 0, geen: 0, medianeUren: null },
+    "de opvolgingscijfers",
+  );
+}
