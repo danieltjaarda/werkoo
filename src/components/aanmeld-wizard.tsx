@@ -275,7 +275,7 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
                 ) : null}
               </div>
               <p className={`mt-1.5 text-klein ${kvkMelding.startsWith("Gevonden") ? "text-emerald-700" : kvkMelding ? "text-ink-soft" : "text-ink-soft"}`}>
-                {kvkMelding || "Vul je nummer in, dan halen we je bedrijfsnaam en plaats op bij de KvK."}
+                {kvkMelding || "Vul je nummer in, dan halen we je bedrijfsnaam en plaats erbij."}
               </p>
             </div>
             <Veld id="website" label="Website" value={w.website} onChange={(v) => zet("website", v)} optioneel inputMode="url" placeholder="www.jouwbedrijf.nl" autoComplete="url" />

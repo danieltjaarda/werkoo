@@ -42,7 +42,21 @@ export async function GET(request: Request) {
     });
 
     if (antwoord.status === 404) {
-      return NextResponse.json({ gevonden: false, fout: "We vinden geen bedrijf met dit KvK-nummer." }, { status: 404 });
+      /**
+       * Zonder eigen sleutel kennen we alleen de verzonnen bedrijven van de
+       * testomgeving. Dan is "niet gevonden" misleidend: het nummer klopt
+       * waarschijnlijk prima, wij kunnen het alleen niet opzoeken.
+       */
+      return NextResponse.json(
+        {
+          gevonden: false,
+          test: !eigen,
+          fout: eigen
+            ? "We vinden geen bedrijf met dit KvK-nummer."
+            : "Automatisch opzoeken werkt nog niet; vul je bedrijfsnaam zelf in.",
+        },
+        { status: 404 },
+      );
     }
     if (!antwoord.ok) {
       console.error("KVK gaf", antwoord.status, (await antwoord.text().catch(() => "")).slice(0, 200));
