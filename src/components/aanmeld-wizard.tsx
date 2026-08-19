@@ -50,6 +50,16 @@ const invoer =
 
 const MAX_DIENSTEN = 10;
 
+/** Draaiend rondje tijdens het opzoeken bij de KvK. */
+function Draaier({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden className={`animate-spin ${className}`}>
+      <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="2.5" className="opacity-25" />
+      <path d="M17.5 10A7.5 7.5 0 0 0 10 2.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /** Eén illustratie per stap, in dezelfde stijl als de aanvraagflow. */
 const STAP_BEELDEN = ["bedrijf", "werkgebied", "contact"];
 
@@ -78,6 +88,8 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
   const [stap, setStap] = useState(0);
   const [w, setW] = useState<Formulier>({ ...leeg, diensten: getDienst(startDienst) ? [startDienst] : [] });
   const [lokaleFout, setLokaleFout] = useState("");
+  const [kvkBezig, setKvkBezig] = useState(false);
+  const [kvkMelding, setKvkMelding] = useState("");
   const [zoek, setZoek] = useState("");
   const [staat, actie, bezig] = useActionState(bedrijfAanmelden, {} as Uitkomst);
   const kop = useRef<HTMLHeadingElement>(null);
@@ -105,6 +117,49 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
       if (w.postcode && !/^\d{4}\s?[A-Za-z]{2}$/.test(w.postcode.trim())) return "Vul een Nederlandse postcode in, bijvoorbeeld 1012 AB.";
     }
     return "";
+  }
+
+  /**
+   * Zoekt het bedrijf op zodra er acht cijfers staan. Lukt het niet, dan zeggen
+   * we dat rustig: de vakman kan altijd zelf verder typen. Het KvK-nummer is
+   * niet verplicht, dus een storing bij het handelsregister mag de aanmelding
+   * nooit blokkeren.
+   */
+  async function zoekKvk(nummer: string) {
+    const schoon = nummer.replace(/\s/g, "");
+    if (!/^\d{8}$/.test(schoon) || kvkBezig) return;
+
+    setKvkBezig(true);
+    setKvkMelding("");
+    try {
+      const antwoord = await fetch(`/api/kvk?nummer=${schoon}`);
+      const data = (await antwoord.json()) as {
+        gevonden?: boolean;
+        naam?: string;
+        plaats?: string;
+        postcode?: string;
+        test?: boolean;
+        fout?: string;
+      };
+
+      if (!antwoord.ok || !data.gevonden) {
+        setKvkMelding(data.fout ?? "We vinden geen bedrijf met dit nummer.");
+        return;
+      }
+
+      setW((huidig) => ({
+        ...huidig,
+        // Wat de vakman zelf al invulde laten we staan.
+        bedrijfsnaam: huidig.bedrijfsnaam.trim() || data.naam || "",
+        plaats: huidig.plaats.trim() || data.plaats || "",
+        postcode: huidig.postcode.trim() || data.postcode || "",
+      }));
+      setKvkMelding(`Gevonden: ${data.naam}${data.plaats ? ` uit ${data.plaats}` : ""}.`);
+    } catch {
+      setKvkMelding("Het handelsregister reageert nu niet. Vul je gegevens zelf in.");
+    } finally {
+      setKvkBezig(false);
+    }
   }
 
   function verder() {
@@ -190,7 +245,39 @@ export function AanmeldWizard({ startDienst = "" }: { startDienst?: string }) {
         {stap === 0 ? (
           <>
             <Veld id="bedrijfsnaam" label="Bedrijfsnaam" value={w.bedrijfsnaam} onChange={(v) => zet("bedrijfsnaam", v)} autoComplete="organization" placeholder="Zoals hij bij de KvK staat" />
-            <Veld id="kvk" label="KvK-nummer" value={w.kvk} onChange={(v) => zet("kvk", v)} optioneel inputMode="numeric" placeholder="12345678" hint="8 cijfers. We controleren je inschrijving voordat je profiel live gaat." />
+            <div>
+              <label htmlFor="kvk" className="block text-basis font-semibold text-ink">
+                KvK-nummer
+                <span className="ml-1.5 font-normal text-ink-soft">(optioneel)</span>
+              </label>
+              <div className="relative">
+                <input
+                  id="kvk"
+                  name="weergave-kvk"
+                  type="text"
+                  inputMode="numeric"
+                  value={w.kvk}
+                  onChange={(e) => {
+                    const nieuw = e.target.value;
+                    zet("kvk", nieuw);
+                    setKvkMelding("");
+                    // Acht cijfers is een compleet nummer; dan zoeken we meteen.
+                    if (/^\d{8}$/.test(nieuw.replace(/\s/g, ""))) void zoekKvk(nieuw);
+                  }}
+                  onBlur={(e) => void zoekKvk(e.target.value)}
+                  placeholder="12345678"
+                  className={invoer}
+                />
+                {kvkBezig ? (
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <Draaier className="h-5 w-5 text-brand-deep" />
+                  </span>
+                ) : null}
+              </div>
+              <p className={`mt-1.5 text-klein ${kvkMelding.startsWith("Gevonden") ? "text-emerald-700" : kvkMelding ? "text-ink-soft" : "text-ink-soft"}`}>
+                {kvkMelding || "Vul je nummer in, dan halen we je bedrijfsnaam en plaats op bij de KvK."}
+              </p>
+            </div>
             <Veld id="website" label="Website" value={w.website} onChange={(v) => zet("website", v)} optioneel inputMode="url" placeholder="www.jouwbedrijf.nl" autoComplete="url" />
           </>
         ) : null}
